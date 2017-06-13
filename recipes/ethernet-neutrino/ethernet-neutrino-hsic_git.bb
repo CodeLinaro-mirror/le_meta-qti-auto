@@ -1,4 +1,4 @@
-inherit module autotools-brokensep
+inherit module autotools-brokensep qperf
 
 DESCRIPTION = "Neutrino HSIC driver"
 LICENSE = "MIT-style"
