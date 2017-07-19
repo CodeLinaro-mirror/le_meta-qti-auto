@@ -3,7 +3,7 @@ inherit module autotools-brokensep qperf
 DESCRIPTION = "Neutrino HSIC driver"
 LICENSE = "MIT-style"
 LIC_FILES_CHKSUM = "file://DWC_ETH_QOS_yapphdr.h;\
-md5=7d6d7ccebaf346e526c0b0aa619b9769"
+startline=1;endline=70;md5=ed991597877111486701bb66868b0676"
 
 FILES_${PN}     += "${base_libdir}/modules/${KERNEL_VERSION}/"
 FILES_${PN}     += "${sysconfdir}/init.d/neutrino_hsic_start_stop_le"
@@ -12,6 +12,9 @@ RPROVIDES_${PN} += "kernel-module-ntn-hsic"
 
 do_unpack[deptask] = "do_populate_sysroot"
 PR = "r0-${KERNEL_VERSION}"
+
+# This DEPENDS is to serialize kernel module builds
+DEPENDS = "rtsp-alg"
 
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://qcom-opensource/ethernet/neutrino-hsic/driver/"
@@ -40,3 +43,16 @@ pkg_postinst_${PN} () {
     update-rc.d $OPT -f setup_avtp_routing_le remove
     update-rc.d $OPT setup_avtp_routing_le start 91 5 . stop 9 0 1 6 .
 }
+
+do_module_signing() {
+    if [ -f ${STAGING_KERNEL_BUILDDIR}/signing_key.priv ]; then
+        bbnote "Signing ${PN} module"
+        ${STAGING_KERNEL_DIR}/scripts/sign-file sha512 ${STAGING_KERNEL_BUILDDIR}/signing_key.priv \
+		${STAGING_KERNEL_BUILDDIR}/signing_key.x509 \
+		${PKGDEST}/${PROVIDES_NAME}/lib/modules/$${KERNEL_VERSION}/extra/NTN_HSIC.ko
+    else
+        bbnote "${PN} module is not being signed"
+    fi
+}
+
+addtask module_signing after do_package before do_package_write_ipk
