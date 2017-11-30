@@ -12,3 +12,4 @@ SRC_URI = "file://telux/include/"
 SRCREV = "${AUTOREV}"
 S      = "${WORKDIR}/telux/include"
 
+ALLOW_EMPTY_${PN} = "1"
