@@ -2,3 +2,4 @@
 IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "libsensors"
 IMAGE_INSTALL += "start-scripts-init-can"
+IMAGE_INSTALL += "cannelloni"
