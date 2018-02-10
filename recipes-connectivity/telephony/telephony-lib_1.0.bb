@@ -11,6 +11,7 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI += "file://telux/bin/libtelux_tel.sym"
 SRC_URI += "file://telux/bin/stubs.c"
 SRC_URI += "file://telux/bin/libtelux_common.sym"
+SRC_URI += "file://telux/bin/libtelux_loc.sym"
 
 S        = "${WORKDIR}/telux/bin/"
 
@@ -20,10 +21,14 @@ do_compile() {
 
     ${CXX} -march=armv7-a -mfloat-abi=hard -mfpu=neon -mtune=cortex-a8 -shared -Wall -fPIC \
            -DFNAME=so_stub_for_libtelux_common stubs.c \@libtelux_common.sym -o libtelux_common.so
+
+    ${CXX} -march=armv7-a -mfloat-abi=hard -mfpu=neon -mtune=cortex-a8 -shared -Wall -fPIC \
+           -DFNAME=so_stub_for_libtelux_loc stubs.c \@libtelux_loc.sym -o libtelux_loc.so
 }
 
 do_install_append() {
     install -d ${D}/usr/lib
     install -m 0755 libtelux_tel.so ${D}${libdir}/libtelux_tel.so
     install -m 0755 libtelux_common.so ${D}${libdir}/libtelux_common.so
+    install -m 0755 libtelux_loc.so ${D}${libdir}/libtelux_loc.so
 }
