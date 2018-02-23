@@ -1,0 +1,187 @@
+diff --git a/cannelloni.cpp b/cannelloni.cpp
+index 7e2dbe7..a2700f1 100644
+--- a/cannelloni.cpp
++++ b/cannelloni.cpp
+@@ -45,6 +45,7 @@
+ #include "csvmapparser.h"
+ #include "make_unique.h"
+ #include <memory>
++#include <vector>
+ 
+ #define CANNELLONI_VERSION 20160414
+ 
+@@ -65,6 +66,7 @@ void printUsage() {
+   std::cout << "\t -I INTERFACE \t\t can interface, default: vcan0" << std::endl;
+   std::cout << "\t -t timeout \t\t buffer timeout for can messages (us), default: 100000" << std::endl;
+   std::cout << "\t -T table.csv \t\t path to csv with individual timeouts" << std::endl;
++  std::cout << "\t -f filters.csv \t path to csv with filters" << std::endl;
+   std::cout << "\t -s           \t\t enable frame sorting" << std::endl;
+   std::cout << "\t -d [cubt]\t\t enable debug, can be any of these: " << std::endl;
+   std::cout << "\t\t\t c : enable debugging of can frames" << std::endl;
+@@ -94,16 +96,18 @@ int main(int argc, char** argv) {
+   uint16_t localPort = 20000;
+   std::string canInterface = "vcan0";
+   uint32_t bufferTimeout = 100000;
++  std::string filtersListFile;
+   std::string timeoutTableFile;
+   /* Key is CAN ID, Value is timeout in us */
+   std::map<uint32_t, uint32_t> timeoutTable;
++  std::vector<std::pair<uint32_t, uint32_t>> filtersList;
+ 
+   struct debugOptions_t debugOptions = { /* can */ 0, /* udp */ 0, /* buffer */ 0, /* timer */ 0 };
+ 
+ #ifdef SCTP_SUPPORT
+-  const std::string argument_options = "S:l:L:r:R:I:t:T:d:hs";
++  const std::string argument_options = "S:l:L:r:R:I:t:T:d:hsf:";
+ #else
+-  const std::string argument_options = "Sl:L:r:R:I:t:T:d:hs";
++  const std::string argument_options = "Sl:L:r:R:I:t:T:d:hsf:";
+ #endif
+ 
+   while ((opt = getopt(argc, argv, argument_options.c_str())) != -1) {
+@@ -174,6 +178,9 @@ int main(int argc, char** argv) {
+       case 's':
+         sortUDP = true;
+         break;
++      case 'f':
++        filtersListFile = std::string(optarg);
++        break;
+       default:
+         printUsage();
+         return -1;
+@@ -222,6 +229,29 @@ int main(int argc, char** argv) {
+     timeoutTable = mapParser.read();
+   }
+ 
++  if (!filtersListFile.empty()) {
++    CSVMapParser<std::string, std::string> mapParser;
++    if(!mapParser.open(filtersListFile)) {
++      lerror << "Unable to open " << filtersListFile << "." << std::endl;
++    }
++    if(!mapParser.parse()) {
++      lerror << "Error while parsing " << filtersListFile << "." << std::endl;
++    }
++    if(!mapParser.close()) {
++      lerror << "Error while closing" << filtersListFile << "." << std::endl;
++    }
++    std::map<std::string, std::string> tmpTable = mapParser.read();
++    for (std::map<std::string, std::string>::iterator iter = tmpTable.begin(); iter != tmpTable.end(); ++iter) {
++        // Convert hex table to uint32 and insert into filtersList
++        std::stringstream ss;
++        ss << std::hex << iter->first << " " << iter->second;
++        std::pair<uint32_t, uint32_t> p;
++        ss >> p.first;
++        ss >> p.second;
++        filtersList.push_back(p);
++    }
++  }
++
+   if (debugOptions.timer) {
+     if (timeoutTable.empty()) {
+       linfo << "No custom timeout table specified, using "
+@@ -238,6 +268,20 @@ int main(int argc, char** argv) {
+     }
+   }
+ 
++  if (debugOptions.can) {
++    if (filtersList.empty()) {
++      linfo << "No custom filters table specified" << std::endl;
++    } else {
++      linfo << "Custom filters table loaded: " << std::endl;
++      linfo << "*------------------------*" << std::endl;
++      linfo << "|   ID   |  Mask  |" << std::endl;
++      std::vector<std::pair<uint32_t, uint32_t>>::iterator it;
++      for (it=filtersList.begin(); it!=filtersList.end(); ++it)
++        linfo << "|" << std::setw(8) << "0x" << std::hex << it->first << "|" << std::setw(6) << "0x" << std::hex << it->second << "| " << std::endl;
++      linfo << "*------------------------*" << std::endl;
++    }
++  }
++
+   struct sockaddr_in remoteAddr;
+   struct sockaddr_in localAddr;
+   /* We use the signalfd() system call to create a
+@@ -289,6 +333,7 @@ int main(int argc, char** argv) {
+   netThread->setTimeoutTable(timeoutTable);
+   canThread->setPeerThread(netThread.get());
+   canThread->setFrameBuffer(canFrameBuffer.get());
++  canThread->setFiltersList(filtersList);
+   netThread->setTimeout(bufferTimeout);
+   netThread->start();
+   canThread->start();
+diff --git a/canthread.cpp b/canthread.cpp
+index 78f54a3..50206cd 100644
+--- a/canthread.cpp
++++ b/canthread.cpp
+@@ -32,6 +32,8 @@
+ #include <net/if.h>
+ #include <sys/ioctl.h>
+ 
++#include <vector>
++
+ #include "canthread.h"
+ #include "cannelloni.h"
+ #include "logging.h"
+@@ -89,6 +91,26 @@ int CANThread::start() {
+     lerror << "CAN_FD is not supported on >" << m_canInterfaceName << "<" << std::endl;
+   }
+ 
++  if (!m_filtersList.empty()) {
++      struct can_filter * filters = new struct can_filter[m_filtersList.size()];
++      if (filters) {
++          struct can_filter * f = filters;
++          for (std::vector<std::pair<uint32_t, uint32_t>>::iterator iter = m_filtersList.begin(); iter != m_filtersList.end(); ++iter) {
++              f->can_id = iter->first;
++              f->can_mask = iter->second;
++              ++f;
++          }
++
++          if (setsockopt(m_canSocket, SOL_CAN_RAW, CAN_RAW_FILTER, filters, m_filtersList.size()*sizeof(struct can_filter))) {
++              lerror << "Could not set filters." << std::endl;
++          }
++          else {
++              linfo << "Set filters." << std::endl;
++          }
++          delete filters;
++      }
++  }
++
+   if (bind(m_canSocket, (struct sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
+     lerror << "Could not bind to interface" << std::endl;
+     return -1;
+@@ -228,3 +250,7 @@ void CANThread::fireTimer() {
+   /* Instant expiry (so 1us) */
+   m_timer.adjust(CAN_TIMEOUT, 1);
+ }
++
++void CANThread::setFiltersList(std::vector<std::pair<uint32_t, uint32_t>> &filtersList) {
++  m_filtersList = filtersList;
++}
+diff --git a/canthread.h b/canthread.h
+index 6c2e4bc..0adada3 100644
+--- a/canthread.h
++++ b/canthread.h
+@@ -22,6 +22,7 @@
+ 
+ #include <string>
+ #include <stdint.h>
++#include <vector>
+ 
+ #include "connection.h"
+ #include "timer.h"
+@@ -40,6 +41,7 @@ class CANThread : public ConnectionThread {
+     virtual void run();
+ 
+     virtual void transmitFrame(canfd_frame *frame);
++    void setFiltersList(std::vector<std::pair<uint32_t, uint32_t>> &filtersList);
+ 
+   private:
+     void transmitBuffer();
+@@ -56,6 +58,8 @@ class CANThread : public ConnectionThread {
+     /* Performance Counters */
+     uint64_t m_rxCount;
+     uint64_t m_txCount;
++
++    std::vector<std::pair<uint32_t, uint32_t>> m_filtersList;
+ };
+ 
+ }

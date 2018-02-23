@@ -10,7 +10,8 @@ SRC_URI = "git://codeaurora.org/le/platform/external/cannelloni;protocol=git;bra
 
 S = "${WORKDIR}/git"
 
-SRC_URI += "file://Fix-cmake-for-64bit.patch"
+SRC_URI += "file://Fix-cmake-for-64bit.patch \
+            file://Add-socket-filters.patch"
 
 INSANE_SKIP_${PN} = "dev-deps"
 INSANE_SKIP_${PN}-dev = "dev-elf"
