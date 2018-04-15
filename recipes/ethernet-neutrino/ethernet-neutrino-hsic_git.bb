@@ -1,4 +1,4 @@
-inherit module autotools-brokensep qperf
+inherit module qperf
 
 DESCRIPTION = "Neutrino HSIC driver"
 LICENSE = "MIT-style"
@@ -8,7 +8,7 @@ startline=1;endline=70;md5=ed991597877111486701bb66868b0676"
 FILES_${PN}     += "${base_libdir}/modules/${KERNEL_VERSION}/"
 FILES_${PN}     += "${sysconfdir}/init.d/neutrino_hsic_start_stop_le"
 FILES_${PN}     += "${sysconfdir}/init.d/setup_avtp_routing_le"
-RPROVIDES_${PN} += "kernel-module-ntn-hsic"
+RPROVIDES_${PN} += "kernel-module-ntn-hsic-${KERNEL_VERSION}"
 
 do_unpack[deptask] = "do_populate_sysroot"
 PR = "r0-${KERNEL_VERSION}"
