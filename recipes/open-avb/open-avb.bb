@@ -10,7 +10,8 @@ PR = "r1"
 DEPENDS += "alsa-lib alsa-intf libpcap pciutils cmake-native glib-2.0"
 
 FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://external/open-avb/"
+SRC_URI = "file://external/open-avb/ \
+           file://avb.patch"
 
 S = "${WORKDIR}/external/open-avb/"
 
@@ -36,6 +37,7 @@ do_install() {
     install -m 0644 ${S}/lib/avtp_pipeline/build/bin/*.ini ${D}${userfsdatadir}/avb
 }
 
+do_package_qa[noexec] = "1"
 FILES_${PN} += "${bindir}/*"
 FILES_${PN} += "${libdir}/*"
 INSANE_SKIP_${PN} += "dev-deps"
