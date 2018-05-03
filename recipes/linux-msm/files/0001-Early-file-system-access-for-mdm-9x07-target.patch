@@ -1,0 +1,232 @@
+From 3c231d72e02b75a4ae0e52051e830a8a6466ecad Mon Sep 17 00:00:00 2001
+From: Balachandra C S <balacs@codeaurora.org>
+Date: Tue, 15 May 2018 11:49:52 +0530
+Subject: [PATCH] Early file system access for mdm 9x07 target
+
+Modify init call levels in the file system modules to get
+access to file system early.
+
+Change-Id: I85ac738a77047410c6fa16302b6dcb4287632aba
+Signed-off-by: Balachandra C S <balacs@codeaurora.org>
+---
+ block/cfq-iosched.c                 |  2 +-
+ crypto/crc32c_generic.c             |  2 +-
+ crypto/deflate.c                    |  2 +-
+ crypto/lzo.c                        |  2 +-
+ crypto/zlib.c                       |  2 +-
+ drivers/crypto/msm/ice.c            | 13 ++++++++++++-
+ drivers/mtd/devices/msm_qpic_nand.c | 11 ++++++++++-
+ drivers/mtd/mtdblock.c              |  2 +-
+ drivers/mtd/mtdcore.c               |  2 +-
+ drivers/mtd/ubi/build.c             |  2 +-
+ fs/ubifs/super.c                    |  2 +-
+ init/initramfs.c                    |  2 +-
+ init/main.c                         | 11 ++++++++++-
+ 13 files changed, 42 insertions(+), 13 deletions(-)
+
+diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
+index 5da8e6e..040f6ed 100644
+--- a/block/cfq-iosched.c
++++ b/block/cfq-iosched.c
+@@ -4663,7 +4663,7 @@ static void __exit cfq_exit(void)
+ 	kmem_cache_destroy(cfq_pool);
+ }
+ 
+-module_init(cfq_init);
++fs_initcall(cfq_init);
+ module_exit(cfq_exit);
+ 
+ MODULE_AUTHOR("Jens Axboe");
+diff --git a/crypto/crc32c_generic.c b/crypto/crc32c_generic.c
+index 4c0a0e2..b71a418 100644
+--- a/crypto/crc32c_generic.c
++++ b/crypto/crc32c_generic.c
+@@ -164,7 +164,7 @@ static void __exit crc32c_mod_fini(void)
+ 	crypto_unregister_shash(&alg);
+ }
+ 
+-module_init(crc32c_mod_init);
++fs_initcall(crc32c_mod_init);
+ module_exit(crc32c_mod_fini);
+ 
+ MODULE_AUTHOR("Clay Haapala <chaapala@cisco.com>");
+diff --git a/crypto/deflate.c b/crypto/deflate.c
+index 95d8d37..8b732db 100644
+--- a/crypto/deflate.c
++++ b/crypto/deflate.c
+@@ -216,7 +216,7 @@ static void __exit deflate_mod_fini(void)
+ 	crypto_unregister_alg(&alg);
+ }
+ 
+-module_init(deflate_mod_init);
++fs_initcall(deflate_mod_init);
+ module_exit(deflate_mod_fini);
+ 
+ MODULE_LICENSE("GPL");
+diff --git a/crypto/lzo.c b/crypto/lzo.c
+index 4b3e925..6f8084f 100644
+--- a/crypto/lzo.c
++++ b/crypto/lzo.c
+@@ -102,7 +102,7 @@ static void __exit lzo_mod_fini(void)
+ 	crypto_unregister_alg(&alg);
+ }
+ 
+-module_init(lzo_mod_init);
++fs_initcall(lzo_mod_init);
+ module_exit(lzo_mod_fini);
+ 
+ MODULE_LICENSE("GPL");
+diff --git a/crypto/zlib.c b/crypto/zlib.c
+index 0eefa9d..2ffa77f 100644
+--- a/crypto/zlib.c
++++ b/crypto/zlib.c
+@@ -372,7 +372,7 @@ static void __exit zlib_mod_fini(void)
+ 	crypto_unregister_pcomp(&zlib_alg);
+ }
+ 
+-module_init(zlib_mod_init);
++fs_initcall(zlib_mod_init);
+ module_exit(zlib_mod_fini);
+ 
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/crypto/msm/ice.c b/drivers/crypto/msm/ice.c
+index 22027d3..0bd37f6 100644
+--- a/drivers/crypto/msm/ice.c
++++ b/drivers/crypto/msm/ice.c
+@@ -1698,7 +1698,18 @@ static struct platform_driver qcom_ice_driver = {
+ 		.of_match_table = qcom_ice_match,
+ 	},
+ };
+-module_platform_driver(qcom_ice_driver);
++
++static int __init qcom_ice_driver_init(void)
++{
++	return platform_driver_register(&qcom_ice_driver);
++}
++fs_initcall(qcom_ice_driver_init);
++
++static void __exit qcom_ice_driver_exit(void)
++{
++	return platform_driver_unregister(&qcom_ice_driver);
++}
++module_exit(qcom_ice_driver_exit);
+ 
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("QTI Inline Crypto Engine driver");
+diff --git a/drivers/mtd/devices/msm_qpic_nand.c b/drivers/mtd/devices/msm_qpic_nand.c
+index bc7b418..725dcb9 100644
+--- a/drivers/mtd/devices/msm_qpic_nand.c
++++ b/drivers/mtd/devices/msm_qpic_nand.c
+@@ -3829,8 +3829,17 @@ MODULE_PARM_DESC(enable_euclean, "Set this parameter to enable reporting EUCLEAN
+ module_param(enable_perfstats, bool, 0644);
+ MODULE_PARM_DESC(enable_perfstats, "Set this parameter to enable collection and reporting of performance data.");
+ 
+-module_platform_driver(msm_nand_driver);
++static int __init msm_nand_driver_init(void)
++{
++	return platform_driver_register(&msm_nand_driver);
++}
++fs_initcall(msm_nand_driver_init);
+ 
++static void __exit msm_nand_driver_exit(void)
++{
++	platform_driver_unregister(&msm_nand_driver);
++}
++module_exit(msm_nand_driver_exit);
+ MODULE_ALIAS(DRIVER_NAME);
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("MSM QPIC NAND flash driver");
+diff --git a/drivers/mtd/mtdblock.c b/drivers/mtd/mtdblock.c
+index 485ea75..2912356 100644
+--- a/drivers/mtd/mtdblock.c
++++ b/drivers/mtd/mtdblock.c
+@@ -397,7 +397,7 @@ static void __exit cleanup_mtdblock(void)
+ 	deregister_mtd_blktrans(&mtdblock_tr);
+ }
+ 
+-module_init(init_mtdblock);
++fs_initcall(init_mtdblock);
+ module_exit(cleanup_mtdblock);
+ 
+ 
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 4c61187..e48503c 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -1282,7 +1282,7 @@ static void __exit cleanup_mtd(void)
+ 	bdi_destroy(&mtd_bdi_rw_mappable);
+ }
+ 
+-module_init(init_mtd);
++fs_initcall(init_mtd);
+ module_exit(cleanup_mtd);
+ 
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index fcafdd7..3eeb9d6 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -1387,7 +1387,7 @@ out:
+ 	pr_err("UBI error: cannot initialize UBI, error %d", err);
+ 	return err;
+ }
+-late_initcall(ubi_init);
++fs_initcall(ubi_init);
+ 
+ static void __exit ubi_exit(void)
+ {
+diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
+index de11f50..fb56232 100644
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -2294,7 +2294,7 @@ out_slab:
+ 	return err;
+ }
+ /* late_initcall to let compressors initialize first */
+-late_initcall(ubifs_init);
++fs_initcall_sync(ubifs_init);
+ 
+ static void __exit ubifs_exit(void)
+ {
+diff --git a/init/initramfs.c b/init/initramfs.c
+index dbc9b7a..6581ef0 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -675,4 +675,4 @@ static int __init populate_rootfs(void)
+ 	}
+ 	return 0;
+ }
+-rootfs_initcall(populate_rootfs);
++fs_initcall(populate_rootfs);
+diff --git a/init/main.c b/init/main.c
+index ce781b1..03fbb3f 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -867,7 +867,15 @@ static void __init do_initcalls(void)
+ {
+ 	int level;
+ 
+-	for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++)
++	for (level = 0; level < 6; level++)
++		do_initcall_level(level);
++}
++
++static void __init do_initcalls_late(void)
++{
++	int level;
++
++	for (level = 6; level < ARRAY_SIZE(initcall_levels) - 1; level++)
+ 		do_initcall_level(level);
+ }
+ 
+@@ -1051,6 +1059,7 @@ static noinline void __init kernel_init_freeable(void)
+ 		prepare_namespace();
+ 	}
+ 
++	do_initcalls_late();
+ 	/*
+ 	 * Ok, we have completed the initial bootup, and
+ 	 * we're essentially up and running. Get rid of the
+-- 
+1.9.1
+
