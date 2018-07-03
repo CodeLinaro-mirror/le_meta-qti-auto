@@ -1,0 +1,27 @@
+From dc1acf87fdb0585e79054ac62b876e6719b4aeef Mon Sep 17 00:00:00 2001
+From: Lei wang <leiwan@codeaurora.org>
+Date: Mon, 25 Jun 2018 18:52:44 +0800
+Subject: [PATCH] dtc: fix Android dtc compile issue
+
+Change-Id: Id5bdd9a1439391d75bdd5d9d21fe649f2c7d7371
+Signed-off-by: Lei wang <leiwan@codeaurora.org>
+---
+ dtc-lexer.l | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dtc-lexer.l b/dtc-lexer.l
+index 13f4b06..fd825eb 100644
+--- a/dtc-lexer.l
++++ b/dtc-lexer.l
+@@ -36,7 +36,7 @@ LINECOMMENT	"//".*\n
+ %{
+ #include "dtc.h"
+ #include "srcpos.h"
+-#include "dtc-parser.h"
++#include "dtc-parser.tab.h"
+ 
+ YYLTYPE yylloc;
+ extern bool treesource_error;
+-- 
+1.9.1
+

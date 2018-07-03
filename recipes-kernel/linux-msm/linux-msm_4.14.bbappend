@@ -1,16 +1,17 @@
 
 DEPENDS += "llvm-arm-toolchain-native"
+DEPENDS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'mkdtimg-native', '', d)}"
 
 COMPATIBLE_MACHINE = "(8155auto)"
 KBUILD_DEFCONFIG ="sm8150-auto_defconfig"
 
 CROSS_COMPILE = "aarch64-oe-linux-"
 
+KERNEL_EXTRA_ARGS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'DTC_EXT=${STAGING_BINDIR_NATIVE}/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y', '', d)}"
+
 do_compile() {
     qoe_runmake ${PARALLEL_MAKE} CROSS_COMPILE=${CROSS_COMPILE} ${KERNEL_EXTRA_ARGS} $use_alternate_initrd 
 }
-
-
 
 do_compile_kernelmodules() {
 	unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS MACHINE
@@ -37,6 +38,7 @@ do_compile_kernelmodules() {
 
 qoe_runmake() {
 	qoe_runmake_call "$@" || die "oe_runmake failed"
+
 }
 
 qoe_runmake_call() {
@@ -44,3 +46,8 @@ qoe_runmake_call() {
 	make ARCH=arm64  REAL_CC=${STAGING_BINDIR_NATIVE}/llvm-arm-toolchain/bin/clang $@
 }
 
+do_deploy_append() {
+    if ${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'true', 'false', d)}; then
+        ${STAGING_BINDIR_NATIVE}/mkdtimg create ${DEPLOY_DIR_IMAGE}/dtbo.img ${B}/arch/${ARCH}/boot/dts/qcom/*.dtbo
+    fi
+}
