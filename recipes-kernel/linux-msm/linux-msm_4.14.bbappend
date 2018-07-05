@@ -3,7 +3,6 @@ DEPENDS += "llvm-arm-toolchain-native"
 DEPENDS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'mkdtimg-native', '', d)}"
 
 COMPATIBLE_MACHINE = "(8155auto)"
-KBUILD_DEFCONFIG ="sm8150-auto_defconfig"
 
 CROSS_COMPILE = "aarch64-oe-linux-"
 
