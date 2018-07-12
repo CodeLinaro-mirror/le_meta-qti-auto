@@ -1,3 +1,7 @@
+# Auto open source packages
+IMAGE_INSTALL += "chrony"
+IMAGE_INSTALL += "chronyc"
+
 # Exclude from the mdm9150-cv2x image
 IMAGE_INSTALL_remove = "alx"
 IMAGE_INSTALL_remove = "avahi-autoipd"
