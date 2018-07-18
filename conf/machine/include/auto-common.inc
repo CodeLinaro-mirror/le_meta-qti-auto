@@ -1,7 +1,7 @@
 
 include conf/machine/include/basemachine.inc
 
-SOC_FAMILY ?= "8155auto"
+SOC_FAMILY ?= "sa8155"
 include conf/machine/include/soc-family.inc
 
 # Pull in security flags
