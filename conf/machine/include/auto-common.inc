@@ -13,6 +13,12 @@ include conf/machine/include/arm/arch-armv8.inc
 PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_VERSION_linux-msm = "4.14"
 
+# Wayland/Weston
+PREFERRED_VERSION_weston = "1.9.0"
+PREFERRED_VERSION_wayland = "1.9.0"
+PREFERRED_VERSION_wayland-native = "1.9.0"
+PREFERRED_VERSION_wayland-ivi-extension = "1.9.1"
+
 MACHINE_DISPLAY_WIDTH_PIXELS ?= "480"
 MACHINE_DISPLAY_HEIGHT_PIXELS ?= "640"
 
