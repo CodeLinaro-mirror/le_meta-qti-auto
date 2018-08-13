@@ -15,3 +15,10 @@ def get_img_inc_file(d):
     return img_inc_file
 
 require ${BASEMACHINE}/${@get_img_inc_file(d)}
+
+# Below is to generate sparse ext4 system image (OE by default supports raw ext4 images)
+
+do_makesystem() {
+    echo "TODO: do makesystem"
+}
+
