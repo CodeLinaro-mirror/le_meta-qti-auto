@@ -8,4 +8,4 @@ IMAGE_ROOTFS_SIZE = "524288"
 IMAGE_INSTALL += "edk2"
 IMAGE_INSTALL += "system-core-adbd"
 IMAGE_INSTALL += "system-core-usb"
-
+IMAGE_INSTALL += "pciutils"
