@@ -11,7 +11,7 @@ FILES_${PN}     += "${sysconfdir}/init.d/setup_avtp_routing_le"
 RPROVIDES_${PN} += "kernel-module-ntn-hsic-${KERNEL_VERSION}"
 
 do_unpack[deptask] = "do_populate_sysroot"
-PR = "r0-${KERNEL_VERSION}"
+PR = "r1"
 
 # This DEPENDS is to serialize kernel module builds
 DEPENDS = "rtsp-alg"
