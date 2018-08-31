@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://examples/LICENSE;md5=81ccd62d4bc28bafc5e1a2576536b927
 
 PR = "r1"
 
-DEPENDS += "alsa-lib alsa-intf libpcap pciutils cmake-native glib-2.0"
+DEPENDS += "alsa-lib alsa-intf libpcap pciutils cmake-native"
 
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/"
@@ -36,7 +36,7 @@ do_install() {
     install -m 0644 ${S}/lib/avtp_pipeline/build/bin/*.ini ${D}${userfsdatadir}/avb
 }
 
+FILES_SOLIBSDEV = ""
 FILES_${PN} += "${bindir}/*"
 FILES_${PN} += "${libdir}/*"
-INSANE_SKIP_${PN} += "dev-deps"
 FILES_${PN} += "${userfsdatadir}/avb/*"
