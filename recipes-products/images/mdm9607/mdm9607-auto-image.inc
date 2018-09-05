@@ -6,3 +6,6 @@ IMAGE_INSTALL += "start-scripts-init-can"
 IMAGE_INSTALL += "${@base_contains('DISTRO_FEATURES', 'ntn-hsic-kern-mod', '', 'ethernet-neutrino-hsic', d)}"
 
 IMAGE_INSTALL += "iperf"
+IMAGE_INSTALL += "telux-samples"
+IMAGE_INSTALL += "telux-lib"
+IMAGE_INSTALL += "telux-services-ril"
