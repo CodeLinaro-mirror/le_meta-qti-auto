@@ -1,3 +1,3 @@
 
-dirs755_append_sa8155 +="/firmware /dsp "
+dirs755_append +="/firmware /dsp "
 

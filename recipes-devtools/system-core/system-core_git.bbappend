@@ -1,3 +1,3 @@
-EXTRA_OECONF_append_sa8155 = " --disable-libsync"
+EXTRA_OECONF_append = " --disable-libsync"
 
-COMPOSITION_sa8155 = "901D"
+COMPOSITION = "901D"
