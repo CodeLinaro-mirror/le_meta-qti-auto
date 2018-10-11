@@ -7,6 +7,6 @@ IMAGE_ROOTFS_SIZE = "524288"
 
 IMAGE_INSTALL += "edk2"
 IMAGE_INSTALL += "pciutils"
-
+IMAGE_INSTALL += "binder"
 IMAGE_INSTALL += "systemd-machine-units"
 IMAGE_INSTALL += "start-script-ab-slot-util"
