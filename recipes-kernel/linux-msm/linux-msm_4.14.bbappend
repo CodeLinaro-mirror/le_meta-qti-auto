@@ -6,6 +6,9 @@ COMPATIBLE_MACHINE = "(${BASEMACHINE})"
 
 CROSS_COMPILE = "aarch64-oe-linux-"
 
+FILESEXTRAPATHS_append := ":${THISDIR}/files"
+SRC_URI   +=  "${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'file://weston.cfg', '', d)}"
+
 KERNEL_EXTRA_ARGS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'DTC_EXT=${STAGING_BINDIR_NATIVE}/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y', '', d)}"
 
 do_compile() {
