@@ -10,3 +10,5 @@ SRC_DIR = "${WORKSPACE}/telux/public/include"
 S = "${WORKDIR}/telux/include"
 
 SRCREV = "${AUTOREV}"
+
+ALLOW_EMPTY_${PN} = "1"
