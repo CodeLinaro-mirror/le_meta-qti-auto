@@ -24,6 +24,9 @@ MACHINE_DISPLAY_HEIGHT_PIXELS ?= "640"
 
 SERIAL_CONSOLE ?= "${@['', '115200 ttyMSM0'][d.getVar('VARIANT', True) == ('' or 'debug')]}"
 
+LVMACHINE = "lvsa8155"
+OVERRIDES .= ":${LVMACHINE}"
+
 DISTRO ?= "automotive"
 
 # DISTRO_FEATURES_append = " ro-rootfs"
