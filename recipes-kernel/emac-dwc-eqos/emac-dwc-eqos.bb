@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/${LICENSE};md5
 
 DEPENDS = "virtual/kernel"
 
-FILESEXTRAPATHS_prepend := "${WORKSPACE}/vendor/qcom/opensource/drivers:"
+FILESEXTRAPATHS_prepend := "${WORKSPACE}/vendor/qcom/opensource/data-kernel/drivers:"
 SRC_URI = "file://emac-dwc-eqos"
 SRC_URI += "file://emac-dwc-eqos.service"
 
