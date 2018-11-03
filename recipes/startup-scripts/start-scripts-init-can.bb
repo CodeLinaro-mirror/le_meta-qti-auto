@@ -11,7 +11,7 @@ SRC_DIR = "${THISDIR}"
 PR = "r2"
 
 INITSCRIPT_NAME = "init-can.sh"
-INITSCRIPT_PARAMS = "start 45 5 . stop 3 0 1 6 ."
+INITSCRIPT_PARAMS = "start 20 S ."
 
 do_install() {
     install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME} -D ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
