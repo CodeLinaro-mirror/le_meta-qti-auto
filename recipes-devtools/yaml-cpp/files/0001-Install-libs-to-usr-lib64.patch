@@ -1,0 +1,32 @@
+From 9ab52490fb16db58d0d88213f51f826a69d7bf69 Mon Sep 17 00:00:00 2001
+From: Bharathraj Nagaraju <snbraj@codeaurora.org>
+Date: Tue, 27 Mar 2018 16:44:35 -0700
+Subject: [PATCH] Install libs to /usr/lib64/
+
+Signed-off-by: Bharathraj Nagaraju <snbraj@codeaurora.org>
+---
+ CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d4a8e29..2b8638a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -257,12 +257,12 @@ endif()
+ set(INCLUDE_INSTALL_ROOT_DIR include)
+ 
+ set(INCLUDE_INSTALL_DIR ${INCLUDE_INSTALL_ROOT_DIR}/yaml-cpp)
+-set(LIB_INSTALL_DIR "${_library_dir}${LIB_SUFFIX}")
++set(LIB_INSTALL_DIR "/usr/lib64")
+ 
+ set(_INSTALL_DESTINATIONS
+ 	RUNTIME DESTINATION bin
+ 	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+-	ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
++	ARCHIVE DESTINATION "lib64"
+ )
+ 
+ 
+-- 
+1.9.1
+
