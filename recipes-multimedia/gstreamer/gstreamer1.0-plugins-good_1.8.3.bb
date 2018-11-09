@@ -22,3 +22,5 @@ do_configure_prepend() {
 	./autogen.sh --noconfigure
 	cd ${B}
 }
+
+RPROVIDES_${PN}-souphttpsrc = "${PN}-soup"
