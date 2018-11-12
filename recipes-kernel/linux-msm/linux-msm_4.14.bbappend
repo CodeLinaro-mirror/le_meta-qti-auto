@@ -4,8 +4,6 @@ DEPENDS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'mkdtimg-nati
 
 COMPATIBLE_MACHINE = "(${BASEMACHINE})"
 
-CROSS_COMPILE = "aarch64-oe-linux-"
-
 FILESEXTRAPATHS_append := ":${THISDIR}/files"
 SRC_URI   +=  "${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'file://weston.cfg', '', d)}"
 
