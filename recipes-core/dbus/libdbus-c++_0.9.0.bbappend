@@ -1,0 +1,1 @@
+SRC_URI_append = "https://source.codeaurora.org/quic/le/AGL/meta-agl/plain/meta-agl-profile-core/recipes-core/dbus/libdbus-c++/dbus-c++-threading.patch?h=automotivelinux/flounder;downloadfilename=dbus-c++-threading.patch;md5sum=50306e77ff5b1f654d2ee67f12876e41;sha256sum=38730ee73fe4de320fceab6619579b55861b6b8e0f6d8069a9ddf3d1ad1266c0"
