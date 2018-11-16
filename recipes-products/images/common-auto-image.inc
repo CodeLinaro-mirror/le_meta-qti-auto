@@ -10,5 +10,8 @@ IMAGE_INSTALL += "system-core-adbd"
 IMAGE_INSTALL += "system-core-usb"
 IMAGE_INSTALL += "emac-dwc-eqos"
 
+IMAGE_INSTALL += "python"
+IMAGE_INSTALL += "strace"
+
 IMAGE_INSTALL_remove += "system-conf"
 IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant hostapd"
