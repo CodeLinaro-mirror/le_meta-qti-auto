@@ -5,6 +5,12 @@
 IMAGE_INSTALL += "iproute2"
 IMAGE_INSTALL += "iproute2-tc"
 IMAGE_INSTALL += "iproute2-ss"
+IMAGE_INSTALL += "iperf3"
+#IMAGE_INSTALL += "iperf"
+IMAGE_INSTALL += "ethtool"
+IMAGE_INSTALL += "tcpdump"
+IMAGE_INSTALL += "vlan"
+IMAGE_INSTALL += "bridge-utils"
 
 IMAGE_INSTALL += "system-core-adbd"
 IMAGE_INSTALL += "system-core-usb"

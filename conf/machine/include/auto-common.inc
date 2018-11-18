@@ -13,6 +13,9 @@ include conf/machine/include/arm/arch-armv8.inc
 PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_VERSION_linux-msm = "4.14"
 
+# Prefer tcpdump 4.9.x by default
+PREFERRED_VERSION_tcpdump              ?= "4.9.%"
+
 # Wayland/Weston
 PREFERRED_VERSION_weston = "1.9.0"
 PREFERRED_VERSION_wayland = "1.9.0"
