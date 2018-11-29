@@ -1,0 +1,12 @@
+diff -Naur qhull-2012.1_org/src/testqset/testqset.c qhull-2012.1/src/testqset/testqset.c
+--- qhull-2012.1_org/src/testqset/testqset.c	2018-10-26 19:58:24.692175519 +0530
++++ qhull-2012.1/src/testqset/testqset.c	2018-10-26 19:59:02.384646782 +0530
+@@ -214,7 +214,7 @@
+     char *endp;
+ 
+     if (argc != 2 && argc != 3) {
+-        printf(promptstr);
++        printf("%s", promptstr);
+         exit(0);
+     }
+     numIntsArg= strtol(argv[1], &endp, 10);

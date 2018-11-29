@@ -1,0 +1,66 @@
+From dd70f9c57176056757bd0fdde34fb67158fcf4e9 Mon Sep 17 00:00:00 2001
+From: Bharathraj Nagaraju <snbraj@codeaurora.org>
+Date: Tue, 27 Mar 2018 15:46:33 -0700
+Subject: [PATCH] Install 64bit poco libs.
+
+Signed-off-by: Bharathraj Nagaraju <snbraj@codeaurora.org>
+---
+ CMakeLists.txt         |  2 +-
+ cmake/PocoMacros.cmake | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 69e2053..e0d7381 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -262,7 +262,7 @@ install(
+         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake
+         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}ConfigVersion.cmake
+     DESTINATION
+-        "lib/cmake/${PROJECT_NAME}"
++        "lib64/cmake/${PROJECT_NAME}"
+     COMPONENT
+         Devel
+ )
+diff --git a/cmake/PocoMacros.cmake b/cmake/PocoMacros.cmake
+index c98baf0..3b40071 100644
+--- a/cmake/PocoMacros.cmake
++++ b/cmake/PocoMacros.cmake
+@@ -220,20 +220,20 @@ configure_file("cmake/Poco${target_name}Config.cmake"
+   @ONLY
+ )
+ 
+-set(ConfigPackageLocation "lib/cmake/${PROJECT_NAME}")
++set(ConfigPackageLocation "lib64/cmake/${PROJECT_NAME}")
+ 
+ install(
+     EXPORT "${target_name}Targets"
+     FILE "${PROJECT_NAME}${target_name}Targets.cmake"
+     NAMESPACE "${PROJECT_NAME}::"
+-    DESTINATION "lib/cmake/${PROJECT_NAME}"
++    DESTINATION "lib64/cmake/${PROJECT_NAME}"
+     )
+ 
+ install(
+     FILES
+         "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}${target_name}Config.cmake"
+         "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}${target_name}ConfigVersion.cmake"
+-    DESTINATION "lib/cmake/${PROJECT_NAME}"
++    DESTINATION "lib64/cmake/${PROJECT_NAME}"
+     COMPONENT Devel
+     )
+ 
+@@ -257,8 +257,8 @@ install(
+ 
+ install(
+     TARGETS "${target_name}" EXPORT "${target_name}Targets"
+-    LIBRARY DESTINATION lib${LIB_SUFFIX}
+-    ARCHIVE DESTINATION lib${LIB_SUFFIX}
++    LIBRARY DESTINATION lib64
++    ARCHIVE DESTINATION lib64
+     RUNTIME DESTINATION bin
+     INCLUDES DESTINATION include
+     )
+-- 
+1.9.1
+

@@ -1,0 +1,35 @@
+From 6af4e88804aed8c4a15bf1d7c81acc1285db2bf5 Mon Sep 17 00:00:00 2001
+From: Bharathraj Nagaraju <snbraj@codeaurora.org>
+Date: Mon, 26 Mar 2018 12:28:58 -0700
+Subject: [PATCH] Install console_bridge libs to /usr/lib64
+
+Signed-off-by: Bharathraj Nagaraju <snbraj@codeaurora.org>
+---
+ CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ab0ad99..cc4122e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -34,7 +34,7 @@ add_library(${PROJECT_NAME} src/console.cpp)
+ target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+ 
+ install(TARGETS ${PROJECT_NAME}
+-  DESTINATION lib/)
++  DESTINATION lib64/)
+ 
+ install(DIRECTORY include/
+   DESTINATION include
+@@ -52,7 +52,7 @@ if (NOT MSVC)
+   set(pkg_conf_file "console_bridge.pc")
+   configure_file("${pkg_conf_file}.in" "${CMAKE_BINARY_DIR}/${pkg_conf_file}" @ONLY)
+   install(FILES "${CMAKE_BINARY_DIR}/${pkg_conf_file}"
+-    DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
++    DESTINATION lib64/pkgconfig/ COMPONENT pkgconfig)
+ endif()
+ 
+ SET_DIRECTORY_PROPERTIES(PROPERTIES
+-- 
+1.9.1
+

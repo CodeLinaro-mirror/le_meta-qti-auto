@@ -1,0 +1,44 @@
+DESCRIPTION = "ros-eagle package group"
+LICENSE = "MIT"
+
+inherit packagegroup
+
+PACKAGES = "${PN}"
+
+RDEPENDS_${PN} = "\
+    packagegroup-ros-comm \
+    actionlib \
+    bond \
+    bondcpp \
+    bondpy \
+    smclib \
+    class-loader \
+    actionlib-msgs \
+    diagnostic-msgs \
+    nav-msgs \
+    geometry-msgs \
+    sensor-msgs \
+    shape-msgs \
+    stereo-msgs \
+    trajectory-msgs \
+    visualization-msgs \
+    dynamic-reconfigure \
+    tf2 \
+    tf2-msgs \
+    tf2-py \
+    tf2-ros \
+    tf \
+    image-transport \
+    nodelet \
+    pluginlib \
+    cmake-modules \
+    rosconsole-bridge \
+    ros-scripts \
+    camera-info-manager \
+    python-rosdep \
+    python-json \
+    git \
+    python-empy \
+    rospy-tutorials \
+    pcl \
+"
