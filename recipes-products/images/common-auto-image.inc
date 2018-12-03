@@ -11,6 +11,7 @@ IMAGE_INSTALL += "ethtool"
 IMAGE_INSTALL += "tcpdump"
 IMAGE_INSTALL += "vlan"
 IMAGE_INSTALL += "bridge-utils"
+IMAGE_INSTALL += "connman"
 
 IMAGE_INSTALL += "system-core-adbd"
 IMAGE_INSTALL += "system-core-usb"
