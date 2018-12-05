@@ -16,6 +16,7 @@ IMAGE_INSTALL += "connman"
 IMAGE_INSTALL += "system-core-adbd"
 IMAGE_INSTALL += "system-core-usb"
 IMAGE_INSTALL += "emac-dwc-eqos"
+IMAGE_INSTALL += "open-avb"
 
 IMAGE_INSTALL += "python"
 IMAGE_INSTALL += "strace"
