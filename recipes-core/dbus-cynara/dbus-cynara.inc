@@ -1,0 +1,1 @@
+../../../meta-agl/meta-agl/recipes-core/dbus/dbus_%.bbappend
