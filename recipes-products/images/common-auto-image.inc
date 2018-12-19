@@ -22,4 +22,4 @@ IMAGE_INSTALL += "python"
 IMAGE_INSTALL += "strace"
 
 IMAGE_INSTALL_remove += "system-conf"
-IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant hostapd"
+#IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant hostapd"
