@@ -1,0 +1,55 @@
+From 9b32968f3a061d09b883b14fd94ac37d9d233fdc Mon Sep 17 00:00:00 2001
+From: Xubao Jiang <xubaoj@codeaurora.org>
+Date: Mon, 20 Mar 2017 15:42:16 +0800
+Subject: [PATCH] Fix adb shell env issue
+
+Change-Id: I9e20e783fec063f5417f05d071cb676aabfdb010
+Signed-off-by: Xubao Jiang <xubaoj@codeaurora.org>
+---
+ adb/services.cpp | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/adb/services.cpp b/adb/services.cpp
+index 3e98358..81eb9d0 100644
+--- a/adb/services.cpp
++++ b/adb/services.cpp
+@@ -289,7 +289,12 @@ static int create_subproc_pty(const char *cmd, const char *arg0, const char *arg
+         adb_close(pts);
+         adb_close(ptm);
+ 
++#if defined(ALLOW_ADBD_ROOT)
++        const char *argl = "-l";
++        execl(cmd, cmd, argl, arg0, arg1, NULL);
++#else
+         execl(cmd, cmd, arg0, arg1, NULL);
++#endif
+         fprintf(stderr, "- exec '%s' failed: %s (%d) -\n",
+                 cmd, strerror(errno), errno);
+         exit(-1);
+@@ -344,7 +349,11 @@ static int create_subproc_raw(const char *cmd, const char *arg0, const char *arg
+ #endif /* !defined(_WIN32) */
+ }
+ #endif  /* !ABD_HOST */
++#if defined(ALLOW_ADBD_ROOT)
++#define SHELL_COMMAND "/bin/su"
++#else
+ #define SHELL_COMMAND "/bin/sh"
++#endif
+ #if !ADB_HOST
+ static void subproc_waiter_service(int fd, void *cookie)
+ {
+@@ -385,7 +394,11 @@ static int create_subproc_thread(const char *name, const subproc_mode mode)
+ 
+     const char *arg0, *arg1;
+     if (name == 0 || *name == 0) {
++#if defined(ALLOW_ADBD_ROOT)
++        arg0 = 0; arg1 = 0;
++#else
+         arg0 = "-"; arg1 = 0;
++#endif
+     } else {
+         arg0 = "-c"; arg1 = name;
+     }
+-- 
+1.9.1
+
