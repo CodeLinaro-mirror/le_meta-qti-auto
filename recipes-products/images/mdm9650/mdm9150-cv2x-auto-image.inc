@@ -2,6 +2,7 @@
 IMAGE_INSTALL += "chrony"
 IMAGE_INSTALL += "chronyc"
 IMAGE_INSTALL += "resolvconf"
+IMAGE_INSTALL += "pppou"
 
 # Exclude from the mdm9150-cv2x image
 IMAGE_INSTALL_remove = "alx"
