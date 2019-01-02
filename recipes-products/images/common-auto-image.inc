@@ -1,6 +1,8 @@
 # Add packages on top of root file system
 # Reference "meta-qti-bsp/recipes-products/image/commone/common-base-image.inc"
 
+EXTRA_IMAGE_FEATURES = "tools-debug"
+
 # Add iproute2 module
 IMAGE_INSTALL += "iproute2"
 IMAGE_INSTALL += "iproute2-tc"
@@ -19,7 +21,6 @@ IMAGE_INSTALL += "emac-dwc-eqos"
 IMAGE_INSTALL += "open-avb"
 
 IMAGE_INSTALL += "python"
-IMAGE_INSTALL += "strace"
 
 IMAGE_INSTALL_remove += "system-conf"
 #IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant hostapd"
