@@ -1,14 +1,19 @@
 # Add packages on top of root file system
 # Reference "meta-qti-bsp/recipes-products/image/commone/common-base-image.inc"
 
-EXTRA_IMAGE_FEATURES = "tools-debug"
+require recipes-platform/images/agl-demo-platform.bb
+
+IMAGE_INSTALL += "edk2"
+IMAGE_INSTALL += "pciutils"
+IMAGE_INSTALL += "systemd-machine-units"
+IMAGE_INSTALL += "start-script-ab-slot-util"
+IMAGE_INSTALL += "binder"
 
 # Add iproute2 module
 IMAGE_INSTALL += "iproute2"
 IMAGE_INSTALL += "iproute2-tc"
 IMAGE_INSTALL += "iproute2-ss"
 IMAGE_INSTALL += "iperf3"
-#IMAGE_INSTALL += "iperf"
 IMAGE_INSTALL += "ethtool"
 IMAGE_INSTALL += "tcpdump"
 IMAGE_INSTALL += "vlan"
@@ -23,4 +28,3 @@ IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "python"
 
 IMAGE_INSTALL_remove += "system-conf"
-#IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant hostapd"
