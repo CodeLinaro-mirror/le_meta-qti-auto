@@ -30,6 +30,8 @@ SERIAL_CONSOLE ?= "${@['', '115200 ttyMSM0'][d.getVar('VARIANT', True) == ('' or
 
 DISTRO ?= "automotive"
 
+EXTRA_IMAGE_FEATURES = "tools-debug"
+
 # DISTRO_FEATURES_append = " ro-rootfs"
 
 # Use systemd init manager.

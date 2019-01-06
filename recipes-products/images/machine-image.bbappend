@@ -22,6 +22,9 @@ do_makesystem() {
     echo "TODO: do makesystem"
 }
 
+EXTRA_IMAGECMD_ext4 = "-i 4096 -b 4096"
+
+IMAGE_ROOTFS_SIZE = "1048576"
 
 SSTATE_MANFILEPREFIX="${@base_conditional('PERF_BUILD', '1', '${SSTATE_MANIFESTS}/manifest-${SSTATE_MANMACH}-${PN}-perf', '${SSTATE_MANIFESTS}/manifest-${SSTATE_MANMACH}-${PN}' , d)}"
 
