@@ -1,4 +1,5 @@
 # Auto open source Packages
+IMAGE_INSTALL += "libsensors"
 IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "telux-lib"
 IMAGE_INSTALL += "telux-samples"
