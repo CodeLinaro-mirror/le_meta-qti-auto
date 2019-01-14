@@ -23,6 +23,21 @@ PREFERRED_VERSION_wayland = "1.9.0"
 PREFERRED_VERSION_wayland-native = "1.9.0"
 PREFERRED_VERSION_wayland-ivi-extension = "1.9.1"
 
+# Prefer GStreamer 1.8.x by default
+PREFERRED_VERSION_gstreamer1.0              ?= "1.8.%"
+PREFERRED_VERSION_gstreamer1.0-plugins-bad  ?= "1.8.%"
+PREFERRED_VERSION_gstreamer1.0-plugins-base ?= "1.8.%"
+PREFERRED_VERSION_gstreamer1.0-plugins-good ?= "1.8.%"
+PREFERRED_VERSION_gstreamer1.0-plugins-ugly ?= "1.8.%"
+PREFERRED_VERSION_gstreamer1.0-libav        ?= "1.8.%"
+PREFERRED_VERSION_gstreamer1.0-omx          ?= "1.2.%"
+
+LICENSE_FLAGS_WHITELIST = "commercial_gstreamer1.0-libav commercial_gstreamer1.0-omx"
+LICENSE_FLAGS_WHITELIST += "commercial_gstreamer1.0-plugins-ugly commercial_opencore-amr"
+LICENSE_FLAGS_WHITELIST += "commercial_libomxil"
+
+
+
 MACHINE_DISPLAY_WIDTH_PIXELS ?= "480"
 MACHINE_DISPLAY_HEIGHT_PIXELS ?= "640"
 
