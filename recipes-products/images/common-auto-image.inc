@@ -22,5 +22,5 @@ IMAGE_INSTALL += "vlan"
 
 IMAGE_INSTALL_remove += "system-conf"
 
-IMAGE_INSTALL_remove += "synergy-opensource"
+#IMAGE_INSTALL_remove += "synergy-opensource"
 #IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant-qcacld hostap-daemon-qcacld qcacld-utils"
