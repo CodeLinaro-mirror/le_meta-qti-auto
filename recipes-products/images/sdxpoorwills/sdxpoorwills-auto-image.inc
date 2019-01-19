@@ -4,3 +4,9 @@ IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "telux-lib"
 IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
+
+# Test tools
+IMAGE_INSTALL += "i2c-tools"
+IMAGE_INSTALL += "net-tools"
+IMAGE_INSTALL += "pps-tools"
+IMAGE_INSTALL += "spitools"
