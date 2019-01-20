@@ -1,0 +1,58 @@
+From 2d5fb615d7807efc5bde6a41500536111f017cf7 Mon Sep 17 00:00:00 2001
+From: Lei wang <leiwan@codeaurora.org>
+Date: Mon, 21 Jan 2019 11:47:31 +0800
+Subject: [PATCH] systemd: add slotselect support in fstab
+
+support a/b partition option in fstab
+
+Signed-off-by: Lei wang <leiwan@codeaurora.org>
+---
+ src/core/mount.c                      |  2 +-
+ src/fstab-generator/fstab-generator.c | 11 +++++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 214364d..cdb707b 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -934,7 +934,7 @@ static void mount_enter_mounting(Mount *m) {
+         if (p) {
+                 _cleanup_free_ char *opts = NULL;
+ 
+-                r = fstab_filter_options(p->options, "nofail\0" "noauto\0" "auto\0", NULL, NULL, &opts);
++                r = fstab_filter_options(p->options, "nofail\0" "noauto\0" "auto\0" "slotselect\0", NULL, NULL, &opts);
+                 if (r < 0)
+                         goto fail;
+ 
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 7f23b9f..1d7c4a4 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -524,6 +524,7 @@ static int parse_fstab(bool initrd) {
+                 _cleanup_free_ char *where = NULL, *what = NULL, *canonical_where = NULL;
+                 bool noauto, nofail;
+                 int k;
++                _cleanup_free_ char* slot_suffix;
+ 
+                 if (initrd && !mount_in_initrd(me))
+                         continue;
+@@ -532,6 +533,16 @@ static int parse_fstab(bool initrd) {
+                 if (!what)
+                         return log_oom();
+ 
++                /*
++                 * update what for slot support
++                 */
++                if (fstab_test_option(me->mnt_opts, "slotselect\0")) {
++                        if (proc_cmdline_get_key("androidboot.slot_suffix", 0, &slot_suffix))
++                                realloc(what, strlen(what) + strlen(slot_suffix) + 1);
++                        strncat(what, slot_suffix, strlen(slot_suffix));
++                        log_info("slotselect mount target changed to '%s' suffix is '%s'.", what, slot_suffix);
++                }
++
+                 if (is_device_path(what) && path_is_read_only_fs("sys") > 0) {
+                         log_info("Running in a container, ignoring fstab device entry for %s.", what);
+                         continue;
+-- 
+1.9.1
+
