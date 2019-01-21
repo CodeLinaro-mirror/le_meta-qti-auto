@@ -19,6 +19,7 @@ IMAGE_INSTALL += "resize-service"
 IMAGE_INSTALL += "start-script-ab-slot-util"
 IMAGE_INSTALL += "tcpdump"
 IMAGE_INSTALL += "vlan"
+IMAGE_INSTALL += "wqy-microhei"
 IMAGE_INSTALL += "packagegroup-multimedia"
 
 IMAGE_INSTALL_remove += "system-conf"
