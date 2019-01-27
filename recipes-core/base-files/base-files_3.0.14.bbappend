@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
-dirs755_append +="/firmware /dsp /bluetooth"
+dirs755_append +="/firmware /dsp /bluetooth /var"
 SRC_URI_append_automotive += "file://${BASEMACHINE}/fstab"
 
 do_install_append_smack () {
