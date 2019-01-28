@@ -22,3 +22,4 @@ BBMASK .= "|meta-agl-demo/recipes-qt/qt5/qtmultimedia_%.bbappend"
 BBMASK .= "|meta-agl-demo/recipes-core/packagegroups/"
 
 BBMASK .= "|meta-qti-bsp/recipes-devtools/gdb/gdb_%.bbappend"
+BBMASK .= "|meta-qti-bsp/recipes-core/systemd/systemd_%.bbappend"
