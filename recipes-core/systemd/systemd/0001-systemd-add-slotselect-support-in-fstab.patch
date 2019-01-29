@@ -1,6 +1,6 @@
-From 2d5fb615d7807efc5bde6a41500536111f017cf7 Mon Sep 17 00:00:00 2001
+From 42016023beb0af0d68c94748cd4fe9d19dd09db7 Mon Sep 17 00:00:00 2001
 From: Lei wang <leiwan@codeaurora.org>
-Date: Mon, 21 Jan 2019 11:47:31 +0800
+Date: Mon, 28 Jan 2019 09:45:17 +0800
 Subject: [PATCH] systemd: add slotselect support in fstab
 
 support a/b partition option in fstab
@@ -8,8 +8,8 @@ support a/b partition option in fstab
 Signed-off-by: Lei wang <leiwan@codeaurora.org>
 ---
  src/core/mount.c                      |  2 +-
- src/fstab-generator/fstab-generator.c | 11 +++++++++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ src/fstab-generator/fstab-generator.c | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/mount.c b/src/core/mount.c
 index 214364d..cdb707b 100644
@@ -25,7 +25,7 @@ index 214364d..cdb707b 100644
                          goto fail;
  
 diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
-index 7f23b9f..1d7c4a4 100644
+index 7f23b9f..44d4625 100644
 --- a/src/fstab-generator/fstab-generator.c
 +++ b/src/fstab-generator/fstab-generator.c
 @@ -524,6 +524,7 @@ static int parse_fstab(bool initrd) {
@@ -36,7 +36,7 @@ index 7f23b9f..1d7c4a4 100644
  
                  if (initrd && !mount_in_initrd(me))
                          continue;
-@@ -532,6 +533,16 @@ static int parse_fstab(bool initrd) {
+@@ -532,6 +533,18 @@ static int parse_fstab(bool initrd) {
                  if (!what)
                          return log_oom();
  
@@ -44,10 +44,12 @@ index 7f23b9f..1d7c4a4 100644
 +                 * update what for slot support
 +                 */
 +                if (fstab_test_option(me->mnt_opts, "slotselect\0")) {
-+                        if (proc_cmdline_get_key("androidboot.slot_suffix", 0, &slot_suffix))
++                        if (proc_cmdline_get_key("androidboot.slot_suffix", 0, &slot_suffix)) {
 +                                realloc(what, strlen(what) + strlen(slot_suffix) + 1);
-+                        strncat(what, slot_suffix, strlen(slot_suffix));
-+                        log_info("slotselect mount target changed to '%s' suffix is '%s'.", what, slot_suffix);
++                                strncat(what, slot_suffix, strlen(slot_suffix));
++                                log_info("slotselect mount target changed to '%s' suffix is '%s'.", what, slot_suffix);
++                        }
++                        log_warning("slotselect is not supported in cmdline, mount target changed to default '%s'.", what);
 +                }
 +
                  if (is_device_path(what) && path_is_read_only_fs("sys") > 0) {
