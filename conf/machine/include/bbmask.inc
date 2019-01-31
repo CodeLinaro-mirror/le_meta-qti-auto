@@ -23,3 +23,6 @@ BBMASK .= "|meta-agl-demo/recipes-core/packagegroups/"
 
 BBMASK .= "|meta-qti-bsp/recipes-devtools/gdb/gdb_%.bbappend"
 BBMASK .= "|meta-qti-bsp/recipes-core/systemd/systemd_%.bbappend"
+
+BBMASK .= "|meta-qti-data/recipes/iproute2/"
+BBMASK .= "|meta-qti-data/recipes/avahi/"
