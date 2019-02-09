@@ -6,6 +6,7 @@ IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
 
 # Test tools
+IMAGE_INSTALL += "can-utils"
 IMAGE_INSTALL += "i2c-tools"
 IMAGE_INSTALL += "net-tools"
 IMAGE_INSTALL += "pps-tools"
