@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
-dirs755_append +="/firmware /dsp /bluetooth /var"
+dirs755_append +="/firmware /dsp /bluetooth /var /media/card"
 SRC_URI_append_automotive += "file://${BASEMACHINE}/fstab"
 
 do_install_append_smack () {
@@ -17,4 +17,8 @@ do_install_append () {
     if [ -L ${D}/usr/local ]; then
         rm ${D}/usr/local
     fi
+
+    install -m 755 -o diag -g diag -d ${D}/media/card
+    rm -rf ${D}/sdcard
+    ln -s /media/card ${D}/sdcard
 }

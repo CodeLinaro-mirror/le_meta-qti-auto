@@ -2,11 +2,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI_remove = " file://backport-v234-e266c06.patch "
 SRC_URI += " file://0001-systemd-add-slotselect-support-in-fstab.patch "
 
+# Remove ldconfig/backlight
+
 PACKAGECONFIG = " \
-    ${@bb.utils.filter('DISTRO_FEATURES', 'efi ldconfig pam selinux usrmerge', d)} \
+    ${@bb.utils.filter('DISTRO_FEATURES', 'efi pam selinux usrmerge', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', 'rfkill', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
-    backlight \
     binfmt \
     firstboot \
     hibernate \
