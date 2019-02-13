@@ -22,7 +22,9 @@ IMAGE_INSTALL += "vlan"
 IMAGE_INSTALL += "wqy-microhei"
 IMAGE_INSTALL += "packagegroup-multimedia"
 
+IMAGE_INSTALL_remove += "recovery-bin recovery"
 IMAGE_INSTALL_remove += "system-conf"
 IMAGE_INSTALL_remove += "systemd-coredump"
 #IMAGE_INSTALL_remove += "synergy-opensource"
 IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant-qcacld hostap-daemon-qcacld qcacld-utils"
+
