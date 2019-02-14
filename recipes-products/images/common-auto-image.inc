@@ -23,6 +23,7 @@ IMAGE_INSTALL += "wqy-microhei"
 IMAGE_INSTALL += "packagegroup-multimedia"
 IMAGE_INSTALL += "libcap"
 IMAGE_INSTALL += "libcap-bin"
+IMAGE_INSTALL += "attr"
 
 IMAGE_INSTALL_remove += "system-conf"
 IMAGE_INSTALL_remove += "systemd-coredump"
