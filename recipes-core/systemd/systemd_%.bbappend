@@ -38,6 +38,7 @@ FULL_OPTIMIZATION = "-O2 -fexpensive-optimizations -frename-registers -fomit-fra
 do_install_append () {
    # Use kernel rules for network iface
    sed -i  's/^NamePolicy.*/NamePolicy=kernel/g' ${D}/lib/systemd/network/99-default.link
+   sed -i  '/^PrivateTmp.*/d' ${D}/lib/systemd/system/systemd-hostnamed.service
 
    # Remove orignal 60-persistent-v4l.rules
    rm ${D}/lib/udev/rules.d/60-persistent-v4l.rules
