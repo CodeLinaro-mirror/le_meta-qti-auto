@@ -24,6 +24,7 @@ IMAGE_INSTALL += "packagegroup-multimedia"
 IMAGE_INSTALL += "libcap"
 IMAGE_INSTALL += "libcap-bin"
 IMAGE_INSTALL += "attr"
+IMAGE_INSTALL += "libsensors"
 
 IMAGE_INSTALL_remove += "recovery-bin recovery"
 IMAGE_INSTALL_remove += "system-conf"
