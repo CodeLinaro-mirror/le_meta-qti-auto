@@ -1,0 +1,81 @@
+From e712e7918b1574f73f9bb08be00cac315aa2dded Mon Sep 17 00:00:00 2001
+From: Lei wang <leiwan@codeaurora.org>
+Date: Mon, 18 Feb 2019 15:38:54 +0800
+Subject: [PATCH] systemd: add bootkpi marker for user session
+
+Signed-off-by: Lei wang <leiwan@codeaurora.org>
+---
+ src/core/job.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/src/core/job.c b/src/core/job.c
+index 8e2039d..aa1bdc4 100644
+--- a/src/core/job.c
++++ b/src/core/job.c
+@@ -41,6 +41,28 @@
+ #include "unit.h"
+ #include "virt.h"
+ 
++#define KPI_VALUE_PATH "/sys/kernel/debug/bootkpi/kpi_values"
++
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0][0]))
++
++static const char* bootkpi_unit_list[][3]= {
++        {"systemd-logind.service", "V - agl system session complete", "V - agl first user logged in"},
++};
++
++static inline void write_marker(const char *label) {
++    int fd = -1;
++
++    fd = open(KPI_VALUE_PATH, O_WRONLY);
++    if (fd > 0) {
++            write(fd, label, strlen(label));
++            close(fd);
++    } else {
++            log_error("open bootkpi_values failed");
++    }
++
++    return;
++}
++
+ Job* job_new_raw(Unit *unit) {
+         Job *j;
+ 
+@@ -550,6 +572,16 @@ static int job_perform_on_unit(Job **j) {
+                         assert_not_reached("Invalid job type");
+         }
+ 
++        if (t == JOB_START && u->type == UNIT_SERVICE) {
++                for (size_t idx = 0; idx < (ARRAY_SIZE(bootkpi_unit_list) / 3); idx++) {
++                        if (strneq(u->id, bootkpi_unit_list[idx][0],
++                                   strlen(bootkpi_unit_list[idx][0])) &&
++                                   bootkpi_unit_list[idx][1]) {
++                                write_marker(bootkpi_unit_list[idx][1]);
++                        }
++                }
++        }
++
+         /* Log if the job still exists and the start/stop/reload function
+          * actually did something. */
+         *j = manager_get_job(m, id);
+@@ -865,6 +897,17 @@ int job_finish_and_invalidate(Job *j, JobResult result, bool recursive, bool alr
+ 
+         log_unit_debug(u, "Job %s/%s finished, result=%s", u->id, job_type_to_string(t), job_result_to_string(result));
+ 
++        if (result == JOB_DONE && u->type == UNIT_SERVICE) {
++                for (size_t idx = 0; idx < (ARRAY_SIZE(bootkpi_unit_list) / 3); idx++) {
++                        if (strneq(u->id, bootkpi_unit_list[idx][0],
++                                   strlen(bootkpi_unit_list[idx][0])) &&
++                                   bootkpi_unit_list[idx][2]) {
++                                write_marker(bootkpi_unit_list[idx][2]);
++                        }
++                }
++        }
++
++
+         /* If this job did nothing to respective unit we don't log the status message */
+         if (!already)
+                 job_emit_status_message(u, t, result);
+-- 
+1.9.1
+
