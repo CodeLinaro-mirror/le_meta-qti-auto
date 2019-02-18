@@ -1,0 +1,15 @@
+diff --git a/avahi-daemon/avahi-daemon.service.in b/avahi-daemon/avahi-daemon.service.in
+index 548c834..b933df1 100644
+--- a/avahi-daemon/avahi-daemon.service.in
++++ b/avahi-daemon/avahi-daemon.service.in
+@@ -22,8 +22,8 @@ Requires=avahi-daemon.socket
+ [Service]
+ Type=dbus
+ BusName=org.freedesktop.Avahi
+-ExecStart=@sbindir@/avahi-daemon -s
+-ExecReload=@sbindir@/avahi-daemon -r
++ExecStart=@sbindir@/avahi-daemon -s --no-drop-root
++ExecReload=@sbindir@/avahi-daemon -r --no-drop-root
+ NotifyAccess=main
+ 
+ [Install]
