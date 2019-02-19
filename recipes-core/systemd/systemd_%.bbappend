@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI_remove = " file://backport-v234-e266c06.patch "
 SRC_URI += " file://0001-systemd-add-slotselect-support-in-fstab.patch "
+SRC_URI += " file://0032-systemd-add-bootkpi-marker-for-user-session.patch "
 
 # Remove ldconfig/backlight
 
