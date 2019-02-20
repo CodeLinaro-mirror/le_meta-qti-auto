@@ -4,6 +4,7 @@ IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "telux-lib"
 IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
+IMAGE_INSTALL += "start-scripts-init-can"
 
 # Test tools
 IMAGE_INSTALL += "can-utils"
