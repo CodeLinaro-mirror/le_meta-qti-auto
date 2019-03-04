@@ -7,6 +7,7 @@ COMPATIBLE_MACHINE = "(${BASEMACHINE})"
 FILESEXTRAPATHS_append := ":${THISDIR}/files"
 SRC_URI   +=  "${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'file://weston.cfg', '', d)}"
 SRC_URI   +=  "file://cgroup.cfg"
+SRC_URI   +=  "file://ipc.cfg"
 
 KERNEL_EXTRA_ARGS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'DTC_EXT=${STAGING_BINDIR_NATIVE}/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y', '', d)}"
 
