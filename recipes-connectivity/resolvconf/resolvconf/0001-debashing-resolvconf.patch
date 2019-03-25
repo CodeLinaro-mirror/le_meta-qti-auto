@@ -1,0 +1,19 @@
+diff --git a/bin/list-records b/bin/list-records
+index 1e27bcb..2c31109 100755
+--- a/bin/list-records
++++ b/bin/list-records
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ # Need bash because we use nullglob, extglob
+ #
+ # list-records [--after RECORD]
+@@ -73,7 +73,7 @@ if [ -r /etc/resolvconf/interface-order ] ; then
+ 		' /etc/resolvconf/interface-order)"
+ fi
+ 
+-shopt -s nullglob extglob
++shopt -s nullglob extglob 2>/dev/null || true
+ # The nullglob option isn't essential since the test -s below will eliminate
+ # any unexpanded patterns. The extglob option, however, is essential; it
+ # makes the glob language of interface-order patterns as powerful as regexps.
