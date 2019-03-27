@@ -21,6 +21,7 @@ SRC_URI_append += "file://qwes_license_store.conf"
 SRC_URI_append += "file://evdev_load.conf"
 SRC_URI_append += "file://sensor_hal_daemon.conf"
 SRC_URI_append += "file://sensor_bootup_iio.sh"
+SRC_URI_append += "file://99-kmsg-permissions.rules"
 
 PACKAGECONFIG_remove = " \
     acl \
@@ -33,6 +34,7 @@ do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
         install -d ${D}${sysconfdir}/initscripts/
+        install -m 0644 ${WORKDIR}/99-kmsg-permissions.rules -D ${D}${sysconfdir}/udev/rules.d/99-kmsg-permissions.rules
 
         if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
         # Install drop-ins for systemd service files

@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="kmsg", OWNER="root", GROUP="kmsg", MODE="0664"
