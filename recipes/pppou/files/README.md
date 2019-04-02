@@ -13,7 +13,7 @@ pppou
   │   ├── pppou.c
   │   ├── README.md
   │   └── start_pppou_le
-  └── pppou_0.1.bb
+  └── pppou_1.0.bb
 
 Usage:
 =====

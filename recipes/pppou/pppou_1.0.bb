@@ -14,4 +14,6 @@ SRC_URI = " \
            file://README.md \
            "
 
+DEPENDS += "qmi-framework powermanager-qmilib powermanager-lib"
+
 S = "${WORKDIR}"
