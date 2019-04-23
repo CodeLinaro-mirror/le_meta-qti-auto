@@ -52,4 +52,7 @@ do_deploy_append() {
     if ${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'true', 'false', d)}; then
         ${STAGING_BINDIR_NATIVE}/mkdtimg create ${DEPLOY_DIR_IMAGE}/dtbo.img ${B}/arch/${ARCH}/boot/dts/qcom/*.dtbo
     fi
+
+    cp -f ${B}/arch/${ARCH}/boot/dts/qcom/*.dtb "${DEPLOY_DIR_IMAGE}/"
+    cp -f ${B}/arch/${ARCH}/boot/Image "${DEPLOY_DIR_IMAGE}/linux.img"
 }
