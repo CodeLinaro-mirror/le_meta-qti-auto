@@ -23,6 +23,8 @@ EXTRA_OEMAKE_append_auto = " SDX_ALSA_LIB_INCLUDED=1"
 do_compile() {
     oe_runmake daemons_all
     oe_runmake avtp_pipeline
+    oe_runmake libgptp
+    oe_runmake libgptp_test
 }
 
 do_install() {
@@ -36,6 +38,8 @@ do_install() {
     install -m 0755 ${S}/lib/avtp_pipeline/build/lib/*.so ${D}${libdir}
     install -d ${D}${userfsdatadir}/avb
     install -m 0644 ${S}/lib/avtp_pipeline/build/bin/*.ini ${D}${userfsdatadir}/avb
+    install -m 0755 ${S}/examples/libgptp_test/libgptp_test ${D}${bindir}
+    install -m 0755 ${S}/lib/libgptp/*.so ${D}${libdir}
 }
 
 FILES_SOLIBSDEV = ""
