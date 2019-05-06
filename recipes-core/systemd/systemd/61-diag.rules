@@ -1,0 +1,3 @@
+ACTION!="add", GOTO="diag_end"
+SUBSYSTEM=="diag", DEVPATH=="/devices/virtual/diag/diag", RUN+="/etc/initscripts/chgrp-diag"
+LABEL="diag_end"
