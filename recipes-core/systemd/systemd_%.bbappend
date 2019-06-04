@@ -4,6 +4,7 @@ SRC_URI_append += "file://61-sensor.rules"
 SRC_URI_append += "file://61-iio.rules"
 SRC_URI_append += "file://61-diag.rules"
 SRC_URI_append += "file://61-pps.rules"
+SRC_URI_append += "file://Allow-powermgr-group-to-communicate.patch"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then

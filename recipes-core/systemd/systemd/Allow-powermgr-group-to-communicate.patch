@@ -1,0 +1,14 @@
+diff --git a/src/libsystemd/sd-bus/bus-convenience.c b/src/libsystemd/sd-bus/bus-convenience.c
+index 4ec0616..f1f70c5 100644
+--- a/src/libsystemd/sd-bus/bus-convenience.c
++++ b/src/libsystemd/sd-bus/bus-convenience.c
+@@ -597,6 +597,10 @@ _public_ int sd_bus_query_sender_privilege(sd_bus_message *call, int capability)
+                         /* Sender is root, we are not root. */
+                         if (our_uid != 0 && sender_uid == 0)
+                                 return 1;
++
++                        /* Other specific users also allowed access (powermgr) */
++                        if (sender_uid == 3014)
++                                return 1;
+                 }
+         }
