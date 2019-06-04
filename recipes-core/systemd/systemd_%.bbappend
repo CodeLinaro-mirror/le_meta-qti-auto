@@ -3,6 +3,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI_append += "file://61-sensor.rules"
 SRC_URI_append += "file://61-iio.rules"
 SRC_URI_append += "file://61-diag.rules"
+SRC_URI_append += "file://61-pps.rules"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
@@ -10,6 +11,7 @@ do_install_append() {
         install -m 0555 ${WORKDIR}/61-sensor.rules ${D}${sysconfdir}/udev/rules.d/61-sensor.rules
         install -m 0555 ${WORKDIR}/61-iio.rules ${D}${sysconfdir}/udev/rules.d/61-iio.rules
         install -m 0555 ${WORKDIR}/61-diag.rules ${D}${sysconfdir}/udev/rules.d/61-diag.rules
+        install -m 0555 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
     fi
 }
 
@@ -40,4 +42,5 @@ do_install_append_auto() {
 
 FILES_${PN} += "${sysconfdir}/udev/rules.d/61-sensor.rules \
                ${sysconfdir}/udev/rules.d/61-iio.rules \
-               ${sysconfdir}/udev/rules.d/61-diag.rules \"
+               ${sysconfdir}/udev/rules.d/61-diag.rules \
+               ${sysconfdir}/udev/rules.d/61-pps.rules"
