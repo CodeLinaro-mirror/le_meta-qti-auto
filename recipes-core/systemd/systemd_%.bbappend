@@ -5,6 +5,12 @@ SRC_URI_append += "file://61-iio.rules"
 SRC_URI_append += "file://61-diag.rules"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://Allow-powermgr-group-to-communicate.patch"
+SRC_URI_append += "file://systemd-udev-trigger.conf"
+SRC_URI_append += "file://init_sys_mss.conf"
+SRC_URI_append += "file://postmss.service"
+SRC_URI_append += "file://postmss"
+SRC_URI_append += "file://usb.conf"
+SRC_URI_append += "file://adbd.conf"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
@@ -20,6 +26,23 @@ do_install_append() {
         install -m 0555 ${WORKDIR}/61-iio.rules ${D}${sysconfdir}/udev/rules.d/61-iio.rules
         install -m 0555 ${WORKDIR}/61-diag.rules ${D}${sysconfdir}/udev/rules.d/61-diag.rules
         install -m 0555 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
+
+        # Install drop-ins for systemd service files
+        install -d ${D}/lib/systemd/system/systemd-udev-trigger.service.d
+        install -d ${D}/lib/systemd/system/init_sys_mss.service.d
+        install -d ${D}/lib/systemd/system/usb.service.d
+        install -d ${D}/lib/systemd/system/adbd.service.d
+        install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
+        install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
+        install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
+        install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
+
+        #Install service files and scripts
+        install -d ${D}${sysconfdir}/initscripts/
+        install -d ${D}/lib/systemd/system/multi-user.target.wants
+        install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
+        install -m 0644 ${WORKDIR}/postmss.service ${D}/lib/systemd/system/postmss.service
+        ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/multi-user.target.wants/postmss.service
     fi
 }
 
