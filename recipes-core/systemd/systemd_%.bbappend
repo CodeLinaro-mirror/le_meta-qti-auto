@@ -6,6 +6,13 @@ SRC_URI_append += "file://61-diag.rules"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://Allow-powermgr-group-to-communicate.patch"
 
+PACKAGECONFIG_remove_auto = " \
+    acl \
+    binfmt \
+    hibernate \
+    kmod \
+"
+
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/udev/rules.d/
