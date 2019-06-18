@@ -7,14 +7,14 @@ def get_img_inc_file(d):
         inc_file_name = basemachine + "-" + product + "-image.inc"
     else:
         inc_file_name = basemachine + "-" + "base-image.inc"
-    img_inc_file_path = os.path.join(d.getVar('THISDIR'), basemachine, inc_file_name)
+    img_inc_file_path = os.path.join(d.getVar('THISDIR', True), basemachine, inc_file_name)
     if os.path.exists(img_inc_file_path):
         img_inc_file = inc_file_name
     else:
         img_inc_file = basemachine + "-base-image.inc"
     return img_inc_file
 
-require ${BASEMACHINE}/${@get_img_inc_file(d)}
+include ${BASEMACHINE}/${@get_img_inc_file(d)}
 
 # Below is to generate sparse ext4 system image (OE by default supports raw ext4 images)
 
