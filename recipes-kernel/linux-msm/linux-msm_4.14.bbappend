@@ -11,6 +11,21 @@ SRC_URI   +=  "file://ipc.cfg"
 
 KERNEL_EXTRA_ARGS += "${@bb.utils.contains('MACHINE_FEATURES', 'dt-overlay', 'DTC_EXT=${STAGING_BINDIR_NATIVE}/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y', '', d)}"
 
+do_defconfig_patch () {
+cat >> ${S}/arch/${ARCH}/configs/${KERNEL_CONFIG} <<KERNEL_EXTRACONFIGS
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+# CONFIG_RT_GROUP_SCHED is not set
+CONFIG_VT=y
+KERNEL_EXTRACONFIGS
+}
+
+do_patch_append() {
+    bb.build.exec_func('do_defconfig_patch',d)
+}
+
 do_compile() {
     qoe_runmake ${PARALLEL_MAKE} CROSS_COMPILE=${CROSS_COMPILE} ${KERNEL_EXTRA_ARGS} $use_alternate_initrd 
 }
@@ -54,5 +69,5 @@ do_deploy_append() {
     fi
 
     cp -f ${B}/arch/${ARCH}/boot/dts/qcom/*.dtb "${DEPLOY_DIR_IMAGE}/"
-    cp -f ${B}/arch/${ARCH}/boot/Image "${DEPLOY_DIR_IMAGE}/linux.img"
+    cp -f ${B}/arch/${ARCH}/boot/Image "${DEPLOY_DIR_IMAGE}/linux-lv.img"
 }
