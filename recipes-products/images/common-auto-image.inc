@@ -3,7 +3,7 @@
 
 IMAGE_INSTALL += "binder"
 IMAGE_INSTALL += "bridge-utils"
-IMAGE_INSTALL += "connman"
+#IMAGE_INSTALL += "connman"
 IMAGE_INSTALL += "edk2"
 #IMAGE_INSTALL += "emac-dwc-eqos"
 IMAGE_INSTALL += "ethtool"
