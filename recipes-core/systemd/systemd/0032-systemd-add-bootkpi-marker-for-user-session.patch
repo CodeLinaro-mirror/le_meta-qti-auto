@@ -1,22 +1,55 @@
-From e712e7918b1574f73f9bb08be00cac315aa2dded Mon Sep 17 00:00:00 2001
+From d00eaef9c2aa17690bf1f6b7309adcff32c08865 Mon Sep 17 00:00:00 2001
 From: Lei wang <leiwan@codeaurora.org>
-Date: Mon, 18 Feb 2019 15:38:54 +0800
-Subject: [PATCH] systemd: add bootkpi marker for user session
+Date: Wed, 17 Apr 2019 11:20:15 +0800
+Subject: [PATCH] systemd: add userspace marker support
+
+put debugfs mount earlier
+support userspace entry and unit marker
 
 Signed-off-by: Lei wang <leiwan@codeaurora.org>
 ---
- src/core/job.c | 43 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ src/basic/util.h       | 16 ++++++++++++++++
+ src/core/job.c         | 29 +++++++++++++++++++++++++++++
+ src/core/main.c        |  1 +
+ src/core/mount-setup.c |  6 ++++--
+ units/meson.build      |  2 --
+ 5 files changed, 50 insertions(+), 4 deletions(-)
 
+diff --git a/src/basic/util.h b/src/basic/util.h
+index c583923..954705b 100644
+--- a/src/basic/util.h
++++ b/src/basic/util.h
+@@ -178,6 +178,22 @@ static inline unsigned log2u_round_up(unsigned x) {
+         return log2u(x - 1) + 1;
+ }
+ 
++#define KPI_VALUE_PATH "/sys/kernel/debug/bootkpi/kpi_values"
++
++static inline void write_marker(const char *label) {
++        int fd = -1;
++
++        fd = open(KPI_VALUE_PATH, O_WRONLY);
++        if (fd > 0) {
++                write(fd, label, strlen(label));
++                close(fd);
++        } else {
++                log_error("open bootkpi_values failed");
++        }
++
++        return;
++}
++
+ int container_get_leader(const char *machine, pid_t *pid);
+ 
+ int namespace_open(pid_t pid, int *pidns_fd, int *mntns_fd, int *netns_fd, int *userns_fd, int *root_fd);
 diff --git a/src/core/job.c b/src/core/job.c
-index 8e2039d..aa1bdc4 100644
+index 8552ffb..7e249d8 100644
 --- a/src/core/job.c
 +++ b/src/core/job.c
-@@ -41,6 +41,28 @@
+@@ -25,6 +25,14 @@
  #include "unit.h"
  #include "virt.h"
  
-+#define KPI_VALUE_PATH "/sys/kernel/debug/bootkpi/kpi_values"
 +
 +#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0][0]))
 +
@@ -24,24 +57,11 @@ index 8e2039d..aa1bdc4 100644
 +        {"systemd-logind.service", "V - agl system session complete", "V - agl first user logged in"},
 +};
 +
-+static inline void write_marker(const char *label) {
-+    int fd = -1;
-+
-+    fd = open(KPI_VALUE_PATH, O_WRONLY);
-+    if (fd > 0) {
-+            write(fd, label, strlen(label));
-+            close(fd);
-+    } else {
-+            log_error("open bootkpi_values failed");
-+    }
-+
-+    return;
-+}
 +
  Job* job_new_raw(Unit *unit) {
          Job *j;
  
-@@ -550,6 +572,16 @@ static int job_perform_on_unit(Job **j) {
+@@ -548,6 +556,16 @@ static int job_perform_on_unit(Job **j) {
                          assert_not_reached("Invalid job type");
          }
  
@@ -58,7 +78,7 @@ index 8e2039d..aa1bdc4 100644
          /* Log if the job still exists and the start/stop/reload function
           * actually did something. */
          *j = manager_get_job(m, id);
-@@ -865,6 +897,17 @@ int job_finish_and_invalidate(Job *j, JobResult result, bool recursive, bool alr
+@@ -888,6 +906,17 @@ int job_finish_and_invalidate(Job *j, JobResult result, bool recursive, bool alr
  
          log_unit_debug(u, "Job %s/%s finished, result=%s", u->id, job_type_to_string(t), job_result_to_string(result));
  
@@ -76,6 +96,56 @@ index 8e2039d..aa1bdc4 100644
          /* If this job did nothing to respective unit we don't log the status message */
          if (!already)
                  job_emit_status_message(u, t, result);
+diff --git a/src/core/main.c b/src/core/main.c
+index 44dd834..7c3331b 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -2214,6 +2214,7 @@ int main(int argc, char *argv[]) {
+                                         error_message = "Failed to mount early API filesystems";
+                                         goto finish;
+                                 }
++                                write_marker("M - User Space Start");
+ 
+                                 r = initialize_security(
+                                                 &loaded_policy,
+diff --git a/src/core/mount-setup.c b/src/core/mount-setup.c
+index 8b6bef1..6a600e4 100644
+--- a/src/core/mount-setup.c
++++ b/src/core/mount-setup.c
+@@ -51,9 +51,9 @@ typedef struct MountPoint {
+  * other ones we can delay until SELinux and IMA are loaded. When
+  * SMACK is enabled we need smackfs, too, so it's a fifth one. */
+ #if ENABLE_SMACK
+-#define N_EARLY_MOUNT 5
++#define N_EARLY_MOUNT 6
+ #else
+-#define N_EARLY_MOUNT 4
++#define N_EARLY_MOUNT 5
+ #endif
+ 
+ static const MountPoint mount_table[] = {
+@@ -65,6 +65,8 @@ static const MountPoint mount_table[] = {
+           NULL,          MNT_FATAL|MNT_IN_CONTAINER },
+         { "securityfs",  "/sys/kernel/security",      "securityfs", NULL,                      MS_NOSUID|MS_NOEXEC|MS_NODEV,
+           NULL,          MNT_NONE                   },
++        { "debugfs",     "/sys/kernel/debug",         "debugfs",    NULL,                      0,
++          NULL,          MNT_NONE                   },
+ #if ENABLE_SMACK
+         { "smackfs",     "/sys/fs/smackfs",           "smackfs",    "smackfsdef=*",            MS_NOSUID|MS_NOEXEC|MS_NODEV,
+           mac_smack_use, MNT_FATAL                  },
+diff --git a/units/meson.build b/units/meson.build
+index 698734e..56d0d47 100644
+--- a/units/meson.build
++++ b/units/meson.build
+@@ -71,8 +71,6 @@ units = [
+          'sysinit.target.wants/'],
+         ['sys-kernel-config.mount',             '',
+          'sysinit.target.wants/'],
+-        ['sys-kernel-debug.mount',              '',
+-         'sysinit.target.wants/'],
+         ['sysinit.target',                      ''],
+         ['syslog.socket',                       ''],
+         ['system-update.target',                ''],
 -- 
 1.9.1
 

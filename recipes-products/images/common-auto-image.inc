@@ -34,3 +34,8 @@ IMAGE_INSTALL_remove += "systemd-coredump"
 #IMAGE_INSTALL_remove += "synergy-opensource"
 IMAGE_INSTALL_remove += "qcacld32-ll wpa-supplicant-qcacld hostap-daemon-qcacld qcacld-utils"
 
+#add smack support
+IMAGE_INSTALL += "smack-userspace"
+IMAGE_INSTALL += "security-manager"
+IMAGE_INSTALL += "security-manager-policy"
+IMAGE_INSTALL += "cynara"
