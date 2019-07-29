@@ -12,9 +12,12 @@ SRC_URI += "file://ptp-virtual.service"
 DEPENDS = "virtual/kernel"
 
 S = "${WORKDIR}/ptp-virtual"
-inherit module kernel-arch qperf
+inherit module systemd kernel-arch qperf
 INHIBIT_PACKAGE_STRIP = "1"
 EXTRA_OEMAKE += "CONFIG_ARCH_MSM=y"
+
+SYSTEMD_SERVICE_${PN} = "ptp-virtual.service"
+SYSTEMD_AUTO_ENABLE_${PN} = "enable"
 
 do_compile_append () {
     KMOD_SIG_ALL=`cat ${STAGING_KERNEL_BUILDDIR}/.config | grep CONFIG_MODULE_SIG_ALL | cut -d'=' -f2`
