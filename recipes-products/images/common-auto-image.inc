@@ -4,7 +4,7 @@
 IMAGE_INSTALL += "binder"
 IMAGE_INSTALL += "bridge-utils"
 IMAGE_INSTALL += "connman connman-client connman-tools"
-IMAGE_INSTALL += "tcp-wrappers xinetd"
+IMAGE_INSTALL += "tcp-wrappers xinetd netkit-telnet"
 IMAGE_INSTALL += "openssh"
 IMAGE_INSTALL += "edk2"
 #IMAGE_INSTALL += "emac-dwc-eqos"
