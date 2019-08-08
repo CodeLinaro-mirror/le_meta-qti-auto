@@ -1,4 +1,6 @@
 # Auto open source Packages
+IMAGE_INSTALL += "chrony"
+IMAGE_INSTALL += "chronyc"
 IMAGE_INSTALL += "libsensors"
 IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "telux-lib"
