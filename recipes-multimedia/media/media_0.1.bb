@@ -18,6 +18,7 @@ DEPENDS += "libhardware"
 DEPENDS += "mm-video-noship"
 DEPENDS += "display-hal-linux"
 DEPENDS += "display-commonsys-intf-linux"
+DEPENDS += "media-plugin-headers"
 
 # Need the kernel headers
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -36,7 +37,6 @@ EXTRA_OECONF_append =" --with-cutils-headers=${STAGING_INCDIR}/cutils/"
 EXTRA_OECONF_append =" --with-log-headers=${STAGING_INCDIR}/log/"
 EXTRA_OECONF_append =" --with-videolibs-headers=${WORKDIR}/video/lib/mm-video-noship/utils/inc"
 EXTRA_OECONF_append =" --with-usr-include-headers=${STAGING_INCDIR}/"
-EXTRA_OECONF_append = "--with-libhardware-headers=${WORKSPACE}/hardware/libhardware "
 
 
 EXTRA_OECONF_append =" --enable-use-glib="yes""

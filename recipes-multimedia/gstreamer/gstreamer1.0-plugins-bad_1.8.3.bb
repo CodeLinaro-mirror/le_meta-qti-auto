@@ -198,6 +198,7 @@ EXTRA_OECONF = " \
                 --disable-zbar \
                 "
 EXTRA_OECONF_append =" --with-protocal-xml-path=${STAGING_DATADIR}/weston"
+CPPFLAGS += "-I${STAGING_KERNEL_BUILDDIR}/usr/include"
 do_configure_prepend() {
 	cd ${S}
 	./autogen.sh --noconfigure
