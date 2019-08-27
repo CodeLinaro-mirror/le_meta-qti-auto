@@ -59,7 +59,8 @@ CPPFLAGS += "-I${STAGING_INCDIR} \
              -I${STAGING_INCDIR}/c++ \
              -I${STAGING_INCDIR}/c++/${TARGET_SYS} \
              -I${STAGING_INCDIR}/ion_headers  \
-             -I${STAGING_INCDIR}/disp-commonsys-intf/display"
+             -I${STAGING_INCDIR}/disp-commonsys-intf/display \
+             -I${WORKSPACE}/vendor/qcom/opensource/commonsys-intf/display/gralloc"
 
 CPPFLAGS += "-include stdint.h"
 
