@@ -12,6 +12,7 @@ SRC_URI_append += "file://postmss"
 SRC_URI_append += "file://usb.conf"
 SRC_URI_append += "file://adbd.conf"
 SRC_URI_append += "file://tftp_server.conf"
+SRC_URI_append += "file://servicemanager.conf"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
@@ -34,11 +35,14 @@ do_install_append() {
         install -d ${D}/lib/systemd/system/usb.service.d
         install -d ${D}/lib/systemd/system/adbd.service.d
         install -d ${D}/lib/systemd/system/tftp_server.service.d
+        install -d ${D}/lib/systemd/system/servicemanager.service.d
+
         install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
         install -m 0644 ${WORKDIR}/tftp_server.conf ${D}/lib/systemd/system/tftp_server.service.d/tftp_server.conf
+        install -m 0644 ${WORKDIR}/servicemanager.conf ${D}/lib/systemd/system/servicemanager.service.d/servicemanager.conf
 
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
