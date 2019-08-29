@@ -1,4 +1,4 @@
-inherit pkgconfig cmake
+inherit pkgconfig cmake systemd
 
 SUMMARY = "Telematics SDK Samples"
 DESCRIPTION = "Telematics SDK Samples"
@@ -11,6 +11,10 @@ PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://telux/public/"
 S = "${WORKDIR}/telux/public/samples/"
+
+EXTRA_OECMAKE += "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '-DWITH_SYSTEMD:BOOL=ON', '', d)}"
+
+SYSTEMD_SERVICE_${PN} = "chrony-sock.service"
 
 SRCREV = "${AUTOREV}"
 
