@@ -3,6 +3,7 @@ DEFAULT_PREFERENCE = "-1"
 require ${COREBASE}/meta/recipes-multimedia/gstreamer/gstreamer1.0-omx.inc
 
 DEPENDS += "media"
+DEPENDS += "gbm"
 RDEPENDS_${PN} = "media"
 GSTREAMER_1_0_OMX_TARGET = "generic"
 GSTREAMER_1_0_OMX_CORE_NAME = "${libdir}/libOmxCore.so"
@@ -22,6 +23,8 @@ EXTRA_OECONF = " \
                --with-protocal-xml-path=${STAGING_DATADIR}/weston \
               "
 CPPFLAGS += "-I${STAGING_KERNEL_BUILDDIR}/usr/include"
+
+export STAGING_INCDIR
 
 do_configure_prepend() {
 	cd ${S}
