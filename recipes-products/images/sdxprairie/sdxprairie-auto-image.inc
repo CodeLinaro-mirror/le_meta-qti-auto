@@ -1,5 +1,6 @@
 # Auto open source Packages
-IMAGE_INSTALL += "nbd-client"
+IMAGE_INSTALL += "chrony"
+IMAGE_INSTALL += "chronyc"
 
 # Test tools
 IMAGE_INSTALL += "can-utils"
