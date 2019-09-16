@@ -69,11 +69,11 @@ do_install_append_auto() {
         rm -f ${D}${base_libdir}/udev/rules.d/60-sensor.rules
         rm -f ${D}${base_libdir}/udev/rules.d/70-joystick.rules
         rm -f ${D}${base_libdir}/udev/rules.d/70-mouse.rules
-        rm -f ${D}${base_libdir}/udev/rules.d/70-touchpad.ruless
+        rm -f ${D}${base_libdir}/udev/rules.d/70-touchpad.rules
         rm -f ${D}${base_libdir}/udev/rules.d/71-seat.rules
         rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
-        rm -f ${D}${base_libdir}/udev/rules.d/touchscreen.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
         rm -f ${D}${base_libdir}/udev/rules.d/mountpartitions.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
     fi
