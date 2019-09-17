@@ -29,6 +29,7 @@
 chown root:sensors /sys/bus/iio/devices
 chown -R root:sensors /dev/$1
 chown -R root:sensors /sys/bus/iio/devices/$1/*
+chown -R root:sensors /sys/bus/iio/devices/$1
 # Give executable permissions on all folders,
 # rw permissions  for group and only read for others
 chmod 755 /sys/bus/iio/devices
