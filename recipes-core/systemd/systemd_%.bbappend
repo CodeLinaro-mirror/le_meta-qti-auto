@@ -13,6 +13,7 @@ SRC_URI_append += "file://usb.conf"
 SRC_URI_append += "file://adbd.conf"
 SRC_URI_append += "file://tftp_server.conf"
 SRC_URI_append += "file://servicemanager.conf"
+SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
