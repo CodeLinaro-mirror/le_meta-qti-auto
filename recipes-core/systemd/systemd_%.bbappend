@@ -5,7 +5,6 @@ SRC_URI_append += "file://61-iio.rules"
 SRC_URI_append += "file://61-diag.rules"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://Allow-powermgr-group-to-communicate.patch"
-SRC_URI_append += "file://systemd-udev-trigger.conf"
 SRC_URI_append += "file://init_sys_mss.conf"
 SRC_URI_append += "file://postmss.service"
 SRC_URI_append += "file://postmss"
@@ -32,14 +31,12 @@ do_install_append() {
         install -m 0555 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
 
         # Install drop-ins for systemd service files
-        install -d ${D}/lib/systemd/system/systemd-udev-trigger.service.d
         install -d ${D}/lib/systemd/system/init_sys_mss.service.d
         install -d ${D}/lib/systemd/system/usb.service.d
         install -d ${D}/lib/systemd/system/adbd.service.d
         install -d ${D}/lib/systemd/system/tftp_server.service.d
         install -d ${D}/lib/systemd/system/servicemanager.service.d
 
-        install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
