@@ -36,18 +36,18 @@ SRC_URI += "file://0001-Disable-manpages-compilation.patch"
 
 S = "${WORKDIR}/git"
 
-inherit autotools pkgconfig
+inherit autotools pkgconfig update-alternatives
 
 PACKAGES = "${PN}-client ${PN}-server ${PN}-dbg ${PN}-trdump ${PN}-doc"
 
-FILES_${PN}-client = "${sbindir}/${BPN}-client"
+FILES_${PN}-client = "${sbindir}/${BPN}-client.${BPN}"
 FILES_${PN}-server = "${bindir}/${BPN}-server"
 FILES_${PN}-trdump = "${bindir}/${BPN}-trdump"
 
-ALTERNATIVE_${PN} = "nbd-client"
-ALTERNATIVE_TARGET[nbd-client] = "${base_sbindir}/nbd-client.${BPN}"
-ALTERNATIVE_LINK_NAME[nbd-client] = "${base_sbindir}/nbd-client"
-ALTERNATIVE_PRIORITY = "100"
+ALTERNATIVE_${PN}-client = "nbd-client"
+ALTERNATIVE_TARGET[nbd-client] = "${sbindir}/nbd-client"
+ALTERNATIVE_LINK_NAME[nbd-client] = "${sbindir}/nbd-client"
+ALTERNATIVE_PRIORITY[nbd-client] = "100"
 
 EXTRA_OECONF = "--enable-syslog"
 
