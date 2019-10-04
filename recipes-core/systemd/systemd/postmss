@@ -42,9 +42,8 @@ case "$1" in
            msstate=`cat $search_dir/$entry/state`
            if [ "$msstate" == "ONLINE" ]
            then
-          renice -n 5 -p `pidof init_mss`
-          renice -n 15 -p `pidof adbd`
-              break
+               renice -n 20 -p `pidof init_mss`
+           break
            fi
         done
     exit 0
