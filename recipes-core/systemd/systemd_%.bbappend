@@ -13,6 +13,7 @@ SRC_URI_append += "file://servicemanager.conf"
 SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch"
 SRC_URI_append += "file://mask-failed-to-connect-to-journal-socket-errors.patch"
 SRC_URI_append += "file://Removed-the-symlink-for-localtime.patch"
+SRC_URI_append += "file://Removed-specified-group-render-and-KVM.patch"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
