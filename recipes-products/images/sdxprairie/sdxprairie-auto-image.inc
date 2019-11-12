@@ -6,6 +6,7 @@ IMAGE_INSTALL += "telux-lib"
 IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
 IMAGE_INSTALL += "start-scripts-init-can"
+IMAGE_INSTALL += "nbd-client"
 
 # Test tools
 IMAGE_INSTALL += "can-utils"
