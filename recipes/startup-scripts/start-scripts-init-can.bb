@@ -6,6 +6,8 @@ inherit update-rc.d systemd
 
 SRC_URI += "file://init-can.sh"
 SRC_URI += "file://61-can.rules"
+SRC_URI  += "file://init-can.service"
+
 S = "${WORKDIR}"
 SRC_DIR = "${THISDIR}"
 
@@ -18,12 +20,18 @@ do_compile[noexec] = "1"
 
 do_install() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
-        install -d ${D}${sysconfdir}/udev/rules.d/
-        install -d ${D}${sysconfdir}/udev/scripts/
-        install -m 0555 ${WORKDIR}/init-can.sh -D ${D}${sysconfdir}/udev/scripts/init-can.sh
-        install -m 0444 ${WORKDIR}/61-can.rules -D ${D}${sysconfdir}/udev/rules.d/61-can.rules
+        install -d ${D}${sysconfdir}/etc/initscripts/
+        install -d ${D}${systemd_unitdir}/system/
+        install -d ${D}${systemd_unitdir}/system/multi-user.target.wants/
+        install -m 0555 ${WORKDIR}/init-can.sh -D ${D}${sysconfdir}/initscripts/init-can.sh
+        install -m 0644 ${WORKDIR}/init-can.service -D ${D}${systemd_unitdir}/system/init-can.service
+
+        # enable the service for multi-user.target
+        ln -sf ${systemd_unitdir}/system/init-can.service ${D}${systemd_unitdir}/system/multi-user.target.wants/init-can.service
     else
         install -d ${D}${sysconfdir}/init.d/
         install -m 0555 ${WORKDIR}/${INITSCRIPT_NAME} -D ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
     fi
 }
+
+FILES_${PN} += "${systemd_unitdir}/system/*"

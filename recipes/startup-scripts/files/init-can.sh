@@ -26,5 +26,8 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-/sbin/ip link set can0 type can bitrate 500000
-/sbin/ip link set up can0
+
+if [ -L /sys/class/net/can0 ]; then
+	/sbin/ip link set can0 type can bitrate 500000
+	/sbin/ip link set up can0
+fi
