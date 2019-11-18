@@ -1,20 +1,3 @@
-diff --git a/daemons/gptp/linux/src/linux_hal_generic_adj.cpp b/daemons/gptp/linux/src/linux_hal_generic_adj.cpp
-index 5e085b1..54c210b 100644
---- a/daemons/gptp/linux/src/linux_hal_generic_adj.cpp
-+++ b/daemons/gptp/linux/src/linux_hal_generic_adj.cpp
-@@ -35,7 +35,12 @@
-  // avoid indirect inclusion of time.h since this will clash with linux/timex.h
- #define _TIME_H  1
- #define _STRUCT_TIMEVAL 1
-+
-+#define timespec linux_timespec
-+#define timeval linux_timeval
- #include <linux_hal_generic.hpp>
-+#undef timespec
-+#undef timeval
- #ifdef ANDROID
- #include <sys/syscall.h>
- #else
 diff --git a/daemons/maap/linux/Makefile b/daemons/maap/linux/Makefile
 index 0d950c0..8611e36 100644
 --- a/daemons/maap/linux/Makefile
