@@ -10,6 +10,8 @@ SRC_URI_append += "file://usb.conf"
 SRC_URI_append += "file://adbd.conf"
 SRC_URI_append += "file://tftp_server.conf"
 SRC_URI_append += "file://servicemanager.conf"
+SRC_URI_append += "file://loc_launcher.conf"
+SRC_URI_append += "file://loc_bootup_iio.sh"
 SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch"
 SRC_URI_append += "file://mask-failed-to-connect-to-journal-socket-errors.patch"
 SRC_URI_append += "file://Removed-the-symlink-for-localtime.patch"
@@ -34,12 +36,14 @@ do_install_append() {
         install -d ${D}/lib/systemd/system/adbd.service.d
         install -d ${D}/lib/systemd/system/tftp_server.service.d
         install -d ${D}/lib/systemd/system/servicemanager.service.d
+        install -d ${D}/etc/systemd/system/loc_launcher.service.d
 
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
         install -m 0644 ${WORKDIR}/tftp_server.conf ${D}/lib/systemd/system/tftp_server.service.d/tftp_server.conf
         install -m 0644 ${WORKDIR}/servicemanager.conf ${D}/lib/systemd/system/servicemanager.service.d/servicemanager.conf
+        install -m 0644 ${WORKDIR}/loc_launcher.conf ${D}/etc/systemd/system/loc_launcher.service.d/loc_launcher.conf
 
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
@@ -47,6 +51,8 @@ do_install_append() {
         install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
         install -m 0644 ${WORKDIR}/postmss.service ${D}/lib/systemd/system/postmss.service
         ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/multi-user.target.wants/postmss.service
+
+        install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
     fi
 }
 
