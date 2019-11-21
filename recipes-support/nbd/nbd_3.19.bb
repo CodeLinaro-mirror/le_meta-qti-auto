@@ -33,6 +33,10 @@ SRC_URI = "git://github.com/networkblockdevice/nbd.git"
 SRCREV = "e757bde96ac7a24f2be4e9d025486990ceb910ef"
 
 SRC_URI += "file://0001-Disable-manpages-compilation.patch"
+SRC_URI += "file://setup_nbdclient"
+SRC_URI += "file://02-setup_nbdclient.rules"
+SRC_URI += "file://nbdtab"
+SRC_URI += "file://nbdclient.service"
 
 S = "${WORKDIR}/git"
 
@@ -54,3 +58,25 @@ EXTRA_OECONF = "--enable-syslog"
 do_configure_prepend() {
     (cd ${S}; ./autogen.sh; cd -)
 }
+
+do_install_append() {
+   if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+       # Install script that will setup the nbd-client
+       install -d ${D}${sbindir}/
+       install -m 0755 ${WORKDIR}/setup_nbdclient ${D}${sbindir}/setup_nbdclient
+       #Install systemd service file
+       install -d ${D}${systemd_unitdir}/system
+       install -m 0644 ${WORKDIR}/nbdclient.service ${D}${systemd_unitdir}/system/
+       #install nbdtab conf file
+       install -d ${D}${sysconfdir}/
+       install -m 0644 ${WORKDIR}/nbdtab ${D}${sysconfdir}/nbdtab
+       # Install udev client rule
+       install -d ${D}${sysconfdir}/udev/rules.d/
+       install -m 0555 ${WORKDIR}/02-setup_nbdclient.rules ${D}${sysconfdir}/udev/rules.d/02-setup_nbdclient.rules
+   fi
+}
+
+FILES_${PN}-client += "${sysconfdir}/udev/rules.d/* "
+FILES_${PN}-client += "${sbindir}/*"
+FILES_${PN}-client += "${systemd_unitdir}/system/*"
+FILES_${PN}-client += "${sysconfdir}/*"
