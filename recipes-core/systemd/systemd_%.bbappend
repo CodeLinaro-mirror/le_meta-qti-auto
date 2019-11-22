@@ -3,14 +3,20 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI_append += "file://61-diag.rules"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://Allow-powermgr-group-to-communicate.patch"
-SRC_URI_append += "file://init_sys_mss.conf"
 SRC_URI_append += "file://postmss.service"
 SRC_URI_append += "file://postmss"
 SRC_URI_append += "file://usb.conf"
 SRC_URI_append += "file://adbd.conf"
 SRC_URI_append += "file://tftp_server.conf"
 SRC_URI_append += "file://servicemanager.conf"
+SRC_URI_append += "file://logd.conf"
+SRC_URI_append += "file://init-can.conf"
 SRC_URI_append += "file://loc_launcher.conf"
+SRC_URI_append += "file://location_hal_daemon.conf"
+SRC_URI_append += "file://qwesd.conf"
+SRC_URI_append += "file://qseecomd.conf"
+SRC_URI_append += "file://qwes_license_store.conf"
+SRC_URI_append += "file://evdev_load.conf"
 SRC_URI_append += "file://loc_bootup_iio.sh"
 SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch"
 SRC_URI_append += "file://mask-failed-to-connect-to-journal-socket-errors.patch"
@@ -31,19 +37,31 @@ do_install_append() {
         install -m 0555 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
 
         # Install drop-ins for systemd service files
-        install -d ${D}/lib/systemd/system/init_sys_mss.service.d
         install -d ${D}/lib/systemd/system/usb.service.d
         install -d ${D}/lib/systemd/system/adbd.service.d
         install -d ${D}/lib/systemd/system/tftp_server.service.d
         install -d ${D}/lib/systemd/system/servicemanager.service.d
+        install -d ${D}/lib/systemd/system/logd.service.d
+        install -d ${D}/lib/systemd/system/init-can.service.d
         install -d ${D}/etc/systemd/system/loc_launcher.service.d
+        install -d ${D}/etc/systemd/system/location_hal_daemon.service.d
+        install -d ${D}/lib/systemd/system/qwesd.service.d
+        install -d ${D}/lib/systemd/system/qseecomd.service.d
+        install -d ${D}/lib/systemd/system/qwes_license_store.service.d
+        install -d ${D}/etc/systemd/system/evdev_load.service.d
 
-        install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
         install -m 0644 ${WORKDIR}/tftp_server.conf ${D}/lib/systemd/system/tftp_server.service.d/tftp_server.conf
         install -m 0644 ${WORKDIR}/servicemanager.conf ${D}/lib/systemd/system/servicemanager.service.d/servicemanager.conf
+        install -m 0644 ${WORKDIR}/logd.conf ${D}/lib/systemd/system/logd.service.d/logd.conf
+        install -m 0644 ${WORKDIR}/init-can.conf ${D}/lib/systemd/system/init-can.service.d/init-can.conf
         install -m 0644 ${WORKDIR}/loc_launcher.conf ${D}/etc/systemd/system/loc_launcher.service.d/loc_launcher.conf
+        install -m 0644 ${WORKDIR}/location_hal_daemon.conf ${D}/etc/systemd/system/location_hal_daemon.service.d/location_hal_daemon.conf
+        install -m 0644 ${WORKDIR}/qwesd.conf ${D}/lib/systemd/system/qwesd.service.d/qwesd.conf
+        install -m 0644 ${WORKDIR}/qseecomd.conf ${D}/lib/systemd/system/qseecomd.service.d/qseecomd.conf
+        install -m 0644 ${WORKDIR}/qwes_license_store.conf ${D}/lib/systemd/system/qwes_license_store.service.d/qwes_license_store.conf
+        install -m 0644 ${WORKDIR}/evdev_load.conf ${D}/etc/systemd/system/evdev_load.service.d/evdev_load.conf
 
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
