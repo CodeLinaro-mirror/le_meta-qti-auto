@@ -38,4 +38,4 @@ ExecStart=/etc/initscripts/init-can.sh start
 ExecStop=/etc/initscripts/init-can.sh stop
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sockets.target
