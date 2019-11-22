@@ -13,6 +13,13 @@ SRC_URI_append += "file://postmss"
 SRC_URI_append += "file://usb.conf"
 SRC_URI_append += "file://adbd.conf"
 SRC_URI_append += "file://loc_launcher.conf"
+SRC_URI_append += "file://logd.conf"
+SRC_URI_append += "file://init-can.conf"
+SRC_URI_append += "file://location_hal_daemon.conf"
+SRC_URI_append += "file://qwesd.conf"
+SRC_URI_append += "file://qseecomd.conf"
+SRC_URI_append += "file://qwes_license_store.conf"
+SRC_URI_append += "file://evdev_load.conf"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
@@ -26,11 +33,27 @@ do_install_append() {
         install -d ${D}/lib/systemd/system/usb.service.d
         install -d ${D}/lib/systemd/system/adbd.service.d
         install -d ${D}/etc/systemd/system/loc_launcher.service.d
+        install -d ${D}/lib/systemd/system/logd.service.d
+        install -d ${D}/lib/systemd/system/init-can.service.d
+        install -d ${D}/etc/systemd/system/location_hal_daemon.service.d
+        install -d ${D}/lib/systemd/system/qwesd.service.d
+        install -d ${D}/lib/systemd/system/qseecomd.service.d
+        install -d ${D}/lib/systemd/system/qwes_license_store.service.d
+        install -d ${D}/etc/systemd/system/evdev_load.service.d
+
         install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
         install -m 0644 ${WORKDIR}/loc_launcher.conf ${D}/etc/systemd/system/loc_launcher.service.d/loc_launcher.conf
+        install -m 0644 ${WORKDIR}/logd.conf ${D}/lib/systemd/system/logd.service.d/logd.conf
+        install -m 0644 ${WORKDIR}/init-can.conf ${D}/lib/systemd/system/init-can.service.d/init-can.conf
+        install -m 0644 ${WORKDIR}/location_hal_daemon.conf ${D}/etc/systemd/system/location_hal_daemon.service.d/location_hal_daemon.conf
+        install -m 0644 ${WORKDIR}/qwesd.conf ${D}/lib/systemd/system/qwesd.service.d/qwesd.conf
+        install -m 0644 ${WORKDIR}/qseecomd.conf ${D}/lib/systemd/system/qseecomd.service.d/qseecomd.conf
+        install -m 0644 ${WORKDIR}/qwes_license_store.conf ${D}/lib/systemd/system/qwes_license_store.service.d/qwes_license_store.conf
+        install -m 0644 ${WORKDIR}/evdev_load.conf ${D}/etc/systemd/system/evdev_load.service.d/evdev_load.conf
+
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
         install -d ${D}/lib/systemd/system/multi-user.target.wants
