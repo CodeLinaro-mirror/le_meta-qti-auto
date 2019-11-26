@@ -1,8 +1,0 @@
---- a/bus/tmpfiles.d/dbus.conf.in	2019-10-01 14:49:40.651496618 +0530
-+++ b/bus/tmpfiles.d/dbus.conf.in	2019-10-01 14:50:22.059648639 +0530
-@@ -6,4 +6,4 @@
-
- # Make ${localstatedir}/lib/dbus/machine-id a symlink to /etc/machine-id
- # if it does not already exist
--L @EXPANDED_LOCALSTATEDIR@/lib/dbus/machine-id - - - - /etc/machine-id
-+#L @EXPANDED_LOCALSTATEDIR@/lib/dbus/machine-id - - - - /etc/machine-id

@@ -1,7 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI += "file://extra-users-auto.conf"
-SRC_URI += "file://Removed-symlink-for-machine-id.patch"
 
 do_install_append() {
    install -d ${D}/${datadir}/dbus-1/system.d/
