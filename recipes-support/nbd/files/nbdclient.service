@@ -28,6 +28,8 @@
 
 [Unit]
 Description= NBD client
+After=usb.service
+Wants=usb.service sys-subsystem-net-devices-rndis0.device
 
 [Service]
 Type=oneshot
