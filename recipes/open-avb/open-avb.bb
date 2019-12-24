@@ -1,3 +1,5 @@
+inherit systemd
+
 DESCRIPTION = "open-avb tools"
 HOMEPAGE = "https://github.com/AVnu/Open-AVB"
 LICENSE = "BSD"
@@ -13,20 +15,27 @@ DEPENDS_append_sa515m += "tinyalsa"
 
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/ \
-           file://avb.patch"
+		file://avb.patch \
+		file://gptp-daemon.service \
+		file://gptp-daemon-tmpfilesd.conf"
 
 S = "${WORKDIR}/external/open-avb/"
+
+GPTP_AUTO_START_ENABLE= "NO"
 
 EXTRA_OEMAKE += "AVB_FEATURE_NEUTRINO=1"
 EXTRA_OEMAKE_append_mdm9650 = " PCI_SUPPORT_INCLUDED=1"
 EXTRA_OEMAKE_append_mdm9607 = " PCI_SUPPORT_INCLUDED=0"
 EXTRA_OEMAKE_append_sa515m = " TINYALSA_SUPPORT_INCLUDED=1"
 EXTRA_OEMAKE_append_auto = " SDX_ALSA_LIB_INCLUDED=1"
+EXTRA_OEMAKE += "${@bb.utils.contains("DISTRO_FEATURES", "systemd", " SYSTEMD_SUPPORT_INCLUDED=1", " SYSTEMD_SUPPORT_INCLUDED=0", d)}"
+EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_AUTO_START=1', 'GPTP_AUTO_START=0', d)}"
+SYSTEMD_SERVICE_${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
 
 do_compile() {
+    oe_runmake libgptp
     oe_runmake daemons_all
     oe_runmake avtp_pipeline
-    oe_runmake libgptp
     oe_runmake libgptp_test
 }
 
@@ -43,6 +52,15 @@ do_install() {
     install -m 0644 ${S}/lib/avtp_pipeline/build/bin/*.ini ${D}${userfsdatadir}/avb
     install -m 0755 ${S}/examples/libgptp_test/libgptp_test ${D}${bindir}
     install -m 0755 ${S}/lib/libgptp/*.so ${D}${libdir}
+
+    if (test "x${GPTP_AUTO_START_ENABLE}" == "xYES"); then
+       if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+          install -d ${D}${systemd_unitdir}/system/
+          install -m 0644 ${WORKDIR}/gptp-daemon.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
+          install -d ${D}${sysconfdir}/tmpfiles.d/
+          install -m 0644 ${WORKDIR}/gptp-daemon-tmpfilesd.conf ${D}${sysconfdir}/tmpfiles.d/gptp-daemon-tmpfilesd.conf
+       fi
+    fi
 }
 
 FILES_SOLIBSDEV = ""
