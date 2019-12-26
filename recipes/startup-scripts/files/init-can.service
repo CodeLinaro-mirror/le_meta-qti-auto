@@ -28,9 +28,10 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [Unit]
 Description=init-can Service
 SourcePath=/etc/initscripts/init-can.sh
+Before=powermanager-daemon.service
 
 [Service]
-Restart=no
+Type=oneshot
 RemainAfterExit=yes
 ExecStart=/etc/initscripts/init-can.sh start
 ExecStop=/etc/initscripts/init-can.sh stop
