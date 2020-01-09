@@ -28,11 +28,13 @@
 [Unit]
 SourcePath=/etc/initscripts/usb
 Description=usb Flashless Service
+After=systemd-tmpfiles-setup-dev.service
 DefaultDependencies=no
 
 [Service]
 Type=oneshot
 Environment="adbd_params=0 y"
 RemainAfterExit=yes
+ExecStartPre=+/bin/sh -c 'echo 1 > /dev/ipa'
 ExecStart=/etc/initscripts/usb init
 Nice=-5

@@ -29,7 +29,8 @@
 [Unit]
 Description= NBD client
 After=usb.service
-Wants=usb.service sys-subsystem-net-devices-rndis0.device
+Wants=usb.service
+DefaultDependencies=no
 
 [Service]
 Type=oneshot

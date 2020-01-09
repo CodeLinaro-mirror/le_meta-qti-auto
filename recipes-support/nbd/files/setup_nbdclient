@@ -30,6 +30,13 @@
 
 if [ -f "/sys/firmware/devicetree/base/soc/qcom,mss@4080000/qcom,auto-boot" ]
 then
+	#Set up and configure the bridge
+	#TODO: This might result in QCMAP_Bootup service failure for flashless case. Need to fix it
+	brctl addbr bridge0
+	ifconfig bridge0 192.168.225.1 netmask 255.255.255.0 up
+	ifconfig rndis0 up
+        brctl addif bridge0 rndis0
+
 	nbd-client nbd0
 	nbd-client nbd1
 	nbd-client nbd2
