@@ -43,7 +43,7 @@ case "x$sensor_name" in
    ;;
    "xsmi130_acc" | "xsmi130_gyro" | "xsmi_acc_interrupt")
        chown -R root:sensors /sys/class/input/input$num/*
-       chmod 664  /sys/class/input/input$num/*
+       chmod 777  /sys/class/input/input$num/*
    ;;
 esac
 exit 0
