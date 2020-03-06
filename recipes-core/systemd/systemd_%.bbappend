@@ -15,6 +15,7 @@ SRC_URI_append += "file://loc_bootup_iio.sh"
 SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch"
 SRC_URI_append += "file://mask-failed-to-connect-to-journal-socket-errors.patch"
 SRC_URI_append += "file://Removed-specified-group-render-and-KVM.patch"
+SRC_URI_append += "file://auto_platform.conf"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
@@ -52,6 +53,7 @@ do_install_append() {
         ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/multi-user.target.wants/postmss.service
 
         install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
+        install -m 0644 ${WORKDIR}/auto_platform.conf -D ${D}/etc/tmpfiles.d/auto_platform.conf
     fi
 }
 
