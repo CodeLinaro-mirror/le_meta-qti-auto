@@ -8,6 +8,9 @@ IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
 IMAGE_INSTALL += "start-scripts-init-can"
 
+# Target SDK Packages
+TOOLCHAIN_TARGET_TASK_append += "telux"
+
 # Test tools
 IMAGE_INSTALL += "can-utils"
 IMAGE_INSTALL += "i2c-tools"

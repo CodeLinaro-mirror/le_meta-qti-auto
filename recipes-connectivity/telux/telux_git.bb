@@ -15,3 +15,5 @@ S = "${WORKDIR}/telux/public/include"
 SRCREV = "${AUTOREV}"
 
 ALLOW_EMPTY_${PN} = "1"
+PACKAGES = "${PN}"
+FILES_${PN} += "/usr/include/*"
