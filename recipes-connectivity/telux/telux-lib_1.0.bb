@@ -10,7 +10,7 @@ PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://telux/public/bin/"
-S = "${WORKDIR}/telux/Re/bin"
+S = "${WORKDIR}/telux/bin"
 
 FILES_SOLIBSDEV = ""
 FILES_${PN} += "${libdir}/*.so"
