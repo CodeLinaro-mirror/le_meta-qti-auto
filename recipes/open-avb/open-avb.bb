@@ -17,6 +17,7 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/ \
 		file://avb.patch \
 		file://gptp-daemon.service \
+		file://gptp_udev_rules.rules \
 		file://gptp-daemon-tmpfilesd.conf"
 
 S = "${WORKDIR}/external/open-avb/"
@@ -59,6 +60,9 @@ do_install() {
           install -m 0644 ${WORKDIR}/gptp-daemon.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
           install -d ${D}${sysconfdir}/tmpfiles.d/
           install -m 0644 ${WORKDIR}/gptp-daemon-tmpfilesd.conf ${D}${sysconfdir}/tmpfiles.d/gptp-daemon-tmpfilesd.conf
+
+          install -d ${D}${sysconfdir}/udev/rules.d/
+          install -m 0777 ${WORKDIR}/gptp_udev_rules.rules -D ${D}${sysconfdir}/udev/rules.d/gptp_udev_rules.rules
        fi
     fi
 }
