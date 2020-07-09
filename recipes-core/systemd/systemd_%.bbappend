@@ -7,7 +7,6 @@ SRC_URI_append += "file://postmss.service"
 SRC_URI_append += "file://postmss"
 SRC_URI_append += "file://usb.conf"
 SRC_URI_append += "file://adbd.conf"
-SRC_URI_append += "file://tftp_server.conf"
 SRC_URI_append += "file://servicemanager.conf"
 SRC_URI_append += "file://logd.conf"
 SRC_URI_append += "file://init-can.conf"
@@ -41,7 +40,6 @@ do_install_append() {
         # Install drop-ins for systemd service files
         install -d ${D}/lib/systemd/system/usb.service.d
         install -d ${D}/lib/systemd/system/adbd.service.d
-        install -d ${D}/lib/systemd/system/tftp_server.service.d
         install -d ${D}/lib/systemd/system/servicemanager.service.d
         install -d ${D}/lib/systemd/system/logd.service.d
         install -d ${D}/lib/systemd/system/init-can.service.d
@@ -54,7 +52,6 @@ do_install_append() {
 
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
-        install -m 0644 ${WORKDIR}/tftp_server.conf ${D}/lib/systemd/system/tftp_server.service.d/tftp_server.conf
         install -m 0644 ${WORKDIR}/servicemanager.conf ${D}/lib/systemd/system/servicemanager.service.d/servicemanager.conf
         install -m 0644 ${WORKDIR}/logd.conf ${D}/lib/systemd/system/logd.service.d/logd.conf
         install -m 0644 ${WORKDIR}/init-can.conf ${D}/lib/systemd/system/init-can.service.d/init-can.conf
