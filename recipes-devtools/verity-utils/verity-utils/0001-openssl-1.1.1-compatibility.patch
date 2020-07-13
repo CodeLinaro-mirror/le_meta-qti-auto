@@ -1,0 +1,49 @@
+From 34371a7a11aad355de0a80fdd084eee08d98852b Mon Sep 17 00:00:00 2001
+From: Divya Theja <divyathe@codeaurora.org>
+Date: Tue, 7 May 2019 17:04:06 +0530
+Subject: [PATCH]  openssl-1.1.1* compatibility.
+
+   * RSA structure is opaque now and henceforth direct references to
+     members of RSA structure is illegal.
+   * void RSA_get0_key(const RSA *r,const BIGNUM **n, const BIGNUM **e,
+                       const BIGNUM **d) to collect n, e and d values
+     from r.
+   * int RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d)
+     to backfill n ,e, d from r. On success, returns 1.
+
+Signed-off-by: Pavankumar Vijapur <pvijapur@codeaurora.org>
+---
+ generate_verity_key.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/generate_verity_key.c b/generate_verity_key.c
+index 0da978f..daa6602 100644
+--- a/generate_verity_key.c
++++ b/generate_verity_key.c
+@@ -52,9 +52,13 @@ static int convert_to_mincrypt_format(RSA *rsa, RSAPublicKey *pkey)
+     BIGNUM* rem = BN_new();
+     BIGNUM* n = BN_new();
+     BIGNUM* n0inv = BN_new();
++    BIGNUM* local_n;
++    BIGNUM* local_e;
++    BIGNUM* local_d;
+ 
+     BN_set_bit(r32, 32);
+-    BN_copy(n, rsa->n);
++    RSA_get0_key(rsa, &local_n, &local_e, &local_d);
++    BN_copy(n, local_n);
+     BN_set_bit(r, RSANUMWORDS * 32);
+     BN_mod_sqr(rr, r, n, ctx);
+     BN_div(NULL, rem, n, r32, ctx);
+@@ -68,7 +72,7 @@ static int convert_to_mincrypt_format(RSA *rsa, RSAPublicKey *pkey)
+         BN_div(n, rem, n, r32, ctx);
+         pkey->n[i] = BN_get_word(rem);
+     }
+-    pkey->exponent = BN_get_word(rsa->e);
++    pkey->exponent = BN_get_word(local_e);
+ 
+     ret = 0;
+ 
+-- 
+1.9.1
+
