@@ -14,9 +14,14 @@ S = "${WORKDIR}/telux/public/samples/"
 
 EXTRA_OECMAKE += "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '-DWITH_SYSTEMD:BOOL=ON', '', d)}"
 EXTRA_OECMAKE += "-DMACHINE_HAS_CV2X=ON"
+EXTRA_OECMAKE += "-DAUDIO_ENABLED=ON"
 
 SYSTEMD_SERVICE_${PN} = "chrony-sock.service"
 
 SRCREV = "${AUTOREV}"
 
 DEPENDS += "telux telux-lib systemd"
+
+do_install_append() {
+    install -m 0644 ${WORKDIR}/telux/public/apps/tests/telsdk_console_app/config_files/telsdk_app.conf -D ${D}${sysconfdir}/telsdk_app.conf
+}
