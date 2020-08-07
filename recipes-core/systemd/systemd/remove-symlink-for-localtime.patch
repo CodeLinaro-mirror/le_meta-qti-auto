@@ -1,0 +1,24 @@
+From 2ce356b307a5afa724df7d61fc2b9d4ede44586d Mon Sep 17 00:00:00 2001
+From: Raghava Chowdam <rchowdam@codeaurora.org>
+Date: Fri, 7 Aug 2020 09:18:40 +0530
+Subject: [PATCH] meta-qti-auto: Removed symlinks for machine-id and localtime
+
+Symlink for /var/lib/dbus/machine-id to /etc/machine-id is removed
+as it is Read-Only File and not required to generate machine-id.
+Similarly, symlink is removed for Zoneinfo to localtime as it is
+not required.
+
+Change-Id: I869ad3cdd088e04ac7474f88e3d15406e3f99537
+Signed-off-by: Raghava Chowdam <rchowdam@codeaurora.org>
+
+--- a/tmpfiles.d/etc.conf.m4	2020-08-04 12:45:40.877146850 +0530
++++ b/tmpfiles.d/etc.conf.m4	2020-08-04 12:45:45.197163194 +0530
+@@ -8,7 +8,7 @@
+ # See tmpfiles.d(5) for details
+
+ L /etc/os-release - - - - ../usr/lib/os-release
+-L /etc/localtime - - - - ../usr/share/zoneinfo/UTC
++#L /etc/localtime - - - - ../usr/share/zoneinfo/UTC
+ #L+ /etc/mtab - - - - ../proc/self/mounts
+ m4_ifdef(`HAVE_SMACK_RUN_LABEL',
+ t /etc/mtab - - - - security.SMACK64=_
