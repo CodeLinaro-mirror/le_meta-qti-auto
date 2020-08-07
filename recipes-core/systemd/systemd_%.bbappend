@@ -23,6 +23,7 @@ SRC_URI_append += "file://mask-failed-to-connect-to-journal-socket-errors.patch"
 SRC_URI_append += "file://Removed-specified-group-render-and-KVM.patch"
 SRC_URI_append += "file://auto_platform.conf"
 SRC_URI_append += "file://0001-meta-qt-auto-Remove-srv-from-tmpfiles.patch"
+SRC_URI_append += "file://remove-symlink-for-localtime.patch"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
