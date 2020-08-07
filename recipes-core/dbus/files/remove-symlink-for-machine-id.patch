@@ -1,0 +1,21 @@
+From 2ce356b307a5afa724df7d61fc2b9d4ede44586d Mon Sep 17 00:00:00 2001
+From: Raghava Chowdam <rchowdam@codeaurora.org>
+Date: Fri, 7 Aug 2020 09:18:40 +0530
+Subject: [PATCH] meta-qti-auto: Removed symlinks for machine-id and localtime
+
+Symlink for /var/lib/dbus/machine-id to /etc/machine-id is removed
+as it is Read-Only File and not required to generate machine-id.
+Similarly, symlink is removed for Zoneinfo to localtime as it is
+not required.
+
+Change-Id: I869ad3cdd088e04ac7474f88e3d15406e3f99537
+Signed-off-by: Raghava Chowdam <rchowdam@codeaurora.org>
+
+--- a/bus/tmpfiles.d/dbus.conf.in	2020-08-05 10:48:01.222215432 +0530
++++ b/bus/tmpfiles.d/dbus.conf.in	2020-08-05 11:05:55.902870610 +0530
+@@ -6,4 +6,4 @@
+
+ # Make ${localstatedir}/lib/dbus/machine-id a symlink to /etc/machine-id
+ # if it does not already exist
+-L @EXPANDED_LOCALSTATEDIR@/lib/dbus/machine-id - - - - /etc/machine-id
++#L @EXPANDED_LOCALSTATEDIR@/lib/dbus/machine-id - - - - /etc/machine-id
