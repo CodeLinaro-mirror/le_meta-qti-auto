@@ -8,6 +8,7 @@ IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
 IMAGE_INSTALL += "start-scripts-init-can"
 IMAGE_INSTALL += "nbd-client"
+IMAGE_INSTALL += "vnw-eth-switch"
 
 # Test tools
 IMAGE_INSTALL += "can-utils"
