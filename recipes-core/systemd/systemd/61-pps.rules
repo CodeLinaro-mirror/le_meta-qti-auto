@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="pps*", SUBSYSTEM=="pps", MODE="0664"
