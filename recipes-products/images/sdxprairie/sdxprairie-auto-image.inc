@@ -16,3 +16,7 @@ IMAGE_INSTALL += "i2c-tools"
 IMAGE_INSTALL += "net-tools"
 IMAGE_INSTALL += "pps-tools"
 IMAGE_INSTALL += "spitools"
+
+IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'keyutils', '',d)}"
+IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'ima-evm-utils', '',d)}"
+IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'attr', '',d)}"
