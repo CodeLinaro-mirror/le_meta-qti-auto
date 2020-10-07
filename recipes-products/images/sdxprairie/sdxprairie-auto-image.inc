@@ -18,3 +18,7 @@ IMAGE_INSTALL += "spitools"
 
 # Target SDK Packages
 TOOLCHAIN_TARGET_TASK_append_sa515m += "telux"
+
+IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'keyutils', '',d)}"
+IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'ima-evm-utils', '',d)}"
+IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'attr', '',d)}"
