@@ -1,0 +1,17 @@
+From c03b3a137e31ccae68b961c24fa00e46c74c23d0 Mon Sep 17 00:00:00 2001
+From: Raghava Chowdam <rchowdam@codeaurora.org>
+Date: Fri, 9 Oct 2020 14:50:55 +0530
+Subject: [PATCH] meta-qt-auto: Remove srv from tmpfiles
+
+Change-Id: I580e5bec2e387135e6d27dacf5f08cfd82cfc206
+
+diff --git a/tmpfiles.d/home.conf b/tmpfiles.d/home.conf
+index 9f25b83..dbffd4f 100644
+--- a/tmpfiles.d/home.conf
++++ b/tmpfiles.d/home.conf
+@@ -8,4 +8,4 @@
+ # See tmpfiles.d(5) for details
+
+ Q /home 0755 - - -
+-q /srv 0755 - - -
++#q /srv 0755 - - -
