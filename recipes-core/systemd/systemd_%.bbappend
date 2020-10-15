@@ -12,4 +12,27 @@ do_install_append() {
     fi
 }
 
+do_install_append_sa2150p() {
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+        rm -f ${D}${base_libdir}/udev/ata_id
+        rm -f ${D}${base_libdir}/udev/cdrom_id
+        rm -f ${D}${base_libdir}/udev/scsi_id
+        rm -f ${D}${base_libdir}/udev/v4l_id
+        rm -f ${D}${base_libdir}/udev/rules.d/60-cdrom_id.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-drm.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-evdev.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-input_id.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-persistent-input.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-persistent-storage-tape.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/70-joystick.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/70-mouse.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/70-touchpad.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/71-seat.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
+    fi
+
+}
+
 FILES_${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
