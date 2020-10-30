@@ -4,4 +4,5 @@ VOLATILE_BINDS_append_sa2150p-nand = "\
 /systemrw/systemd/network/ /etc/systemd/network/ \n\
 /systemrw/netmgrd/config /etc/netmgrd/config \n\
 /systemrw/modem-monitor-usb.conf /etc/modem-monitor-usb.conf \n\
+/systemrw/config.ini /etc/initscripts/config.ini \n\
 "
