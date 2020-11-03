@@ -1,0 +1,51 @@
+From c1ef92ce3125231fd30f2db4c926726154c8b0db Mon Sep 17 00:00:00 2001
+From: Rishi Gupta <rishgupt@codeaurora.org>
+Date: Mon, 9 Nov 2020 11:45:21 +0530
+Subject: [PATCH] mkfs.ubifs: patch mtd-utils to use pre-defined UUIDs
+
+When a UBI image is created random uuid is generated to
+identify that partition/image uniquely. A set of pre-defined
+UUIDs are used to support IMA feature which compares
+UUID of the given partition on target to the UUID defined
+in kernel driver for appraisal. This commit patches mtd-utils
+to use those UUIDs.
+
+Change-Id: Idebb2bff3d8b50f6ea5d12a177042fac56cbea8e
+Signed-off-by: Rishi Gupta <rishgupt@codeaurora.org>
+---
+ ubifs-utils/mkfs.ubifs/mkfs.ubifs.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/ubifs-utils/mkfs.ubifs/mkfs.ubifs.c b/ubifs-utils/mkfs.ubifs/mkfs.ubifs.c
+index 87c8fdb..5228b13 100644
+--- a/ubifs-utils/mkfs.ubifs/mkfs.ubifs.c
++++ b/ubifs-utils/mkfs.ubifs/mkfs.ubifs.c
+@@ -2242,6 +2242,8 @@ static int finalize_leb_cnt(void)
+ static int write_super(void)
+ {
+ 	struct ubifs_sb_node sup;
++	unsigned char data_uuid[] = { 0x7A, 0x0C, 0x93, 0xE9, 0xD2, 0xFD, 0x46, 0x55, 0xA9, 0x4F, 0xA4, 0x57, 0x1A, 0xC9, 0xB5, 0xF7 };
++	unsigned char rfs_uuid[] = { 0x6F, 0x2B, 0x9A, 0x5B, 0x32, 0x07, 0x4D, 0x8B, 0x84, 0x7C, 0x0F, 0x4F, 0xF9, 0xD9, 0x04, 0x85 };
+ 
+ 	memset(&sup, 0, UBIFS_SB_NODE_SZ);
+ 
+@@ -2262,7 +2264,15 @@ static int write_super(void)
+ 	sup.default_compr = cpu_to_le16(c->default_compr);
+ 	sup.rp_size       = cpu_to_le64(c->rp_size);
+ 	sup.time_gran     = cpu_to_le32(DEFAULT_TIME_GRAN);
+-	uuid_generate_random(sup.uuid);
++
++	if (strncmp("sa515m-usrfs.ubifs", &output[((int)strlen(output) - 18)], 18) == 0) {
++		memcpy(sup.uuid, data_uuid, 16);
++	} else if (strncmp("machine-image-sa515m.ubifs", &output[((int)strlen(output) - 26)], 26) == 0) {
++		memcpy(sup.uuid, rfs_uuid, 16);
++	} else {
++		uuid_generate_random(sup.uuid);
++	}
++
+ 	if (verbose) {
+ 		char s[40];
+ 
+-- 
+2.7.4
+
