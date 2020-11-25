@@ -22,7 +22,7 @@ SRC_URI = "file://external/open-avb/ \
 
 S = "${WORKDIR}/external/open-avb/"
 
-GPTP_AUTO_START_ENABLE= "NO"
+GPTP_AUTO_START_ENABLE= "YES"
 
 EXTRA_OEMAKE += "AVB_FEATURE_NEUTRINO=1"
 EXTRA_OEMAKE_append_mdm9650 = " PCI_SUPPORT_INCLUDED=1"
@@ -32,6 +32,7 @@ EXTRA_OEMAKE_append_auto = " SDX_ALSA_LIB_INCLUDED=1"
 EXTRA_OEMAKE += "${@bb.utils.contains("DISTRO_FEATURES", "systemd", " SYSTEMD_SUPPORT_INCLUDED=1", " SYSTEMD_SUPPORT_INCLUDED=0", d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_AUTO_START=1', 'GPTP_AUTO_START=0', d)}"
 SYSTEMD_SERVICE_${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
+SYSTEMD_AUTO_ENABLE_${PN} = "disable"
 
 do_compile() {
     oe_runmake libgptp
