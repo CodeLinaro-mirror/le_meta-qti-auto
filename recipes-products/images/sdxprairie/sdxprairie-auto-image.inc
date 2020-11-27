@@ -15,3 +15,6 @@ IMAGE_INSTALL += "i2c-tools"
 IMAGE_INSTALL += "net-tools"
 IMAGE_INSTALL += "pps-tools"
 IMAGE_INSTALL += "spitools"
+
+# Target SDK Packages
+TOOLCHAIN_TARGET_TASK_append_sa515m += "telux"
