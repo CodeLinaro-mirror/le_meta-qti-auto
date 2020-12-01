@@ -13,7 +13,7 @@ do_patch_prepend () {
 		patch -p1 < ${WORKDIR}/0003-ima-Define-IMA-appraisal-measure-rules-based-on-uuid.patch
 		patch -p1 < ${WORKDIR}/0001-keys-bypass-selinux-key-permissions-checking.patch
 		cd -
-		rm -f ${WORKDIR}/0001-keys-bypass-selinux-key-permissions-checking.patch
+		rm -f ${WORKDIR}/0001-ubifs-Populate-UUID-in-superblock-of-ubi-file-system.patch
 		rm -f ${WORKDIR}/0002-ima-disable-creating-sysfs-entries-for-ima-policy.patch
 		rm -f ${WORKDIR}/0003-ima-Define-IMA-appraisal-measure-rules-based-on-uuid.patch
 		rm -f ${WORKDIR}/0001-keys-bypass-selinux-key-permissions-checking.patch
