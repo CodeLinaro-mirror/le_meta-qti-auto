@@ -1,0 +1,46 @@
+From 2e08f9464ca84e586370bf3bb0b96936ede2e908 Mon Sep 17 00:00:00 2001
+From: Rishi Gupta <rishgupt@codeaurora.org>
+Date: Mon, 7 Dec 2020 19:34:13 +0530
+Subject: [PATCH] ima: do not add any measure rules to improve boot time
+
+All appraisal is purely based on digital signature for
+sa515m and happens locally. We can save some boot time
+by not generating formatted templates.
+
+This commit removes rules that tells driver to generate
+those templates.
+
+Change-Id: I22b8571ab847b33d88c34c35b38a775531282d46
+Signed-off-by: Rishi Gupta <rishgupt@codeaurora.org>
+---
+ security/integrity/ima/ima_policy.c | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 46b0bd6..1bc00bb 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -439,20 +439,6 @@ void __init ima_init_policy(void)
+ 	for (i = 0; i < measure_entries; i++)
+ 		list_add_tail(&dont_measure_rules[i].list, &ima_default_rules);
+ 
+-	switch (ima_policy) {
+-	case ORIGINAL_TCB:
+-		for (i = 0; i < ARRAY_SIZE(original_measurement_rules); i++)
+-			list_add_tail(&original_measurement_rules[i].list,
+-				      &ima_default_rules);
+-		break;
+-	case DEFAULT_TCB:
+-		for (i = 0; i < ARRAY_SIZE(default_measurement_rules); i++)
+-			list_add_tail(&default_measurement_rules[i].list,
+-				      &ima_default_rules);
+-	default:
+-		break;
+-	}
+-
+ 	/*
+ 	 * Insert the appraise rules requiring file signatures, prior to
+ 	 * any other appraise rules.
+-- 
+2.7.4
+
