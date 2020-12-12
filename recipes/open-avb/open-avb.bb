@@ -35,7 +35,7 @@ SYSTEMD_SERVICE_${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES'
 do_compile() {
     oe_runmake libgptp
     oe_runmake daemons_all
-    oe_runmake avtp_pipeline
+#    oe_runmake avtp_pipeline
     oe_runmake libgptp_test
 }
 
@@ -45,11 +45,11 @@ do_install() {
     install -m 0755 ${S}/daemons/mrpd/mrpd ${D}${bindir}
     install -m 0755 ${S}/daemons/mrpd/mrpctl ${D}${bindir}
     install -m 0755 ${S}/daemons/gptp/linux/build/obj/daemon_cl ${D}${bindir}
-    install -m 0755 ${S}/lib/avtp_pipeline/build/bin/openavb_harness ${D}${bindir}
+#   install -m 0755 ${S}/lib/avtp_pipeline/build/bin/openavb_harness ${D}${bindir}
     install -d ${D}${libdir}
-    install -m 0755 ${S}/lib/avtp_pipeline/build/lib/*.so ${D}${libdir}
+#   install -m 0755 ${S}/lib/avtp_pipeline/build/lib/*.so ${D}${libdir}
     install -d ${D}${userfsdatadir}/avb
-    install -m 0644 ${S}/lib/avtp_pipeline/build/bin/*.ini ${D}${userfsdatadir}/avb
+#   install -m 0644 ${S}/lib/avtp_pipeline/build/bin/*.ini ${D}${userfsdatadir}/avb
     install -m 0755 ${S}/examples/libgptp_test/libgptp_test ${D}${bindir}
     install -m 0755 ${S}/lib/libgptp/*.so ${D}${libdir}
 
