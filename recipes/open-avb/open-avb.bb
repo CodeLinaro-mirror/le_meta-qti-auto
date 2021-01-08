@@ -1,9 +1,10 @@
 DESCRIPTION = "open-avb tools"
 HOMEPAGE = "https://github.com/AVnu/Open-AVB"
-LICENSE = "BSD"
+LICENSE = "BSD-2-Clause & BSD-3-Clause & LGPLv2.1"
 LIC_FILES_CHKSUM = "file://examples/LICENSE;md5=81ccd62d4bc28bafc5e1a2576536b927 \
 		    file://daemons/LICENSE;md5=81ccd62d4bc28bafc5e1a2576536b927 \
-		    file://lib/avtp_pipeline/LICENSE;md5=8f7b370a91d698ed80d2d20e8e01fbb6"
+		    file://lib/avtp_pipeline/LICENSE;md5=8f7b370a91d698ed80d2d20e8e01fbb6 \
+		    file://lib/avtp_pipeline/openavb_common/avb.h;md5=0b37dc0014e3892e8f12f92b55b66c22"
 
 PR = "r1"
 
