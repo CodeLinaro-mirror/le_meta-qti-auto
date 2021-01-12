@@ -1,0 +1,149 @@
+From 35df36e6319c4c80d19576af002486ef4003a6db Mon Sep 17 00:00:00 2001
+From: Johnathan Cobden-Nolan <jcobdenn@codeaurora.org>
+Date: Tue, 12 Jan 2021 23:03:02 -0800
+Subject: [PATCH] infineon-hsm-v2x: changes to support CCARD
+
+Code changes to support CCARD, and makefile changes to produce shared library.
+
+Signed-off-by: Johnathan Cobden-Nolan <jcobdenn@codeaurora.org>
+---
+ Makefile                                  | 56 +++++++++----------------------
+ include/sls37v2x_prototype_SPI_protocol.h |  2 +-
+ src/SPI_master_driver.c                   |  8 ++---
+ src/common.c                              |  2 +-
+ 4 files changed, 22 insertions(+), 46 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index d99f439..7361045 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,56 +1,32 @@
+ SRC=$(PWD)
+ 
+-#SUB_DIR2=openssl
+ SUB_SRC=src
+ SUB_INC=include
+-SUB_TEST=testvectors
+-INC_DIR=/usr/lib/arm-linux-gnueabihf/
+-EXEC_OBJS=$(SRC)/$(SUB_SRC)/v2xtool.o
+ 
+-STATIC_LIB_OBJS=$(SRC)/$(SUB_SRC)/sls37v2x_prototype_API.o \
+-    $(SRC)/$(SUB_SRC)/common.o \
+-    $(SRC)/$(SUB_SRC)/crypto_wrapper.o \
+-    $(SRC)/$(SUB_SRC)/sls37v2x_prototype_SPI_protocol.o \
+-    $(SRC)/$(SUB_SRC)/SPI_master_driver.o
++SHARED_LIB_SRC=$(SRC)/$(SUB_SRC)/sls37v2x_prototype_API.c \
++    $(SRC)/$(SUB_SRC)/common.c \
++    $(SRC)/$(SUB_SRC)/crypto_wrapper.c \
++    $(SRC)/$(SUB_SRC)/sls37v2x_prototype_SPI_protocol.c \
++    $(SRC)/$(SUB_SRC)/SPI_master_driver.c
+ 
+-EXEC_NAME=v2xtool
++SHARED_LIB_OBJS=$(SHARED_LIB_SRC:.c=.o)
+ 
+-STATIC_LIB_NAME=sls37v2x_prototype_API.a
++SHARED_LIB_NAME=libv2x.so
+ 
+-INC_FLAGS= -I$(SRC) -I$(SRC)/$(SUB_SRC) -I$(SRC)/$(SUB_INC) -I$(INC_DIR) -I$(SRC)/$(SUB_TEST)
+-STATIC_LIB_PATH=$(SRC)
++INC_FLAGS= -I$(SRC) -I$(SRC)/$(SUB_SRC) -I$(SRC)/$(SUB_INC)
+ 
+-CC=$(CROSS_COMPILE)gcc
+-CXX=$(CROSS_COMPILE)g++
+-AR=$(CROSS_COMPILE)ar
+-LD=$(CROSS_COMPILE)ld
+-RANLIB=$(CROSS_COMPILE)ranlib
+-CFLAGS +=-g $(INC_FLAGS) -O2
+-#CFLAGS +=-g $(INC_FLAGS) -O2 -DEMULATOR
++CFLAGS += $(INC_FLAGS) -O2 -fPIC
+ 
+-#LDFLAGS += libssl.so.1.1 libcrypto.so.1.1 $(STATIC_LIB_NAME) -lrt
+-LDFLAGS += $(STATIC_LIB_NAME) -lcrypto -lrt
++LDFLAGS +=  -lrt -shared
++LDFLAGS +=  -lcrypto
+ 
+ .PHONY: all
+ 
+-# What needs to be built to make all files and dependencies:
+-all: $(STATIC_LIB_NAME) $(EXEC_NAME)
++# What needs to be built to make HSM library for CCARD:
++all: $(SHARED_LIB_NAME)
+ 
+-$(STATIC_LIB_NAME): $(STATIC_LIB_OBJS)
+-#	$(CC) $(CFLAGS) -c -o $@ $<
+-	$(AR) rc $@ $^
+-	@echo
+-	$(RANLIB) $@
+-	@echo
+-
+-# Create the executable:
+-$(EXEC_NAME): $(EXEC_OBJS)
+-	$(CC) -o $(EXEC_NAME) $(EXEC_OBJS) $(LDFLAGS)
+-	@echo
+-
+-%.o: %.c
+-	$(CC) $(CFLAGS) -c -o $@ $<
+-	@echo
++$(SHARED_LIB_NAME): $(SHARED_LIB_OBJS)
++	$(CC) $(CFLAGS) $(SHARED_LIB_OBJS) -o $@ $(LDFLAGS)
+ 
+ clean:
+-	rm -f $(EXEC_NAME) $(EXEC_OBJS) $(STATIC_LIB_OBJS) $(STATIC_LIB_NAME) V2X_SPI.log
++	rm -f $(SHARED_LIB_OBJS) $(SHARED_LIB_NAME)
+diff --git a/include/sls37v2x_prototype_SPI_protocol.h b/include/sls37v2x_prototype_SPI_protocol.h
+index 9a13f5e..00487d2 100644
+--- a/include/sls37v2x_prototype_SPI_protocol.h
++++ b/include/sls37v2x_prototype_SPI_protocol.h
+@@ -38,7 +38,7 @@
+ #define SLEEP_TIME 1
+ 
+ 
+-#define SPI_BITRATE  120000
++#define SPI_BITRATE  50000
+ #define MAX_APDU_TRIES 3
+ 
+ #define SPI_PROTOCOL_HEADER_LENGTH 4
+diff --git a/src/SPI_master_driver.c b/src/SPI_master_driver.c
+index c303a55..69e0f2a 100644
+--- a/src/SPI_master_driver.c
++++ b/src/SPI_master_driver.c
+@@ -30,10 +30,10 @@
+ *******************************/
+ static uint64_t usec = 0;
+ int	spi_fd;
+-static const char *device = "/dev/spidev0.0";
++static const char *device = "/dev/spidev6.0";
+ static uint8_t mode = 1;
+ static uint8_t bits = 8;
+-static uint32_t speed = 1000000;
++static uint32_t speed = 50000;
+ static uint16_t usdelay = 0;
+ 
+ 
+@@ -132,8 +132,8 @@ int SPI_init(int port, int bitrate)
+         goto errexit;
+     }
+ 
+-    Log("[SPI settings: mode %d, %d bits, %d KHz]\n\n",
+-        mode, bits, speed/1000);
++    // Log("[SPI settings: mode %d, %d bits, %d KHz]\n\n",
++    //     mode, bits, speed/1000);
+ 
+     return 1;
+     errexit:
+diff --git a/src/common.c b/src/common.c
+index 79353e5..449e39d 100644
+--- a/src/common.c
++++ b/src/common.c
+@@ -28,7 +28,7 @@
+ *    Variable Definitions      *
+ *******************************/
+ 
+-int LogLevel = 1;
++int LogLevel = 0;
+ 	// Screen log verbose level:
+ 	//-------------------------------
+ 	// 0 - no screen log
+-- 
+2.7.4
+
