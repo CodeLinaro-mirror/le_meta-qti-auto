@@ -30,6 +30,7 @@ Description=Ethernet Switch Service
 DefaultDependencies=no
 After=network.target network-online.target QCMAP_ConnectionManagerd.service
 SourcePath=/etc/initscripts/vnw_eth_switch_start_stop_le
+ConditionPathExists=/dev/emac
 
 [Service]
 Restart=on-failure
