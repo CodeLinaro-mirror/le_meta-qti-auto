@@ -20,7 +20,14 @@ S = "${WORKDIR}/git"
 do_install () {
     install -d ${D}${libdir}
     install -m 0755 ${S}/libv2x.so ${D}${libdir}
+    install -d ${D}${bindir}
+    install -m 0755 ${S}/v2xtool ${D}${bindir}
+    install -d ${D}${userfsdatadir}/v2x-host/keys
+    install -m 0755 ${S}/init.txt ${D}${userfsdatadir}/v2x-host
+    install -m 0755 ${S}/keys/* ${D}${userfsdatadir}/v2x-host/keys
 }
 
 SOLIBS = ".so*"
 FILES_SOLIBSDEV = ""
+
+FILES_${PN} += "${userfsdatadir}/*"
