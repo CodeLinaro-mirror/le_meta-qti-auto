@@ -1,4 +1,4 @@
-From 35df36e6319c4c80d19576af002486ef4003a6db Mon Sep 17 00:00:00 2001
+From d75ab044b440de9e8416097565900690415a092d Mon Sep 17 00:00:00 2001
 From: Johnathan Cobden-Nolan <jcobdenn@codeaurora.org>
 Date: Tue, 12 Jan 2021 23:03:02 -0800
 Subject: [PATCH] infineon-hsm-v2x: changes to support CCARD
@@ -7,23 +7,26 @@ Code changes to support CCARD, and makefile changes to produce shared library.
 
 Signed-off-by: Johnathan Cobden-Nolan <jcobdenn@codeaurora.org>
 ---
- Makefile                                  | 56 +++++++++----------------------
+ Makefile                                  | 58 ++++++++++++-------------------
+ include/sls37v2x_prototype_API.h          |  4 +--
  include/sls37v2x_prototype_SPI_protocol.h |  2 +-
  src/SPI_master_driver.c                   |  8 ++---
  src/common.c                              |  2 +-
- 4 files changed, 22 insertions(+), 46 deletions(-)
+ src/sls37v2x_prototype_API.c              |  6 ++--
+ src/v2xtool.c                             |  4 +--
+ 7 files changed, 34 insertions(+), 50 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index d99f439..7361045 100644
+index d99f439..8448d73 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -1,56 +1,32 @@
+@@ -1,56 +1,42 @@
  SRC=$(PWD)
  
 -#SUB_DIR2=openssl
  SUB_SRC=src
  SUB_INC=include
--SUB_TEST=testvectors
+ SUB_TEST=testvectors
 -INC_DIR=/usr/lib/arm-linux-gnueabihf/
 -EXEC_OBJS=$(SRC)/$(SUB_SRC)/v2xtool.o
  
@@ -32,21 +35,24 @@ index d99f439..7361045 100644
 -    $(SRC)/$(SUB_SRC)/crypto_wrapper.o \
 -    $(SRC)/$(SUB_SRC)/sls37v2x_prototype_SPI_protocol.o \
 -    $(SRC)/$(SUB_SRC)/SPI_master_driver.o
++EXEC_SRC=$(SRC)/$(SUB_SRC)/v2xtool.c
+ 
+-EXEC_NAME=v2xtool
 +SHARED_LIB_SRC=$(SRC)/$(SUB_SRC)/sls37v2x_prototype_API.c \
 +    $(SRC)/$(SUB_SRC)/common.c \
 +    $(SRC)/$(SUB_SRC)/crypto_wrapper.c \
 +    $(SRC)/$(SUB_SRC)/sls37v2x_prototype_SPI_protocol.c \
 +    $(SRC)/$(SUB_SRC)/SPI_master_driver.c
- 
--EXEC_NAME=v2xtool
++
 +SHARED_LIB_OBJS=$(SHARED_LIB_SRC:.c=.o)
++EXEC_OBJS=$(EXEC_SRC:.c=.o)
  
 -STATIC_LIB_NAME=sls37v2x_prototype_API.a
 +SHARED_LIB_NAME=libv2x.so
  
 -INC_FLAGS= -I$(SRC) -I$(SRC)/$(SUB_SRC) -I$(SRC)/$(SUB_INC) -I$(INC_DIR) -I$(SRC)/$(SUB_TEST)
 -STATIC_LIB_PATH=$(SRC)
-+INC_FLAGS= -I$(SRC) -I$(SRC)/$(SUB_SRC) -I$(SRC)/$(SUB_INC)
++EXEC_NAME=v2xtool
  
 -CC=$(CROSS_COMPILE)gcc
 -CXX=$(CROSS_COMPILE)g++
@@ -55,19 +61,21 @@ index d99f439..7361045 100644
 -RANLIB=$(CROSS_COMPILE)ranlib
 -CFLAGS +=-g $(INC_FLAGS) -O2
 -#CFLAGS +=-g $(INC_FLAGS) -O2 -DEMULATOR
-+CFLAGS += $(INC_FLAGS) -O2 -fPIC
++INC_FLAGS= -I$(SRC) -I$(SRC)/$(SUB_SRC) -I$(SRC)/$(SUB_INC) -I$(SRC)/$(SUB_TEST)
  
 -#LDFLAGS += libssl.so.1.1 libcrypto.so.1.1 $(STATIC_LIB_NAME) -lrt
 -LDFLAGS += $(STATIC_LIB_NAME) -lcrypto -lrt
-+LDFLAGS +=  -lrt -shared
-+LDFLAGS +=  -lcrypto
++CFLAGS += $(INC_FLAGS) -O2 -fPIC
++
++SHARED_LIB_LDFLAGS +=  -shared -lrt -lcrypto
++EXEC_LDFLAGS +=  -L$(SRC) -lv2x
  
  .PHONY: all
  
 -# What needs to be built to make all files and dependencies:
 -all: $(STATIC_LIB_NAME) $(EXEC_NAME)
 +# What needs to be built to make HSM library for CCARD:
-+all: $(SHARED_LIB_NAME)
++all: $(SHARED_LIB_NAME) $(EXEC_NAME)
  
 -$(STATIC_LIB_NAME): $(STATIC_LIB_OBJS)
 -#	$(CC) $(CFLAGS) -c -o $@ $<
@@ -75,21 +83,43 @@ index d99f439..7361045 100644
 -	@echo
 -	$(RANLIB) $@
 -	@echo
--
--# Create the executable:
--$(EXEC_NAME): $(EXEC_OBJS)
++$(SHARED_LIB_NAME): $(SHARED_LIB_OBJS)
++	$(CC) $(CFLAGS) $(SHARED_LIB_OBJS) -o $@ $(SHARED_LIB_LDFLAGS)
+ 
+ # Create the executable:
+ $(EXEC_NAME): $(EXEC_OBJS)
 -	$(CC) -o $(EXEC_NAME) $(EXEC_OBJS) $(LDFLAGS)
 -	@echo
 -
 -%.o: %.c
 -	$(CC) $(CFLAGS) -c -o $@ $<
 -	@echo
-+$(SHARED_LIB_NAME): $(SHARED_LIB_OBJS)
-+	$(CC) $(CFLAGS) $(SHARED_LIB_OBJS) -o $@ $(LDFLAGS)
++	$(CC) -o $(EXEC_NAME) $(EXEC_OBJS) $(EXEC_LDFLAGS)
  
  clean:
 -	rm -f $(EXEC_NAME) $(EXEC_OBJS) $(STATIC_LIB_OBJS) $(STATIC_LIB_NAME) V2X_SPI.log
-+	rm -f $(SHARED_LIB_OBJS) $(SHARED_LIB_NAME)
++	rm -f $(EXEC_NAME) $(EXEC_OBJS) $(SHARED_LIB_OBJS) $(SHARED_LIB_NAME)
+diff --git a/include/sls37v2x_prototype_API.h b/include/sls37v2x_prototype_API.h
+index e7dd011..fa73518 100644
+--- a/include/sls37v2x_prototype_API.h
++++ b/include/sls37v2x_prototype_API.h
+@@ -37,14 +37,14 @@
+ /*******************************
+ *    Defines/Macros            *
+ *******************************/
+-#define CONFIG_FILENAME "V2X_API.ini"
++#define CONFIG_FILENAME "/etc/v2x-host.conf"
+ 
+ #define MAX_PATH PATH_MAX
+ 
+ #define V2X_RESULT int
+ #define V2X_SUCCESS 1
+ 
+-#define KEYS_DIR "./keys/" //keys directory relative to location of v2xtool
++#define KEYS_DIR "/data/v2x-host/keys/" //keys directory relative to location of v2xtool
+ 
+ #define ECC_MAX_OPAQUE_PUBKEY_LEN	65
+ #define ECC_MAX_OPAQUE_PRIVKEY_LEN	33
 diff --git a/include/sls37v2x_prototype_SPI_protocol.h b/include/sls37v2x_prototype_SPI_protocol.h
 index 9a13f5e..00487d2 100644
 --- a/include/sls37v2x_prototype_SPI_protocol.h
@@ -144,6 +174,45 @@ index 79353e5..449e39d 100644
  	// Screen log verbose level:
  	//-------------------------------
  	// 0 - no screen log
+diff --git a/src/sls37v2x_prototype_API.c b/src/sls37v2x_prototype_API.c
+index c24325c..50a76c6 100644
+--- a/src/sls37v2x_prototype_API.c
++++ b/src/sls37v2x_prototype_API.c
+@@ -81,8 +81,8 @@ V2X_RESULT V2X_Initialize()
+         if ((stream = openFile(CONFIG_FILENAME)) != NULL) {
+             // First line encodes SPI bit tate in kHz (decimal number)
+             // ex., 500 = 500 kHz, 1000 = 1 MHz, 8000 = 8 MHz
+-            if (readLineFromFile(stream, text, sizeof(text)-1)) {
+-                if ((i = atoi(text)) > 0) bitrate = i;
++            //if (readLineFromFile(stream, text, sizeof(text)-1)) {
++            //    if ((i = atoi(text)) > 0) bitrate = i;
+             // 2nd line encodes Console screen Debug print level
+             // 0 - no screen log
+             // 1 - minimum screen log
+@@ -95,7 +95,7 @@ V2X_RESULT V2X_Initialize()
+                         if ((i = atoi(text)) > 0) LogLevelFile = i;
+                     }
+                 }
+-            }
++            //}
+             closeFile(stream);
+         }
+     // Find SPI host adapter, open it and configure SPI host adapter
+diff --git a/src/v2xtool.c b/src/v2xtool.c
+index 3234009..05acc1f 100644
+--- a/src/v2xtool.c
++++ b/src/v2xtool.c
+@@ -1066,9 +1066,7 @@ int main(int argc, char *argv[])
+ 		// A file was given as input ... read in!
+ 		char CDir[1024] = { 0x00 };
+ 		// get current directory to assemble full path of file
+-		char * cDir = (char*) getcwd(CDir, sizeof(CDir));
+-		strcat(cDir, "/");
+-		strcat(cDir, argv[1]);
++		char * cDir = argv[1];
+ 
+ 		printf("\n-> Reading file %s ...\n", cDir);
+ 
 -- 
 2.7.4
 
