@@ -1,0 +1,72 @@
+From 1a82cee3e69d8dc89dc2e9995770e7cab0a4c9d8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Hern=C3=A1n=20Gonzalez?= <hernan@vanguardiasur.com.ar>
+Date: Tue, 27 Feb 2018 19:16:59 -0300
+Subject: [PATCH] evm: Move evm_hmac and evm_hash from evm_main.c to
+ evm_crypto.c
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+These variables are not used where they are was defined.  There is no
+point in declaring them there as extern.  Move and constify them, saving
+2 bytes.
+
+Function                                     old     new   delta
+init_desc                                    273     271      -2
+Total: Before=2112094, After=2112092, chg -0.00%
+
+Signed-off-by: Hernán Gonzalez <hernan@vanguardiasur.com.ar>
+Tested-by: Fengguang Wu <fengguang.wu@intel.com>
+Signed-off-by: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Git-commit: 1a82cee3e69d8dc89dc2e9995770e7cab0a4c9d8
+Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+Signed-off-by: Rishi Gupta <rishgupt@codeaurora.org>
+---
+ security/integrity/evm/evm.h        | 2 --
+ security/integrity/evm/evm_crypto.c | 3 +++
+ security/integrity/evm/evm_main.c   | 2 --
+ 3 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/security/integrity/evm/evm.h b/security/integrity/evm/evm.h
+index 0482539..45c4a89 100644
+--- a/security/integrity/evm/evm.h
++++ b/security/integrity/evm/evm.h
+@@ -31,8 +31,6 @@
+ 		       EVM_ALLOW_METADATA_WRITES)
+ 
+ extern int evm_initialized;
+-extern char *evm_hmac;
+-extern char *evm_hash;
+ 
+ #define EVM_ATTR_FSUUID		0x0001
+ 
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 691f3e0..a46fba3 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -37,6 +37,9 @@ static DEFINE_MUTEX(mutex);
+ 
+ static unsigned long evm_set_key_flags;
+ 
++static char * const evm_hmac = "hmac(sha1)";
++static char * const evm_hash = "sha1";
++
+ /**
+  * evm_set_key() - set EVM HMAC key from the kernel
+  * @key: pointer to a buffer with the key data
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index a8d5028..826926d 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -33,8 +33,6 @@ int evm_initialized;
+ static char *integrity_status_msg[] = {
+ 	"pass", "pass_immutable", "fail", "no_label", "no_xattrs", "unknown"
+ };
+-char *evm_hmac = "hmac(sha1)";
+-char *evm_hash = "sha1";
+ int evm_hmac_attrs;
+ 
+ char *evm_config_xattrnames[] = {
+-- 
+2.7.4
+

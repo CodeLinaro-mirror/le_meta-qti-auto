@@ -1,0 +1,55 @@
+From 70946c4ac2a9e036e3cf7048cd670507f5074b04 Mon Sep 17 00:00:00 2001
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Date: Thu, 1 Mar 2018 13:38:45 +0100
+Subject: [PATCH] evm: check for remount ro in progress before writing
+
+EVM might update the evm xattr while the VFS performs a remount to
+readonly mode. This is not properly checked for, additionally check
+the s_readonly_remount superblock flag before writing.
+
+The bug can for example be observed with UBIFS. UBIFS checks the free
+space on the device before and after a remount. With EVM enabled the
+free space sometimes differs between both checks.
+
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Git-commit: 70946c4ac2a9e036e3cf7048cd670507f5074b04
+Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+Signed-off-by: Rishi Gupta <rishgupt@codeaurora.org>
+---
+ security/integrity/evm/evm_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index 7a968fa..9ea9c19 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -124,6 +124,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+ 	struct evm_ima_xattr_data *xattr_data = NULL;
+ 	struct evm_ima_xattr_data calc;
+ 	enum integrity_status evm_status = INTEGRITY_PASS;
++	struct inode *inode;
+ 	int rc, xattr_len;
+ 
+ 	if (iint && (iint->evm_status == INTEGRITY_PASS ||
+@@ -178,12 +179,15 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+ 					(const char *)xattr_data, xattr_len,
+ 					calc.digest, sizeof(calc.digest));
+ 		if (!rc) {
++			inode = d_backing_inode(dentry);
++
+ 			if (xattr_data->type == EVM_XATTR_PORTABLE_DIGSIG) {
+ 				if (iint)
+ 					iint->flags |= EVM_IMMUTABLE_DIGSIG;
+ 				evm_status = INTEGRITY_PASS_IMMUTABLE;
+-			} else if (!IS_RDONLY(d_backing_inode(dentry)) &&
+-				   !IS_IMMUTABLE(d_backing_inode(dentry))) {
++			} else if (!IS_RDONLY(inode) &&
++				   !(inode->i_sb->s_readonly_remount) &&
++				   !IS_IMMUTABLE(inode)) {
+ 				evm_update_evmxattr(dentry, xattr_name,
+ 						    xattr_value,
+ 						    xattr_value_len);
+-- 
+2.7.4
+
