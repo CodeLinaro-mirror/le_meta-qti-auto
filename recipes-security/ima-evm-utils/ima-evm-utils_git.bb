@@ -25,4 +25,10 @@ FILES_${PN}-dev += "${includedir}"
 
 RDEPENDS_${PN}_class-target += "libcrypto libattr keyutils"
 
+do_install_append () {
+    if ${@bb.utils.contains('VARIANT', 'perf', 'true', 'false', d)}; then
+        rm -rf ${D}/usr
+    fi
+}
+
 BBCLASSEXTEND = "native nativesdk"
