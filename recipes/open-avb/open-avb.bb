@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://examples/LICENSE;md5=81ccd62d4bc28bafc5e1a2576536b927
 
 PR = "r1"
 
-DEPENDS += "alsa-lib glib-2.0 libpcap pciutils cmake-native"
+DEPENDS += "alsa-lib glib-2.0 libpcap pciutils cmake-native qmi-framework"
 DEPENDS_append_sa415m += "alsa-intf"
 DEPENDS_append_sa515m += "tinyalsa"
 
@@ -23,6 +23,8 @@ SRC_URI = "file://external/open-avb/ \
 S = "${WORKDIR}/external/open-avb/"
 
 GPTP_AUTO_START_ENABLE= "NO"
+RGPTP_SRV_INCLUDED= "YES"
+RGPTP_CLNT_INCLUDED= "YES"
 
 EXTRA_OEMAKE += "AVB_FEATURE_NEUTRINO=1"
 EXTRA_OEMAKE_append_mdm9650 = " PCI_SUPPORT_INCLUDED=1"
@@ -31,6 +33,8 @@ EXTRA_OEMAKE_append_sa515m = " TINYALSA_SUPPORT_INCLUDED=1"
 EXTRA_OEMAKE_append_auto = " SDX_ALSA_LIB_INCLUDED=1"
 EXTRA_OEMAKE += "${@bb.utils.contains("DISTRO_FEATURES", "systemd", " SYSTEMD_SUPPORT_INCLUDED=1", " SYSTEMD_SUPPORT_INCLUDED=0", d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_AUTO_START=1', 'GPTP_AUTO_START=0', d)}"
+EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_SRV_INCLUDED', 'YES', 'RGPTP_ENABLED=1', 'RGPTP_ENABLED=0', d)}"
+EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_CLNT_INCLUDED', 'YES', 'RGPTP_CLNT_ENABLED=1', 'RGPTP_CLNT_ENABLED=0', d)}"
 SYSTEMD_SERVICE_${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
 
 do_compile() {
