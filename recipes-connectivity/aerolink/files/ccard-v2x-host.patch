@@ -87,13 +87,14 @@ index d99f439..8448d73 100644
 +	$(CC) $(CFLAGS) $(SHARED_LIB_OBJS) -o $@ $(SHARED_LIB_LDFLAGS)
  
  # Create the executable:
- $(EXEC_NAME): $(EXEC_OBJS)
+-$(EXEC_NAME): $(EXEC_OBJS)
 -	$(CC) -o $(EXEC_NAME) $(EXEC_OBJS) $(LDFLAGS)
 -	@echo
 -
 -%.o: %.c
 -	$(CC) $(CFLAGS) -c -o $@ $<
 -	@echo
++$(EXEC_NAME): $(EXEC_OBJS) $(SHARED_LIB_NAME)
 +	$(CC) -o $(EXEC_NAME) $(EXEC_OBJS) $(EXEC_LDFLAGS)
  
  clean:
