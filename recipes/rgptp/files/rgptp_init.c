@@ -150,10 +150,10 @@ static void socket_data_ready(struct sock *sk_ptr)
     }
 
     spin_lock_irqsave(&info->ptp_lock, flags);
+    info->rptp_time_ns = rcvBuf.ptp_time;
+    info->rptp_sync = rcvBuf.sync;
     info->ptp_cnt++;
     if(info->irq_cnt == info->ptp_cnt) {
-        info->rptp_time_ns = rcvBuf.ptp_time;
-        info->rptp_sync = rcvBuf.sync;
         info->offset_ns = (info->rptp_time_ns - info->irq_systime_ns);
         info->irq_cnt = info->ptp_cnt = 0;
     }
@@ -273,10 +273,12 @@ static irqreturn_t toggle_gpio_handle_irq(int irq, void *dev_id)
 
     spin_lock_irqsave(&info->ptp_lock, flags);
     getnstimeofday(&sys_time);
-    if(info->irq_cnt == info->ptp_cnt) {
-        info->irq_systime_ns = timespec_to_ns(&sys_time);
-    }
+    info->irq_systime_ns = timespec_to_ns(&sys_time);
     info->irq_cnt++;
+    if(info->irq_cnt == info->ptp_cnt) {
+        info->offset_ns = (info->rptp_time_ns - info->irq_systime_ns);
+        info->irq_cnt = info->ptp_cnt = 0;
+    }
     spin_unlock_irqrestore(&info->ptp_lock, flags);
     return IRQ_HANDLED;
 }
