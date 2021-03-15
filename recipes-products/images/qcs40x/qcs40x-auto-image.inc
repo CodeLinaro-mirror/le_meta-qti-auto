@@ -5,4 +5,4 @@ IMAGE_INSTALL += "aerolink-configurations"
 IMAGE_INSTALL += "rgptp"
 
 # Test tools
-IMAGE_INSTALL += "can-utils i2c-tools spitools net-tools"
+IMAGE_INSTALL += "can-utils i2c-tools spitools net-tools udpreplay"
