@@ -3,4 +3,4 @@ IMAGE_INSTALL += "start-scripts-init-can"
 IMAGE_INSTALL += "aerolink-configurations"
 
 # Test tools
-IMAGE_INSTALL += "can-utils i2c-tools spitools net-tools"
+IMAGE_INSTALL += "can-utils i2c-tools spitools net-tools udpreplay"

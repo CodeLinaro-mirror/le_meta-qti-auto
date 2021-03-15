@@ -1,0 +1,132 @@
+From 51f19039ac438962d6c4abb5c1ae78c6f4e62b92 Mon Sep 17 00:00:00 2001
+From: Anthony Lopez <anthlope@codeaurora.org>
+Date: Wed, 10 Mar 2021 15:34:42 -0800
+Subject: [PATCH 1/1] IPV6 Destination Address Patch
+
+Add IPV6 address to the list of command line arguments. If provided, update the
+packets with destination address.
+
+Signed-off-by: Anthony Lopez <anthlope@codeaurora.org>
+---
+ src/udpreplay.cpp | 63 +++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 44 insertions(+), 19 deletions(-)
+
+diff --git a/src/udpreplay.cpp b/src/udpreplay.cpp
+index 965e958..dd0e2c0 100644
+--- a/src/udpreplay.cpp
++++ b/src/udpreplay.cpp
+@@ -24,9 +24,10 @@ int main(int argc, char *argv[]) {
+   int ttl = -1;
+   int broadcast = 0;
+   std::string dest_ipv4 = "";
++  std::string dest_ipv6 = "";
+ 
+   int opt;
+-  while ((opt = getopt(argc, argv, "i:bls:c:r:t:d:")) != -1) {
++  while ((opt = getopt(argc, argv, "i:bls:c:r:t:d:g:")) != -1) {
+     switch (opt) {
+     case 'i':
+       ifindex = if_nametoindex(optarg);
+@@ -72,6 +73,10 @@ int main(int argc, char *argv[]) {
+       printf("Will attempt to send to ipv4 address: %s\n", optarg);
+       dest_ipv4 = (optarg);
+       break;
++    case 'g':
++      printf("Will attempt to send to ipv6 address: %s\n", optarg);
++      dest_ipv6 = (optarg);
++      break;
+     default:
+       goto usage;
+     }
+@@ -82,7 +87,7 @@ int main(int argc, char *argv[]) {
+         << "udpreplay 1.0.0 © 2020 Erik Rigtorp <erik@rigtorp.se> "
+            "https://github.com/rigtorp/udpreplay\n"
+            "usage: udpreplay [-i iface] [-l] [-s speed] [-c millisec] [-r "
+-           "repeat] [-t ttl] [-d dest ipv4] "
++           "repeat] [-t ttl] [-d dest ipv4] [-g dest ipv6] "
+            "pcap\n"
+            "\n"
+            "  -i iface    interface to send packets through\n"
+@@ -92,12 +97,16 @@ int main(int argc, char *argv[]) {
+            "  -s speed    replay speed relative to pcap timestamps\n"
+            "  -t ttl      packet ttl\n"
+            "  -b          enable broadcast (SO_BROADCAST)\n"
+-           "  -d          destination ipv4 address"
++           "  -d          destination ipv4 address\n"
++           "  -g          destination ipv6 address"
+         << std::endl;
+     return 1;
+   }
+ 
+   int fd = socket(AF_INET, SOCK_DGRAM, 0);
++  // modify the socket if ipv6 address is specified
++  if(!dest_ipv6.empty())
++      fd = socket(AF_INET6, SOCK_DGRAM, 0);
+   if (fd == -1) {
+     std::cerr << "socket: " << strerror(errno) << std::endl;
+     return 1;
+@@ -237,29 +246,45 @@ int main(int argc, char *argv[]) {
+       const u_char *d =
+           &p[sizeof(ether_header) + ip->ip_hl * 4 + sizeof(udphdr)];
+ 
+-      sockaddr_in addr;
+-      memset(&addr, 0, sizeof(addr));
+-      addr.sin_family = AF_INET;
++      // ipv6 destination address is provided and will be used
++      if(!dest_ipv6.empty()){
++        struct sockaddr_in6 addr_ipv6;
++        memset(&addr_ipv6, 0, sizeof(addr_ipv6));
++        addr_ipv6.sin6_family = AF_INET6;
++        addr_ipv6.sin6_port = udp->uh_dport;
++        inet_pton(AF_INET6, dest_ipv6.data(), &(addr_ipv6.sin6_addr));
++        auto n = sendto(fd, d, len, 0,
++                          reinterpret_cast<sockaddr *>(&addr_ipv6),
++                          sizeof(addr_ipv6));
++        if (n != len) {
++            std::cerr << "sendto: " << strerror(errno) << std::endl;
++            return 1;
++        }
++      }else{ // ipv4 destination address will be used
++        sockaddr_in addr;
++        memset(&addr, 0, sizeof(addr));
++        addr.sin_family = AF_INET;
+ 
+ #ifdef __GLIBC__
+-      addr.sin_port = udp->dest;
++        addr.sin_port = udp->dest;
+ #else
+-      addr.sin_port = udp->uh_dport;
++        addr.sin_port = udp->uh_dport;
+ #endif
+ 
+-      // update the destination ip address if there is one provided
+-      // destination ip address is ipv4
+-      if(!dest_ipv4.empty()){
+-        inet_pton(AF_INET, dest_ipv4.data(), &(addr.sin_addr));
+-      }else{
+-        addr.sin_addr = {ip->ip_dst};
+-      }
++        // use provided ipv4 destination address
++        if(!dest_ipv4.empty()){
++            inet_pton(AF_INET, dest_ipv4.data(), &(addr.sin_addr));
++        }else{
++            // no ipv4 addresses provided, so original dest addr used
++            addr.sin_addr = {ip->ip_dst};
++        }
+ 
+-      auto n = sendto(fd, d, len, 0, reinterpret_cast<sockaddr *>(&addr),
++        auto n = sendto(fd, d, len, 0, reinterpret_cast<sockaddr *>(&addr),
+                       sizeof(addr));
+-      if (n != len) {
+-        std::cerr << "sendto: " << strerror(errno) << std::endl;
+-        return 1;
++        if (n != len) {
++            std::cerr << "sendto: " << strerror(errno) << std::endl;
++            return 1;
++        }
+       }
+     }
+ 
+-- 
+2.29.0
+
