@@ -1,0 +1,93 @@
+From 8158e522f24c2b0095d9e2eb566ee18a9e0f629f Mon Sep 17 00:00:00 2001
+From: Anthony Lopez <anthlope@codeaurora.org>
+Date: Wed, 10 Mar 2021 13:29:01 -0800
+Subject: [PATCH 1/1] Patch to send to specified IPv4 destination address
+
+Add IP address to the list of command line arguments. If provided, update the
+packets with the destination address before sending.
+
+Signed-off-by: Anthony Lopez <anthlope@codeaurora.org>
+---
+ src/udpreplay.cpp | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/src/udpreplay.cpp b/src/udpreplay.cpp
+index 3aeeb9f..965e958 100644
+--- a/src/udpreplay.cpp
++++ b/src/udpreplay.cpp
+@@ -5,6 +5,7 @@
+ #include <iostream>
+ #include <net/ethernet.h>
+ #include <net/if.h>
++#include <arpa/inet.h>
+ #include <netinet/in.h>
+ #include <netinet/ip.h>
+ #include <netinet/udp.h>
+@@ -22,9 +23,10 @@ int main(int argc, char *argv[]) {
+   int repeat = 1;
+   int ttl = -1;
+   int broadcast = 0;
++  std::string dest_ipv4 = "";
+ 
+   int opt;
+-  while ((opt = getopt(argc, argv, "i:bls:c:r:t:")) != -1) {
++  while ((opt = getopt(argc, argv, "i:bls:c:r:t:d:")) != -1) {
+     switch (opt) {
+     case 'i':
+       ifindex = if_nametoindex(optarg);
+@@ -66,6 +68,10 @@ int main(int argc, char *argv[]) {
+     case 'b':
+       broadcast = 1;
+       break;
++    case 'd':
++      printf("Will attempt to send to ipv4 address: %s\n", optarg);
++      dest_ipv4 = (optarg);
++      break;
+     default:
+       goto usage;
+     }
+@@ -76,7 +82,7 @@ int main(int argc, char *argv[]) {
+         << "udpreplay 1.0.0 © 2020 Erik Rigtorp <erik@rigtorp.se> "
+            "https://github.com/rigtorp/udpreplay\n"
+            "usage: udpreplay [-i iface] [-l] [-s speed] [-c millisec] [-r "
+-           "repeat] [-t ttl] "
++           "repeat] [-t ttl] [-d dest ipv4] "
+            "pcap\n"
+            "\n"
+            "  -i iface    interface to send packets through\n"
+@@ -85,7 +91,8 @@ int main(int argc, char *argv[]) {
+            "  -r repeat   number of times to loop data (-1 for infinite loop)\n"
+            "  -s speed    replay speed relative to pcap timestamps\n"
+            "  -t ttl      packet ttl\n"
+-           "  -b          enable broadcast (SO_BROADCAST)"
++           "  -b          enable broadcast (SO_BROADCAST)\n"
++           "  -d          destination ipv4 address"
+         << std::endl;
+     return 1;
+   }
+@@ -233,12 +240,21 @@ int main(int argc, char *argv[]) {
+       sockaddr_in addr;
+       memset(&addr, 0, sizeof(addr));
+       addr.sin_family = AF_INET;
++
+ #ifdef __GLIBC__
+       addr.sin_port = udp->dest;
+ #else
+       addr.sin_port = udp->uh_dport;
+ #endif
+-      addr.sin_addr = {ip->ip_dst};
++
++      // update the destination ip address if there is one provided
++      // destination ip address is ipv4
++      if(!dest_ipv4.empty()){
++        inet_pton(AF_INET, dest_ipv4.data(), &(addr.sin_addr));
++      }else{
++        addr.sin_addr = {ip->ip_dst};
++      }
++
+       auto n = sendto(fd, d, len, 0, reinterpret_cast<sockaddr *>(&addr),
+                       sizeof(addr));
+       if (n != len) {
+-- 
+2.29.0
+
