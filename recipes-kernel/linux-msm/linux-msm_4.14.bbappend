@@ -10,6 +10,7 @@ SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0007-evm-
 SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0008-evm-check-for-remount-ro-in-progress-before-writing.patch', '', d)}"
 SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0009-evm-Allow-non-SHA1-digital-signatures.patch', '', d)}"
 SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0010-evm-check-hash-algorithm-passed-to-init_desc.patch', '', d)}"
+SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0011-evm-exclude-data-partition-from-verification.patch', '', d)}"
 
 do_patch_prepend () {
 	if ${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'true', 'false', d)}; then
@@ -32,10 +33,12 @@ do_patch_prepend () {
 		patch -p1 < ${WORKDIR}/0008-evm-check-for-remount-ro-in-progress-before-writing.patch
 		patch -p1 < ${WORKDIR}/0009-evm-Allow-non-SHA1-digital-signatures.patch
 		patch -p1 < ${WORKDIR}/0010-evm-check-hash-algorithm-passed-to-init_desc.patch
+		patch -p1 < ${WORKDIR}/0011-evm-exclude-data-partition-from-verification.patch
 		cd -
 		rm -f ${WORKDIR}/0007-evm-Move-evm_hmac-and-evm_hash-from-evm_main.c-to-ev.patch
 		rm -f ${WORKDIR}/0008-evm-check-for-remount-ro-in-progress-before-writing.patch
 		rm -f ${WORKDIR}/0009-evm-Allow-non-SHA1-digital-signatures.patch
 		rm -f ${WORKDIR}/0010-evm-check-hash-algorithm-passed-to-init_desc.patch
+		rm -f ${WORKDIR}/0011-evm-exclude-data-partition-from-verification.patch
 	fi
 }
