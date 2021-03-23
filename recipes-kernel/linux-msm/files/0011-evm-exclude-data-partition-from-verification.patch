@@ -1,0 +1,89 @@
+From e0ff3e3e19acf85b0dc8e1c98b15e5cb9b05d5f0 Mon Sep 17 00:00:00 2001
+From: Rishi Gupta <rishgupt@codeaurora.org>
+Date: Tue, 23 Mar 2021 13:18:29 +0530
+Subject: [PATCH] evm: exclude data partition from verification
+
+1. evm_set_key(): when a new file is created evm will
+try to generate security.evm for it. This requires a
+HMAC key which we don't have due to portable signatures.
+Therefore a random key is generated on every boot and
+used as evmkey.
+
+2. EVM allows any operation for protected attributes
+only when file is currently not-tampered. The files in
+data partition are not signed therefore they are bound
+to fail integrity check. We therefore mark files in
+data partition as integrity pass to let EVM allow metadata
+update operations.
+
+3. When changing metadata of a configfs file, evm first
+check its current integrity. There is no get security.evm
+xattr handler for configfs therefore it fails. Therefore
+we mark configfs file as always integrity pass to let
+for example; chmod/chown operation to work on it.
+
+Change-Id: If4c335fc75ccaa902152d66e561c4abddec07cb4
+Signed-off-by: Rishi Gupta <rishgupt@codeaurora.org>
+---
+ security/integrity/evm/evm_main.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index e794abf..596f6fe 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -273,9 +273,23 @@ EXPORT_SYMBOL_GPL(evm_verifyxattr);
+ static enum integrity_status evm_verify_current_integrity(struct dentry *dentry)
+ {
+ 	struct inode *inode = d_backing_inode(dentry);
++	uuid_t rfsuuid = {.b = 0x6F, 0x2B, 0x9A, 0x5B, 0x32, 0x07, 0x4D, 0x8B, 0x84, 0x7C, 0x0F, 0x4F, 0xF9, 0xD9, 0x04, 0x85};
+ 
+ 	if (!evm_initialized || !S_ISREG(inode->i_mode) || evm_fixmode)
+ 		return 0;
++
++	/* Exclude all UBIFS formatted partition except root file
++	 * system partition. 0x24051905 is UBIFS VFS magic number. */
++	if (dentry->d_sb->s_magic == 0x24051905) {
++		if (!uuid_equal(&rfsuuid, &inode->i_sb->s_uuid))
++			return 0;
++	}
++
++	/* Exclude configfs; mark it always integrity pass.
++	 * The 0x62656570 is CONFIGFS magic number. */
++	if (dentry->d_sb->s_magic == 0x62656570)
++		return 0;
++
+ 	return evm_verify_hmac(dentry, NULL, NULL, 0, NULL);
+ }
+ 
+@@ -512,10 +526,14 @@ EXPORT_SYMBOL_GPL(evm_inode_init_security);
+ void __init evm_load_x509(void)
+ {
+ 	int rc;
++	unsigned char key[64];
+ 
+ 	rc = integrity_load_x509(INTEGRITY_KEYRING_EVM, CONFIG_EVM_X509_PATH);
+ 	if (!rc)
+ 		evm_initialized |= EVM_INIT_X509;
++
++	get_random_bytes(key, 64);
++	evm_set_key(key, 64);
+ }
+ #endif
+ 
+@@ -529,12 +547,6 @@ static int __init init_evm(void)
+ 	if (error)
+ 		return error;
+ 
+-	error = evm_init_secfs();
+-	if (error < 0) {
+-		pr_info("Error registering secfs\n");
+-		return error;
+-	}
+-
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
+
