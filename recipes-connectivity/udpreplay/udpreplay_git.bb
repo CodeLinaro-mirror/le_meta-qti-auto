@@ -19,6 +19,7 @@ SRC_URI += "file://udpreplay_ipv4_dest_1.patch"
 SRC_URI += "file://udpreplay_ipv6_dest_2.patch"
 SRC_URI += "file://udpreplay_dest_port_3.patch"
 SRC_URI += "file://udpreplay_nanosecond_interval_4.patch"
+SRC_URI += "file://udpreplay_burst_and_srcport_5.patch"
 
 S = "${WORKDIR}/git"
 
