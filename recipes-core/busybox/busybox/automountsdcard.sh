@@ -1,7 +1,7 @@
 #! /bin/sh
 
 #
-# Copyright (c) 2020, The Linux Foundation. All rights reserved.
+# Copyright (c) 2020-2021, The Linux Foundation. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -46,9 +46,9 @@ mount_partition()
             mkdir "${destdir}"
         fi
 
-# Mounting sd-card with user "root" and group "system" with proper umask permissions in-order to allow modem-monitor collect ramdumps in sd-card.
+# Mounting sd-card with user "root" and group "sdcard" with proper umask permissions so that non-root applications can access sdcard by adding to "sdcard" group. 
 
-        if ! mount -t auto "/dev/$1" "${destdir}" -o uid=0,gid=1000,umask=002,context=system_u:object_r:sdcard_t:s0,nodev,noexec,nosuid; then
+        if ! mount -t auto "/dev/$1" "${destdir}" -o uid=0,gid=1015,umask=002,context=system_u:object_r:sdcard_t:s0,nodev,noexec,nosuid; then
                 # failed to mount
                 exit 1
         fi
