@@ -19,6 +19,8 @@ S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
 		--with-glib"
 
+SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
+
 do_install_append () {
 
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then

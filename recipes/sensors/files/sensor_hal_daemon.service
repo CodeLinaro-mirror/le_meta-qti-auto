@@ -28,18 +28,22 @@
 [Unit]
 Description=sensor remote service launcher
 SourcePath=/usr/bin/sensor_hal_daemon
+DefaultDependencies=no
 Requires=data.mount
-After=data.mount logd.service
+After=data.mount logd.service evdev_load.service
+Before=systemd-udev-trigger.service sockets.target loc_launcher.service
 
 [Service]
 User=sensors
 Group=sensors
 Restart=always
 RemainAfterExit=yes
+ExecStartPre=+/etc/initscripts/loc_bootup_iio.sh
+Nice=-15
 ExecStart=/usr/bin/sensor_hal_daemon
 SupplementaryGroups=diag plugdev
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sockets.target
