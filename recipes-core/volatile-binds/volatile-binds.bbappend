@@ -7,4 +7,5 @@ VOLATILE_BINDS_append_sa2150p-nand = "\
 /systemrw/modem-monitor-pcie.conf /etc/modem-monitor-pcie.conf \n\
 /systemrw/modem-monitor-eth.conf /etc/modem-monitor-eth.conf \n\
 /systemrw/power_state.conf /etc/power_state.conf \n\
+/systemrw/enable /etc/cv2x/enable \n\
 "
