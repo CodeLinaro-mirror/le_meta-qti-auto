@@ -48,6 +48,7 @@ struct rgptp_prv_data {
     unsigned int irq_cnt;
     unsigned int ptp_cnt;
     bool rptp_sync;
+    bool modem_sync;
     s64 offset_array[OFFSET_ARRAY_SIZE];
     int offset_index;
 };
@@ -81,6 +82,15 @@ static int rgptp_get_time(struct ptp_clock_info *ptp, struct timespec64 *ts)
     u64 ns = 0;
     u64 cur_systime_ns = 0;
     u32 reminder = 0;
+
+    if (info) {
+        if (info->modem_sync == false) {
+            return -1;
+        }
+    } else {
+        return -1;
+    }
+
     getnstimeofday(&cur_sys_time);
     cur_systime_ns = timespec_to_ns(&cur_sys_time);
     ns = cur_systime_ns + info->offset_ns;
@@ -170,6 +180,7 @@ static void socket_data_ready(struct sock *sk_ptr)
     spin_lock_irqsave(&info->ptp_lock, flags);
     info->rptp_time_ns = rcvBuf.ptp_time;
     info->rptp_sync = rcvBuf.sync;
+    info->modem_sync = true;
     info->ptp_cnt++;
 
     if (info->irq_cnt == info->ptp_cnt) {
@@ -408,6 +419,7 @@ static int rgptp_drv_probe(struct platform_device *pdev)
     platform_set_drvdata(pdev, priv_data);
     priv_data->pdev = pdev;
     priv_data->dev = &pdev->dev;
+    priv_data->modem_sync = false;
     ret = rgptp_platform_init(priv_data);
 
     if (ret < 0) {
