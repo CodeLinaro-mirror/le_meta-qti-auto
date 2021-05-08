@@ -1,38 +1,69 @@
-From 62a2ab550b79180b42cc139f939d1b59506a5d4d Mon Sep 17 00:00:00 2001
+From 0f786708a7e7349bff6a504bc0dbdaeac0b5f574 Mon Sep 17 00:00:00 2001
 From: Anthony Lopez <anthlope@codeaurora.org>
 Date: Mon, 29 Mar 2021 14:57:52 -0700
 Subject: [PATCH 1/1] Added support for source port and bursting interval and
- rate.
+ rate
 
 Signed-off-by: Anthony Lopez <anthlope@codeaurora.org>
 ---
- src/udpreplay.cpp | 362 +++++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 320 insertions(+), 42 deletions(-)
+ src/udpreplay.cpp | 765 +++++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 612 insertions(+), 153 deletions(-)
 
 diff --git a/src/udpreplay.cpp b/src/udpreplay.cpp
-index be54ed6..732b568 100644
+index be54ed6..bf82e87 100644
 --- a/src/udpreplay.cpp
 +++ b/src/udpreplay.cpp
-@@ -1,6 +1,9 @@
+@@ -1,8 +1,13 @@
 +// Copyright (c) 2021 The Linux Foundation. All rights reserved.
 +
  // © 2020 Erik Rigtorp <erik@rigtorp.se>
  // SPDX-License-Identifier: MIT
  
++#include <csignal>
 +#include <netdb.h>
  #include <cstring>
- #include <iostream>
+-#include <iostream>
++#include <iostream> 
++#include <iomanip>
  #include <net/ethernet.h>
-@@ -11,10 +14,77 @@
+ #include <net/if.h>
+ #include <arpa/inet.h>
+@@ -11,12 +16,123 @@
  #include <netinet/udp.h>
  #include <pcap/pcap.h>
  #include <unistd.h>
 +#include <sys/types.h>
++#include <sys/stat.h>
 +#include <ifaddrs.h>
++#include <exception>
  
  #define NANOSECONDS_PER_SECOND 1000000000L
  #define MAX_UDP_PORT_RANGE 65535
  
+-int main(int argc, char *argv[]) {
++int numSent;
++int burst_packets_sent;
++int total_intervals;
++double avg_burst_rate;
++double avgPerSec;
++
++
++static void signalHandler(int signum) {
++  std::cout << "Interrupt signal (" << signum << ") received.\n";
++  if(total_intervals){
++      std::cout << "Total packets sent during bursts is: "
++          << numSent << "\n";
++      std::cout << "Total intervals is: " << total_intervals << "\n";
++      std::cout << "Average burst interval packet rate is: "
++          << avg_burst_rate<< " packets / interval\n";
++      std::cout << "Average packet rate is: "
++          << avgPerSec << " packets / sec\n";
++  }else if(numSent){
++      std::cout << "Total packets successfully sent is: " << 
++              numSent << "\n";
++  }
++  exit(1);
++}
 +
 +/* function to derive the ipv6 address of an interface */
 +int get_ipv6_addr(const char* ifaceName, struct in6_addr* v6_addr) {
@@ -65,133 +96,357 @@ index be54ed6..732b568 100644
 +    }
 +     ifa = ifa->ifa_next;
 +  }
-+
+ 
 +  if (ifap) {
 +    freeifaddrs(ifap);
 +  }
-+   return result;
++  return result;
 +}
 +
 +/* function to determine if a time is withing specified time range */
 +bool isWithinTimeRange(timespec& startTime, timespec& endTime, timespec& nowTime){
-+    // has it passed the start of time range?
-+    if(!(startTime.tv_sec <= nowTime.tv_sec ||
-+               (startTime.tv_sec == nowTime.tv_sec &&
-+                startTime.tv_nsec <= nowTime.tv_nsec)))
-+        return false;
-+    // has it passed the end of the time range?
-+    if(!(endTime.tv_sec > nowTime.tv_sec ||
-+           (endTime.tv_sec == nowTime.tv_sec &&
-+            endTime.tv_nsec > nowTime.tv_nsec)))
-+        return false;
-+    // within time range
-+    return true;
++  // has it passed the start of time range?
++  if(!(startTime.tv_sec <= nowTime.tv_sec ||
++             (startTime.tv_sec == nowTime.tv_sec &&
++              startTime.tv_nsec <= nowTime.tv_nsec)))
++      return false;
++  // has it passed the end of the time range?
++  if(!(endTime.tv_sec > nowTime.tv_sec ||
++         (endTime.tv_sec == nowTime.tv_sec &&
++          endTime.tv_nsec > nowTime.tv_nsec)))
++      return false;
++  // within time range
++  return true;
 +}
 +
 +/* function to calculate the seconds difference between two time structs */
 +long int sec_diff(timespec& time_1, timespec& time_2){
-+    return (time_1.tv_sec - time_2.tv_sec);
++  return (time_1.tv_sec - time_2.tv_sec);
 +}
 +
 +/* function to calculate the nanoseconds difference between two time structs */
 +long int nsec_diff(timespec& time_1, timespec& time_2){
-+    return (time_1.tv_nsec - time_2.tv_nsec);
++  return (time_1.tv_nsec - time_2.tv_nsec);
 +}
 +
- int main(int argc, char *argv[]) {
- 
++/* function which will go through pcap files in directory with a given suffix */
++int  fileNameUpdate( time_t *changeStart, char pcapFileNameArg[], 
++                    int pcapArrSize, char pcapDirNameArg[], 
++                   int fileCount, int pcapChangeDuration )
++{
++  time_t changeStop;
++  time(&changeStop);
++  if(difftime(changeStop, *changeStart)  > pcapChangeDuration )
++  {
++      time(changeStart);
++      snprintf(pcapFileNameArg, pcapArrSize, "%s/pcap_%d.pcap", 
++                               pcapDirNameArg, fileCount);
++      std::cout<<"Switched to pcap : "<< pcapFileNameArg<<std::endl;
++      fileCount++;
++  }
++  return fileCount;
++}
++
++int main(int argc, char *argv[]) {
++  std::signal(SIGINT, signalHandler);
++  /* Packet transmission related parameters */
    int ifindex = 0;
-@@ -28,17 +98,39 @@ int main(int argc, char *argv[]) {
+   int loopback = 0;
+   double speed = 1;
+@@ -25,102 +141,230 @@ int main(int argc, char *argv[]) {
+   double rate = 0.0;
+   int repeat = 1;
+   int ttl = -1;
++  bool noWait = false;
++  // following threshold should be adapted to architecture
++  // X86 -> 5000 ns ; AARCH -> maybe 100 microsecs e.g. 100,000 nanosecs
++  int nanoGapThresh = 5000;
++  
++  /* Source and destination communication parameters */
    int broadcast = 0;
    std::string dest_ipv4 = "";
    std::string dest_ipv6 = "";
 +  std::string iface = "";
 +  int src_port = 0;
    int dest_port = 0;
++  
++  /* Burst mode related parameters */
 +  int burst_size = -1; // number of packets within burst
 +  int burstInterval = -1; //nanosec
 +  int burstGap = -1; //nanosec
 +  int burstIntervalGap = -1; //nanosec
 +  bool burstOn = false;
++
++  /* PCAP file reading parameters */
++  int fileCount = 0;
++  int pcapChangeDuration=60; // default 60 s
++  char pcapDirName[51];
++  char pcapFileName[101];
++  bool replacePcapDir=false;
++  time_t changeStart;
++  struct stat pcapStat;
  
    int opt;
 -  while ((opt = getopt(argc, argv, "i:bls:c:n:r:t:d:g:p:")) != -1) {
-+  int ctr=0;
-+  while ((opt = getopt(argc, argv, "i:a:bls:c:n:r:t:d:g:p:j:")) != -1) {
-     switch (opt) {
-     case 'i':
+-    switch (opt) {
+-    case 'i':
 -      ifindex = if_nametoindex(optarg);
 -      if (ifindex == 0) {
-+      iface = (optarg);
-+      if (!iface.empty()) {
-+        std::cout << "iface name: " << iface << std::endl;
-+        ifindex = if_nametoindex(iface.data());
-+      }else{
-         std::cerr << "if_nametoindex: " << strerror(errno) << std::endl;
-         return 1;
+-        std::cerr << "if_nametoindex: " << strerror(errno) << std::endl;
+-        return 1;
+-      }
+-      break;
+-    case 'l':
+-      loopback = 1;
+-      break;
+-    case 's':
+-      speed = std::stod(optarg);
+-      if (speed < 0) {
+-        std::cerr << "speed must be positive" << std::endl;
+-      }
+-      break;
+-    case 'c':
+-      interval = std::stoi(optarg);
+-      if (interval <= 0) {
+-        std::cerr << "interval must be non-negative integer" << std::endl;
+-        return 1;
+-      }
+-      rate = (double)interval/1000.0;
+-      printf("Packets will be sent with interval of %d ms or %.2f s\n",
+-           interval, rate);
+-      printf("Rate will be %.2f packets / sec\n",
+-            1.0/rate);
+-      break;
+-    case 'n':
+-      nano_interval = std::stoi(optarg);
+-      if(nano_interval <= 0) {
+-        std::cerr << "nanosec interval must be non-negative integer" << std::endl;
+-        return 1;
+-      }
+-      rate = (double)nano_interval/(double)NANOSECONDS_PER_SECOND;
+-      printf("Packets will be sent with interval of %d ns or %.2f s\n",
+-           nano_interval, rate);
+-      printf("Rate will be %.2f packets / sec\n", 
+-            1.0/rate);
+-      break;
+-    case 'r':
+-      repeat = std::stoi(optarg);
+-      if (repeat != -1 && repeat <= 0) {
+-        std::cerr << "repeat must be positive integer or -1" << std::endl;
+-        return 1;
+-      }
+-      break;
+-    case 't':
+-      ttl = std::stoi(optarg);
+-      if (ttl < 0) {
+-        std::cerr << "ttl must be non-negative integer" << std::endl;
+-        return 1;
+-      }
+-      break;
+-    case 'b':
+-      broadcast = 1;
+-      break;
+-    case 'd':
+-      printf("Will attempt to send to ipv4 address: %s\n", optarg);
+-      dest_ipv4 = (optarg);
+-      break;
+-    case 'g':
+-      printf("Will attempt to send to ipv6 address: %s\n", optarg);
+-      dest_ipv6 = (optarg);
+-      break;
+-    case 'p':
+-      dest_port = std::stoi(optarg);
+-      if ((dest_port <= 0) || (dest_port > MAX_UDP_PORT_RANGE)) {
+-        std::cerr << "Invalid port number." << std::endl;
+-        return 1;
++  int ctr=0;
++  try{
++    while ((opt = getopt(argc, argv, "i:a:bls:c:n:r:t:d:g:p:j:R:")) != -1) {
++      switch (opt) {
++      case 'i':
++        iface = (optarg);
++        if (!iface.empty()) {
++          std::cout << "iface name: " << iface << std::endl;
++          ifindex = if_nametoindex(iface.data());
++        }else{
++          std::cerr << "if_nametoindex: " << strerror(errno) << std::endl;
++          return 1;
++        }
++        if (ifindex == 0){
++          std::cerr << "if_nametoindex: " << strerror(errno) << std::endl;
++        }
++        break;
++      case 'a':
++        src_port = std::stoi(optarg);
++        if ((src_port <= 0) || (src_port > MAX_UDP_PORT_RANGE)) {
++          std::cerr << "Invalid port number." << std::endl;
++          return 1;
++        }
++        std::cout << "Attempting to send via source port :" << src_port << std::endl;
++        break;
++      case 'l':
++        loopback = 1;
++        break;
++      case 's':
++        speed = std::stod(optarg);
++        if (speed < 0) {
++          std::cerr << "speed must be positive" << std::endl;
++        }
++        break;
++      case 'c':
++        interval = std::stoi(optarg);
++        if (interval <= 0) {
++          std::cerr << "interval must be non-negative integer" << std::endl;
++          return 1;
++        }
++        if (interval > 1000) {
++          std::cerr << "interval must be less than or equal to 1000 msec" << std::endl;
++          return 1;
++        }
++        rate = (double)interval/1000.0;
++        std::cout << "Packets will be sent with interval of " << interval << 
++                      " ms or " << rate << " s \n";
++        std::cout << "Rate will be " << (1.0/rate) << " packets / sec \n";
++        break;
++      case 'n':
++        nano_interval = std::stoi(optarg);
++        if(nano_interval <= 0) {
++          std::cerr << "nanosec interval must be non-negative integer" << std::endl;
++          return 1;
++        }
++        // handle intervals that are too small; send as fast as possible
++        if(nano_interval <= nanoGapThresh){
++          noWait = true;
++          std::cout << "Specified nanosec interval is too small.\n"
++                       "Will attempt to send as fast as possible.\n";
++        }else{
++          rate = (double)nano_interval/(double)NANOSECONDS_PER_SECOND;
++          std::cout << "Packets will be sent with interval of " << nano_interval << 
++                      " ns or " << rate << " s \n";
++          std::cout << "Rate will be " << (1.0/rate) << " packets / sec \n";
++        }
++        break;
++      case 'r':
++        repeat = std::stoi(optarg);
++        if (repeat != -1 && repeat <= 0) {
++          std::cerr << "repeat must be positive integer or -1" << std::endl;
++          return 1;
++        }
++        break;
++      case 't':
++        ttl = std::stoi(optarg);
++        if (ttl < 0) {
++          std::cerr << "ttl must be non-negative integer" << std::endl;
++          return 1;
++        }
++        break;
++      case 'b':
++        broadcast = 1;
++        break;
++      case 'd':
++        std::cout << "Will attempt to send to ipv4 address: " << optarg << "\n";
++        dest_ipv4 = (optarg);
++        break;
++      case 'g':
++        std::cout << "Will attempt to send to ipv6 address: " << optarg << "\n";
++        dest_ipv6 = (optarg);
++        break;
++      case 'p':
++        dest_port = std::stoi(optarg);
++        if ((dest_port <= 0) || (dest_port > MAX_UDP_PORT_RANGE)) {
++          std::cerr << "Invalid port number." << std::endl;
++          return 1;
++        }
++        std::cout << "Attempting to send to destination port :"
++                      << dest_port << std::endl;
++        break;
++      case 'j':
++        optind--;
++       // go through next three arguments (if they exist)
++        for( ;optind < argc-1 && *argv[optind] != '-' ; optind++){
++          if(ctr==0){
++            burstInterval = std::stoi(argv[optind]);
++          }
++          else if(ctr == 1){
++            burstGap = std::stoi(argv[optind]);
++          }
++          else{
++            burstIntervalGap = std::stoi(argv[optind]);
++          }
++          ctr++;
++        }
++        if(burstInterval == -1 || burstGap == -1 || burstIntervalGap  == -1){
++          std::cerr << "Missing an argument for burst mode. \n";
++          return 1;
++        }
++        burstOn = true;
++        burst_size = burstInterval / burstGap;
++        std::cout << "Burst interval will be: " << burstInterval << " nanoseconds \n";
++        std::cout << "Burst gap will be: " << burstGap << " nanoseconds \n";
++        std::cout << "Avg number of packets within burst interval should be around " << 
++                   burst_size << "\n";
++        std::cout << "Constant gap between burst interval will be: " <<
++                   burstIntervalGap << " nanoseconds \n aka " << std::setprecision(9) <<
++                   ((double)burstIntervalGap / (double) NANOSECONDS_PER_SECOND ) << " seconds\n";
++        std::cout << "Total time of interval and interval gap is: " <<
++                  (double)(burstIntervalGap + burstInterval) << " nanoseconds \n";
++        std::cout << "Total intervals per sec will be: " <<
++                 ((double)(1000000000.0)/
++                   ((double) (burstInterval + burstIntervalGap))) << "\n";
++        std::cout << "Total number of packets per sec will be: " <<
++                 ((double)(1000000000.0)/
++                  ((double) (burstInterval + burstIntervalGap)) * burst_size) << "\n";
++        // handle intervals that are too small ; send as fast as possible
++        if(burstGap <= nanoGapThresh){
++          noWait = true;
++          std::cout << "Specified nanosec interval is too small.\n"
++                       "Will attempt to send as fast as possible.\n";
++        }
++        
++        break;
++      case 'R':
++         strncpy(pcapDirName,optarg,sizeof(pcapDirName)-1);
++         if( !( stat(pcapDirName,&pcapStat) == 0 && S_ISDIR(pcapStat.st_mode) ) ) {
++           std::cerr<<"Directory "<<pcapDirName<<" doesn't exist."<<std::endl;
++           return 1;   
++         }
++         std::cout<<"Pcap changing opted from the directory "<<pcapDirName<<std::endl;
++         if(argv[optind])  {
++        // determine if duration has been provided
++           if( argv[optind][0]  != '-' && isdigit(argv[optind][0]) ) {
++             pcapChangeDuration=std::stoi(argv[optind]);
++             optind++;
++             std::cout<<"Each pcap will be played "<<pcapChangeDuration
++                                                   <<" seconds" <<std::endl;          
++           }
++           else 
++           {
++             std::cerr<<"Duration should be a integer."<<std::endl;
++             return 1;
++           }
++         }
++         else {
++           std::cerr<<"Duration is missing."<<std::endl;
++           return 1;   
++         } 
++         replacePcapDir=true;
++         break;
++      default:
++         goto usage;
        }
-+      if (ifindex == 0){
-+        std::cerr << "if_nametoindex: " << strerror(errno) << std::endl;
-+      }
-+      break;
-+    case 'a':
-+      src_port = std::stoi(optarg);
-+      if ((src_port <= 0) || (src_port > MAX_UDP_PORT_RANGE)) {
-+        std::cout << "Invalid port number." << std::endl;
-+        return 1;
-+      }
-+      std::cout << "Attempting to send via source port :" << src_port << std::endl;
-       break;
-     case 'l':
-       loopback = 1;
-@@ -55,6 +147,10 @@ int main(int argc, char *argv[]) {
-         std::cerr << "interval must be non-negative integer" << std::endl;
-         return 1;
-       }
-+      if (interval > 1000) {
-+        std::cerr << "interval must be less than or equal to 1000 msec" << std::endl;
-+        return 1;
-+      }
-       rate = (double)interval/1000.0;
-       printf("Packets will be sent with interval of %d ms or %.2f s\n",
-            interval, rate);
-@@ -107,6 +203,35 @@ int main(int argc, char *argv[]) {
-       std::cout << "Attempting to send to destination port :"
-                     << dest_port << std::endl;
-       break;
-+    case 'j':
-+      optind--;
-+      for( ;optind < argc-1 && *argv[optind] != '-' ; optind++){
-+        if(ctr==0){
-+          burstInterval = std::stoi(argv[optind]);
-+        }
-+        else if(ctr == 1){
-+          burstGap = std::stoi(argv[optind]);
-+        }
-+        else{
-+          burstIntervalGap = std::stoi(argv[optind]);
-+        }
-+        ctr++;
-+      }
-+      if(burstInterval == -1 || burstGap == -1 || burstIntervalGap  == -1){
-+        printf("Missing an argument for burst mode. \n");
-+        return 1;
-+      }
-+      burstOn = true;
-+      burst_size = burstInterval / burstGap;
-+      printf("Burst interval will be: %d nanoseconds\n", burstInterval);
-+      printf("Burst gap will be: %d nanoseconds\n", burstGap);
-+      printf("Constant gap between burst interval will be: %d nanoseconds",
-+                 burstIntervalGap);
-+      printf(" aka %.2f seconds\n",
-+                 (double)burstIntervalGap / (double) NANOSECONDS_PER_SECOND );
-+      printf("Total number of packets within burst interval will be %d\n",
-+                 burst_size);
-+      break;
-     default:
-       goto usage;
+-      std::cout << "Attempting to send to destination port :"
+-                    << dest_port << std::endl;
+-      break;
+-    default:
+-      goto usage;
      }
-@@ -116,11 +241,14 @@ int main(int argc, char *argv[]) {
+   }
++  catch(std::exception &err){
++   std::cerr << "Exception caught: " << err.what() << "\n";
++   return 1;
++  }
+   if (optind >= argc) {
+   usage:
      std::cerr
          << "udpreplay 1.0.0 © 2020 Erik Rigtorp <erik@rigtorp.se> "
             "https://github.com/rigtorp/udpreplay\n"
@@ -208,69 +463,69 @@ index be54ed6..732b568 100644
             "  -l          enable loopback\n"
             "  -c millisec constant milliseconds between packets\n"
             "  -n nanosec constant nanoseconds between packets\n"
-@@ -130,7 +258,10 @@ int main(int argc, char *argv[]) {
+@@ -130,7 +374,13 @@ int main(int argc, char *argv[]) {
             "  -b          enable broadcast (SO_BROADCAST)\n"
             "  -d          destination ipv4 address\n"
             "  -g          destination ipv6 address\n"
 -           "  -p          destination port number"
 +           "  -p          destination port number\n"
 +           "  -j  [constant time gap between each packet in data burst interval] \n"
-+           "      [total time interval of data burst] \n" 
-+           "      [constant gap between each data burst interval]"
++           "      [total time interval of data burst] \n"
++           "      [constant gap between each data burst interval] \n" 
++           "  -R  [Path to Directory where pcap to replace is present \n"
++           "      (pcap shuld be in form pcap_[index].pcap)] \n"
++           "      [Duration for each pcap to be played] \n"     
          << std::endl;
      return 1;
    }
-@@ -178,12 +309,94 @@ int main(int argc, char *argv[]) {
+@@ -178,37 +428,143 @@ int main(int argc, char *argv[]) {
      }
    }
  
 +  /* Initialize time related variables */
 +  timespec now = {};
    timespec deadline = {};
-+  if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
-+    std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
-+    return 1;
+-  if (clock_gettime(CLOCK_MONOTONIC, &deadline) == -1) {
+-    std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
+-    return 1;
++  if(!burstOn){
++    if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
++      std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++      return 1;
++    }
++    if (clock_gettime(CLOCK_MONOTONIC, &deadline) == -1) {
++      std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++      return 1;
++    }
 +  }
-   if (clock_gettime(CLOCK_MONOTONIC, &deadline) == -1) {
-     std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
-     return 1;
-   }
- 
++
 +  /* Burst packet transmission related parameters */
 +  timespec burst_deadline = {};
++  timespec burst_start = {};
 +  timespec burst_end = {};
 +  if(burstOn){
-+      if (clock_gettime(CLOCK_MONOTONIC, &burst_deadline) == -1) {
-+        std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
-+        return 1;
-+      }
-+      if (clock_gettime(CLOCK_MONOTONIC, &burst_end) == -1) {
-+        std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
-+        return 1;
-+      }
-+
-+      // present time is greater than end of burst interval
-+      // update next burst inteval time
-+      burst_deadline.tv_sec += burstGap / 1000000000L;
-+      burst_deadline.tv_nsec +=
-+                         (burstGap * 1L) % NANOSECONDS_PER_SECOND;
-+              // Normalize timespec
-+      if (burst_deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
-+         burst_deadline.tv_sec++;
-+         burst_deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
-+      }
-+
-+      // update next burst end time
-+      burst_end.tv_sec =
-+                       burst_deadline.tv_sec + (burstInterval / 1000000000L);
-+      burst_end.tv_nsec =
-+                       burst_deadline.tv_nsec +
-+                           ((burstInterval * 1L) % NANOSECONDS_PER_SECOND);
-+      // Normalize timespec
-+      if (burst_end.tv_nsec > NANOSECONDS_PER_SECOND) {
-+         burst_end.tv_sec++;
-+         burst_end.tv_nsec -= NANOSECONDS_PER_SECOND;
-+      }
++    // changing the order of these will cause different program behavior
++    if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
++      std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++      return 1;
++    }
++    if (clock_gettime(CLOCK_MONOTONIC, &burst_end) == -1) {
++      std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++      return 1;
++    }
++    if (clock_gettime(CLOCK_MONOTONIC, &burst_start) == -1) {
++      std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++      return 1;
++    }
++    if (clock_gettime(CLOCK_MONOTONIC, &burst_deadline) == -1) {
++      std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++      return 1;
++    }
++    burst_end.tv_nsec += burstInterval;
++    if (burst_end.tv_nsec > NANOSECONDS_PER_SECOND) {
++      burst_end.tv_sec++;
++      burst_end.tv_nsec -= NANOSECONDS_PER_SECOND;
++    }
 +  }
 +
 +  /* Set the source port */
@@ -309,13 +564,75 @@ index be54ed6..732b568 100644
 +        return -1;
 +      }
 +    }
-+  }
+   }
+ 
++  // ipv4 destination address struct (if used)
++  sockaddr_in addr;
++  memset(&addr, 0, sizeof(addr));
++  addr.sin_family = AF_INET;
++
++  // ipv6 destination address  (if used)
++  struct sockaddr_in6 addr_ipv6;
++  memset(&addr_ipv6, 0, sizeof(addr_ipv6));
++  addr_ipv6.sin6_family = AF_INET6;
 +
 +  /* Begin sending packets from pcap */
++  time(&changeStart);
++  strncpy(pcapFileName,argv[optind],sizeof(pcapFileName)-1);
    for (int i = 0; repeat == -1 || i < repeat; i++) {
      char errbuf[PCAP_ERRBUF_SIZE];
++
++    // check if it is needed to go through pcaps in a provided directory 
++    if ( replacePcapDir ) {
++       fileCount = fileNameUpdate(&changeStart, pcapFileName, sizeof(pcapFileName), 
++                                    pcapDirName, fileCount, pcapChangeDuration );
++       if ( stat( pcapFileName, &pcapStat ) != 0  ) {
++         if( fileCount == 1 ) {
++           std::cout<<"Directory "<<pcapDirName<<" doesn't seems to have pcap_0.pcap.\
++                    Please ensure your directory has pcaps in format pcap_[index].pcap\
++                                                                starting form 0."<<std::endl;
++         }
++         else {
++           std::cout<<"Replayed all the pcaps in the directoy. Exiting udpreplay."<<std::endl;   
++         }
++         return 1;
++       }
++    }
++    
      pcap_t *handle = pcap_open_offline_with_tstamp_precision(
-@@ -231,26 +444,46 @@ int main(int argc, char *argv[]) {
+-        argv[optind], PCAP_TSTAMP_PRECISION_NANO, errbuf);
++        pcapFileName, PCAP_TSTAMP_PRECISION_NANO, errbuf);
+ 
+     if (handle == nullptr) {
+       std::cerr << "pcap_open: " << errbuf << std::endl;
+       return 1;
+     }
+ 
+-    timespec start = {-1, -1};
++    timespec start = {-1, -1}; 
+     timespec pcap_start = {-1, -1};
+ 
+     pcap_pkthdr header;
+     const u_char *p;
+     while ((p = pcap_next(handle, &header))) {
+-      if (start.tv_nsec == -1) {
+-        if (clock_gettime(CLOCK_MONOTONIC, &start) == -1) {
++       if (start.tv_nsec == -1) {
++         if (clock_gettime(CLOCK_MONOTONIC, &start) == -1) {
+           std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
+           return 1;
+-        }
++        } 
+         pcap_start.tv_sec = header.ts.tv_sec;
+         pcap_start.tv_nsec =
+-            header.ts.tv_usec; // Note PCAP_TSTAMP_PRECISION_NANO
+-      }
++            header.ts.tv_usec; // Note PCAP_TSTAMP_PRECISION_NANO 
++      } 
+       if (header.len != header.caplen) {
+         continue;
+       }
+@@ -231,49 +587,145 @@ int main(int argc, char *argv[]) {
        }
        auto udp = reinterpret_cast<const udphdr *>(p + sizeof(ether_header) +
                                                    ip->ip_hl * 4);
@@ -330,140 +647,194 @@ index be54ed6..732b568 100644
 -      }else{ // packet-based timing
 -        // Next packet deadline = start + (packet ts - first packet ts) * speed
 -        int64_t delta =
-+
-+      /* determine next time to do a burst and when it will end
-+       * during bursts, use the burst gap instead of normal gap
-+       * when burst interval is completed, perform no messages
-+       * repeat 
-+       */
-+      if(burstOn){ 
-+        // update the next deadline to send a new packet from pcap
-+        // Use constant interval for burst instead
-+        burst_deadline.tv_sec += burstGap / 1000000000L;
-+        burst_deadline.tv_nsec += (burstGap * 1L) % NANOSECONDS_PER_SECOND;
-+        // Normalize timespec
-+        // might have to normalize earlier
-+        if (burst_deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
-+          burst_deadline.tv_sec++;
-+          burst_deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
-+        }
-+      }else{
-+        // burst will not be used
-+        if(interval != -1){ // millisec precision
-+          // Use constant packet rate
-+          deadline.tv_sec += interval / 1000L;
-+          deadline.tv_nsec += (interval * 1000000L) % NANOSECONDS_PER_SECOND;
-+        }else if(nano_interval != -1){ // nanosec precision
-+          // Use constant packet rate
-+          deadline.tv_sec += nano_interval / 1000000000L;
-+          deadline.tv_nsec += (nano_interval * 1L) % NANOSECONDS_PER_SECOND;
-+        }else{ // packet-based timing
-+          // Next packet deadline = start + (packet ts - first packet ts) * speed
-+          int64_t delta =
-             (header.ts.tv_sec - pcap_start.tv_sec) * NANOSECONDS_PER_SECOND +
-              (header.ts.tv_usec -
-              pcap_start.tv_nsec); // Note PCAP_TSTAMP_PRECISION_NANO
+-            (header.ts.tv_sec - pcap_start.tv_sec) * NANOSECONDS_PER_SECOND +
+-             (header.ts.tv_usec -
+-             pcap_start.tv_nsec); // Note PCAP_TSTAMP_PRECISION_NANO
 -        if (speed != 1.0) {
 -          delta *= speed;
-+          if (speed != 1.0) {
-+            delta *= speed;
-+          }
-+          deadline = start;
-+          deadline.tv_sec += delta / NANOSECONDS_PER_SECOND;
-+          deadline.tv_nsec += delta % NANOSECONDS_PER_SECOND;
-         }
+-        }
 -        deadline = start;
 -        deadline.tv_sec += delta / NANOSECONDS_PER_SECOND;
 -        deadline.tv_nsec += delta % NANOSECONDS_PER_SECOND;
-       }
+-      }
+-
+-      // Normalize timespec
+-      if (deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
+-        deadline.tv_sec++;
+-        deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
+-      }
  
-       // Normalize timespec
-@@ -260,29 +493,75 @@ int main(int argc, char *argv[]) {
-       }
- 
-      // get the current time
+-     // get the current time
 -     timespec now = {};
-       if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
-         std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
-         return 1;
-       }
- 
+-      if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
+-        std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
+-        return 1;
+-      }
+-
 -      // works for either millisec or nanosec-based deadline
 -      if (deadline.tv_sec > now.tv_sec ||
-+      if(burstOn){
-+        // only update the burst deadline after the interval is complete
-+        if(now.tv_sec > burst_end.tv_sec ||
-+          (now.tv_sec == burst_end.tv_sec &&
-+           now.tv_nsec > burst_end.tv_nsec)){
-+            // present time is greater than end of burst interval
-+            // update next burst inteval time
-+            burst_deadline.tv_sec = 
-+                  burst_end.tv_sec + 
-+                      sec_diff(now, burst_end) + burstIntervalGap / 1000000000L;
-+            burst_deadline.tv_nsec = burst_end.tv_nsec + 
-+                      nsec_diff(now, burst_end) + 
-+                          (burstIntervalGap * 1L) % NANOSECONDS_PER_SECOND;
-+            // Normalize timespec
-+            // might have to normalize earlier
-+            if (burst_deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
-+              burst_deadline.tv_sec++;
-+              burst_deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
+-          (deadline.tv_sec == now.tv_sec && deadline.tv_nsec > now.tv_nsec)) {
+-        if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &deadline,
+-                            nullptr) == -1) {
+-          std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
++      // check if requested time settings is not possible (based on threshold)
++      // if the specified nanosec interval is too small, send as fast as possible
++      if(!noWait){
++        
++        // get the current time
++        if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
++          std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
+           return 1;
+         }
++      
++        /* determine next time to do a burst and when it will end
++         * during bursts, use the burst gap instead of normal gap
++         * when burst interval is completed, perform no messages
++         * repeat 
++         */
++        // burst will not be used
++        if(!burstOn){
++          if(interval != -1){ // millisec precision
++            // Use constant packet rate
++            deadline.tv_sec += interval / 1000L;
++            deadline.tv_nsec += (interval * 1000000L) % NANOSECONDS_PER_SECOND;
++          }else if(nano_interval != -1){ // nanosec precision
++            // Use constant packet rate
++            deadline.tv_sec += nano_interval / 1000000000L;
++            deadline.tv_nsec += (nano_interval * 1L) % NANOSECONDS_PER_SECOND;
++          }else{ // packet-based timing
++            // Next packet deadline = start + (packet ts - first packet ts) * speed
++            int64_t delta =
++              (header.ts.tv_sec - pcap_start.tv_sec) * NANOSECONDS_PER_SECOND +
++               (header.ts.tv_usec -
++               pcap_start.tv_nsec); // Note PCAP_TSTAMP_PRECISION_NANO
++            if (speed != 1.0) {
++              delta *= speed;
 +            }
-+
-+            // update next burst end time
-+              burst_end.tv_sec =
-+                           burst_deadline.tv_sec + (burstInterval / 1000000000L);
-+              burst_end.tv_nsec =
-+                          burst_deadline.tv_nsec +
-+                              ((burstInterval * 1L) % NANOSECONDS_PER_SECOND);
++            deadline = start;
++            deadline.tv_sec += delta / NANOSECONDS_PER_SECOND;
++            deadline.tv_nsec += delta % NANOSECONDS_PER_SECOND;
++          }
++      
++          // Normalize timespec
++          if (deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
++            deadline.tv_sec++;
++            deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
++          }
++           // Use non-burst mode deadline
++          if (deadline.tv_sec > now.tv_sec ||
++            (deadline.tv_sec == now.tv_sec && 
++            deadline.tv_nsec > now.tv_nsec)) {
++            if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &deadline,
++                            nullptr) == -1) {
++              std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
++              return 1;
++            }
++          } 
++        }
++        // burst mode is on
++        else{
++          if (burst_deadline.tv_sec > now.tv_sec ||
++                (burst_deadline.tv_sec == now.tv_sec &&
++                 burst_deadline.tv_nsec > now.tv_nsec)) {
++            if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &burst_deadline,
++                            nullptr) == -1) {
++               std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
++               return 1;
++            } 
++          }
++      
++          burst_deadline.tv_nsec += burstGap;
++          if (burst_deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
++            burst_deadline.tv_sec++;
++            burst_deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
++          }
++        }
++      
++        // handle burst message option
++        if(burstOn){
++        // determine next time interval to send bursts
++          if(numSent >= burst_size && (now.tv_sec > burst_end.tv_sec ||
++                (now.tv_sec == burst_end.tv_sec &&
++                 now.tv_nsec + burstGap >= burst_end.tv_nsec))){
++     
++           // statistics related to burst mode
++            total_intervals++;
++            avg_burst_rate = (double)((double)(numSent)/
++                                      (double)(total_intervals));
++            avgPerSec =  avg_burst_rate / (((double)burstIntervalGap + burstInterval)
++                                   / NANOSECONDS_PER_SECOND);    
++     
++            burst_start.tv_sec = burst_end.tv_sec;
++            burst_start.tv_nsec = burst_end.tv_nsec + burstIntervalGap;
++            // Normalize timespec
++            if (burst_start.tv_nsec > NANOSECONDS_PER_SECOND) {
++              burst_start.tv_sec++;
++              burst_start.tv_nsec -= NANOSECONDS_PER_SECOND;
++            }
++            // update next burst end time only when burst has finished
++            burst_end.tv_sec =
++                           burst_start.tv_sec;
++            burst_end.tv_nsec = burst_start.tv_nsec + burstInterval;
 +            // Normalize timespec
 +            if (burst_end.tv_nsec > NANOSECONDS_PER_SECOND) {
 +              burst_end.tv_sec++;
 +              burst_end.tv_nsec -= NANOSECONDS_PER_SECOND;
 +            }
-+        }
-+
-+        // make sure that the burst deadline is used instead of the normal deadline
-+        if (burst_deadline.tv_sec > now.tv_sec ||
-+              (burst_deadline.tv_sec == now.tv_sec && 
-+               burst_deadline.tv_nsec > now.tv_nsec)) {
-+          //printf("burst deadline is greater than curr time\n");
-+          if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &burst_deadline,
-+                          nullptr) == -1) {
-+             std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
-+             return 1;
++            // sleep until next burst interval
++            if (burst_start.tv_sec > now.tv_sec ||
++                (burst_start.tv_sec == now.tv_sec &&
++                 burst_start.tv_nsec > now.tv_nsec)) {     
++              if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &burst_start,
++                            nullptr) == -1) {
++                 std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
++                 return 1;
++              } 
++              burst_deadline.tv_sec = burst_start.tv_sec;
++              burst_deadline.tv_nsec = burst_start.tv_nsec+ burstGap;
++              if (burst_deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
++                burst_deadline.tv_sec++;
++                burst_deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
++              }
++   /*        // update the timing for current packet if necessary
++              // get the current time
++              if (clock_gettime(CLOCK_MONOTONIC, &now) == -1) {
++                std::cerr << "clock_gettime: " << strerror(errno) << std::endl;
++                return 1;
++              }
++             
++              if (burst_deadline.tv_sec < now.tv_sec ||
++                    (burst_deadline.tv_sec == now.tv_sec &&
++                     burst_deadline.tv_nsec <= now.tv_nsec)) {
++                burst_deadline.tv_nsec += burstGap;
++                if (burst_deadline.tv_nsec > NANOSECONDS_PER_SECOND) {
++                  burst_deadline.tv_sec++;
++                  burst_deadline.tv_nsec -= NANOSECONDS_PER_SECOND;
++                }
++              }*/
++            } 
 +          }
 +        }
-+      }
-+      // use the burst-based deadline vs the normal deadline
-+      else{
-+        // works for either millisec or nanosec-based deadline
-+        if (deadline.tv_sec > now.tv_sec ||
-           (deadline.tv_sec == now.tv_sec && deadline.tv_nsec > now.tv_nsec)) {
--        if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &deadline,
--                            nullptr) == -1) {
--          std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
--          return 1;
-+          if (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &deadline,
-+                          nullptr) == -1) {
-+            std::cerr << "clock_nanosleep: " << strerror(errno) << std::endl;
-+            return 1;
-+          }
-         }
        }
--
+ 
  #ifdef __GLIBC__
-       ssize_t len = ntohs(udp->len) - 8;
- #else
+@@ -282,13 +734,10 @@ int main(int argc, char *argv[]) {
        ssize_t len = ntohs(udp->uh_ulen) - 8;
  #endif
        const u_char *d =
 -          &p[sizeof(ether_header) + ip->ip_hl * 4 + sizeof(udphdr)];
 +        &p[sizeof(ether_header) + ip->ip_hl * 4 + sizeof(udphdr)];
  
-       // ipv6 destination address is provided and will be used
+-      // ipv6 destination address is provided and will be used
++      // ipv6 destination address will be used
        if(!dest_ipv6.empty()){
-@@ -297,11 +576,11 @@ int main(int argc, char *argv[]) {
+-        struct sockaddr_in6 addr_ipv6;
+-        memset(&addr_ipv6, 0, sizeof(addr_ipv6));
+-        addr_ipv6.sin6_family = AF_INET6;
+         // check if destination port is provided
+         if(dest_port > 0) {
+           addr_ipv6.sin6_port = htons(dest_port);
+@@ -297,16 +746,16 @@ int main(int argc, char *argv[]) {
          }
          inet_pton(AF_INET6, dest_ipv6.data(), &(addr_ipv6.sin6_addr));
          auto n = sendto(fd, d, len, 0,
@@ -476,10 +847,19 @@ index be54ed6..732b568 100644
 -            return 1;
 +          std::cerr << "sendto: " << strerror(errno) << std::endl;
 +          return 1;
++        }else{
++          numSent++;
          }
-       }else{ // ipv4 destination address will be used
-         sockaddr_in addr;
-@@ -326,21 +605,20 @@ int main(int argc, char *argv[]) {
+-      }else{ // ipv4 destination address will be used
+-        sockaddr_in addr;
+-        memset(&addr, 0, sizeof(addr));
+-        addr.sin_family = AF_INET;
++      }else{
++      // ipv4 destination address will be used 
+ 
+ #ifdef __GLIBC__
+         // check if destination port is provided
+@@ -326,23 +775,33 @@ int main(int argc, char *argv[]) {
  
          // use provided ipv4 destination address
          if(!dest_ipv4.empty()){
@@ -500,13 +880,25 @@ index be54ed6..732b568 100644
 -            return 1;
 +          std::cerr << "sendto: " << strerror(errno) << std::endl;
 +          return 1;
++        }else{
++          numSent++;
          }
        }
++      
++      if ( replacePcapDir ) { 
++            int temp_filecount = fileCount;
++            fileCount = fileNameUpdate(&changeStart, pcapFileName, 
++                        sizeof(pcapFileName), pcapDirName, fileCount, pcapChangeDuration );
++        if (temp_filecount != fileCount ) {
++          break;
++        }
++      }
++      
      }
 -
      pcap_close(handle);
    }
- 
--- 
-2.7.4
+-
+   return 0;
+ }
 
