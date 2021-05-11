@@ -9,4 +9,11 @@ do_install_append_sa515m() {
    fi
 }
 
+do_install_append_sa2150p() {
+   if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+      rm -rf  ${D}${systemd_unitdir}/system/multi-user.target.wants/usbd.service
+      rm -rf  ${D}${systemd_unitdir}/system/ffbm.target.wants/usbd.service
+   fi
+}
+
 FILES_${PN} += "${systemd_unitdir}/system/*"
