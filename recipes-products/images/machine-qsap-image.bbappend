@@ -1,2 +1,0 @@
-# Auto OPEN SOURCE PACKAGES
-include ${BASEMACHINE}/${BASEMACHINE}-auto-image.inc
