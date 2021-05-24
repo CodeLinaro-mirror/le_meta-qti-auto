@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2019, The Linux Foundation. All rights reserved.
+# Copyright (c) 2019-2021, The Linux Foundation. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -35,13 +35,13 @@ replace=""
 num=${ev//$find/$replace}
 
 case "x$sensor_name" in
-   "xsmi130_accbuf" | "xbmi160_accbuf" | "xinv_accbuf" | "xasm_accbuf")
+   "xsmi130_accbuf" | "xbmi160_accbuf" | "xinv_accbuf" | "xasm_accbuf" | "xsmi230_accbuf")
        ln -sf /dev/input/event$num /dev/input/accbuff
    ;;
-   "xsmi130_gyrobuf" | "xbmi160_gyrobuf" | "xinv_gyrobuf" | "xasm_gyrobuf")
+   "xsmi130_gyrobuf" | "xbmi160_gyrobuf" | "xinv_gyrobuf" | "xasm_gyrobuf" | "xsmi230_gyrobuf")
        ln -sf /dev/input/event$num /dev/input/gyrobuff
    ;;
-   "xsmi130_acc" | "xsmi130_gyro" | "xsmi_acc_interrupt")
+   "xsmi130_acc" | "xsmi130_gyro" | "xsmi_acc_interrupt" | "xSMI230ACC" | "xSMI230GYRO")
        chown -R root:sensors /sys/class/input/input$num/*
        chmod 777  /sys/class/input/input$num/*
    ;;
