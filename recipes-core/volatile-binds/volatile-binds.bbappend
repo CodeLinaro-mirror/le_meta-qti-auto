@@ -9,3 +9,6 @@ VOLATILE_BINDS_append_sa2150p-nand = "\
 /systemrw/power_state.conf /etc/power_state.conf \n\
 /systemrw/enable /etc/cv2x/enable \n\
 "
+
+# Remove volatile binds service not applicable for sa2150p
+SYSTEMD_SERVICE_${PN}_remove = "systemrw-allplay.service systemrw-adk-database.service systemrw-bluetooth.service"
