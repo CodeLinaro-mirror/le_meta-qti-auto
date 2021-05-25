@@ -30,6 +30,9 @@ GNU General Public License for more details.
 #define OFFSET_ARRAY_SIZE 10
 #define PREV_OFFSET_WEIGHTAGE 9
 #define OFFSET_WEIGHTAGE_MAX 10
+/* MAX_RGPTP_VALIDITY is in nano seconds.
+Value set is 4 * Max configurable rgptp irq interval */
+#define MAX_RGPTP_VALIDITY 20000000000
 
 struct rgptp_prv_data {
     struct platform_device *pdev;
@@ -93,6 +96,11 @@ static int rgptp_get_time(struct ptp_clock_info *ptp, struct timespec64 *ts)
 
     getnstimeofday(&cur_sys_time);
     cur_systime_ns = timespec_to_ns(&cur_sys_time);
+
+    if (cur_systime_ns - info->irq_systime_ns > MAX_RGPTP_VALIDITY) {
+        return -1;
+    }
+
     ns = cur_systime_ns + info->offset_ns;
     dev_dbg(info->dev, "rgptp_get_time rgptp time %llu cur_systime_ns : %llu ", ns,
             cur_systime_ns);
