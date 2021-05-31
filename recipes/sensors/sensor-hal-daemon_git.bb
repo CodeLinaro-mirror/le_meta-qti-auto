@@ -8,7 +8,7 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=3775480a712fc46a69647678acb234cb"
 
-DEPENDS = "glib-2.0 libsensors sensor-socket"
+DEPENDS = "glib-2.0 libsensors sensor-socket powermanager-lib"
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 SRC_URI +="file://sensor_hal_daemon.service"
