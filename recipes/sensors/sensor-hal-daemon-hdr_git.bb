@@ -19,3 +19,6 @@ do_install() {
     install -d ${D}${includedir}
     install -m 644 ${S}/*.h ${D}${includedir}
 }
+
+PACKAGES = "${PN}"
+FILES_${PN} += "/usr/include/*"

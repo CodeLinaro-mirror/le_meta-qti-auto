@@ -27,3 +27,5 @@ IMAGE_INSTALL += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'attr', '',
 
 # Target SDK Packages
 TOOLCHAIN_TARGET_TASK_append_sa515m += "telux"
+TOOLCHAIN_TARGET_TASK_append_sa515m += "sensor-hal-daemon-hdr"
+TOOLCHAIN_TARGET_TASK_append_sa515m += "sensor-client-api"
