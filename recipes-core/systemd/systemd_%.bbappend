@@ -4,6 +4,7 @@ SRC_URI_append += "file://auto_platform.conf"
 SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch"
 SRC_URI_append += "file://0001-Allow-powermgr-group-to-communicate.patch"
 SRC_URI_append += "file://61-pps.rules"
+SRC_URI_append += "file://telematics-persistent-storage.rules"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
@@ -30,7 +31,14 @@ do_install_append_sa2150p() {
         rm -f ${D}${base_libdir}/udev/rules.d/71-seat.rules
         rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-persistent-storage.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
+
+        sed -i '/SUBSYSTEM=="block", TAG+="systemd"/d' ${D}${base_libdir}/udev/rules.d/99-systemd.rules
+        sed -i '/SUBSYSTEM=="block", ACTION=="add", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", ENV{SYSTEMD_READY}="0"/d' ${D}/lib/udev/rules.d/99-systemd.rules
+
+        install -d ${D}${sysconfdir}/udev/rules.d/
+        install -m 0744 ${WORKDIR}/telematics-persistent-storage.rules ${D}${sysconfdir}/udev/rules.d/telematics-persistent-storage.rules
     fi
 
 }

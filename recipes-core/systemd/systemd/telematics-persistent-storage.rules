@@ -1,0 +1,55 @@
+
+# persistent storage links: /dev/disk/{by-id,by-uuid,by-label,by-path}
+# scheme based on "Linux persistent device names", 2004, Hannes Reinecke <hare@suse.de>
+
+ACTION=="remove", GOTO="persistent_storage_end"
+ENV{UDEV_DISABLE_PERSISTENT_STORAGE_RULES_FLAG}=="1", GOTO="persistent_storage_end"
+
+SUBSYSTEM!="block", GOTO="persistent_storage_end"
+KERNEL!="loop*|mmcblk*[0-9]|msblk*[0-9]|mspblk*[0-9]|nvme*|sd*|sr*|vd*|xvd*|bcache*|cciss*|dasd*|ubd*|scm*|pmem*|nbd*|hd*", GOTO="persistent_storage_end"
+
+# ignore partitions that span the entire disk
+TEST=="whole_disk", GOTO="persistent_storage_end"
+
+# for partitions import parent information
+ENV{DEVTYPE}=="partition", IMPORT{parent}="ID_*"
+
+# SCSI devices
+KERNEL=="sd*[!0-9]|sr*", ENV{ID_SERIAL}!="?*", IMPORT{program}="scsi_id --export --whitelisted -d $devnode", ENV{ID_BUS}="scsi"
+KERNEL=="cciss*", ENV{DEVTYPE}=="disk", ENV{ID_SERIAL}!="?*", IMPORT{program}="scsi_id --export --whitelisted -d $devnode", ENV{ID_BUS}="cciss"
+KERNEL=="sd*|sr*|cciss*", ENV{DEVTYPE}=="disk", ENV{ID_SERIAL}=="?*", SYMLINK+="disk/by-id/$env{ID_BUS}-$env{ID_SERIAL}"
+KERNEL=="sd*|cciss*", ENV{DEVTYPE}=="partition", ENV{ID_SERIAL}=="?*", SYMLINK+="disk/by-id/$env{ID_BUS}-$env{ID_SERIAL}-part%n"
+
+# UBI-MTD
+SUBSYSTEM=="ubi", KERNEL=="ubi*_*", ATTRS{mtd_num}=="*", SYMLINK+="ubi_mtd%s{mtd_num}_%s{name}"
+
+# by-path
+ENV{DEVTYPE}=="disk", DEVPATH!="*/virtual/*", IMPORT{builtin}="path_id"
+KERNEL=="mmcblk[0-9]boot[0-9]", ENV{DEVTYPE}=="disk", ENV{ID_PATH}=="?*", SYMLINK+="disk/by-path/$env{ID_PATH}-boot%n"
+KERNEL!="mmcblk[0-9]boot[0-9]", ENV{DEVTYPE}=="disk", ENV{ID_PATH}=="?*", SYMLINK+="disk/by-path/$env{ID_PATH}"
+
+# probe filesystem metadata of disks
+KERNEL!="sr*", IMPORT{builtin}="blkid"
+
+# by-label/by-uuid links (filesystem metadata)
+ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{ID_FS_UUID_ENC}=="?*", SYMLINK+="disk/by-uuid/$env{ID_FS_UUID_ENC}"
+ENV{ID_FS_USAGE}=="filesystem|other|crypto", ENV{ID_FS_LABEL_ENC}=="?*", SYMLINK+="disk/by-label/$env{ID_FS_LABEL_ENC}"
+
+# by-id (World Wide Name)
+ENV{DEVTYPE}=="disk", ENV{ID_WWN_WITH_EXTENSION}=="?*", SYMLINK+="disk/by-id/wwn-$env{ID_WWN_WITH_EXTENSION}"
+ENV{DEVTYPE}=="partition", ENV{ID_WWN_WITH_EXTENSION}=="?*", SYMLINK+="disk/by-id/wwn-$env{ID_WWN_WITH_EXTENSION}-part%n"
+
+# by-partlabel links (partition metadata)
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="modem*", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="dsp*", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="system*", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="cache", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="persist", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="userdata", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="systemrw", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", ENV{ID_PART_ENTRY_NAME}=="ssd", SYMLINK+="disk/by-partlabel/$env{ID_PART_ENTRY_NAME}", TAG+="systemd"
+
+
+LABEL="persistent_storage_end"
+
+
