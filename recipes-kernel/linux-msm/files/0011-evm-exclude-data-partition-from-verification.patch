@@ -1,4 +1,4 @@
-From 294a7ffd003016a73387d630a6bcecac1ab6132e Mon Sep 17 00:00:00 2001
+From feeddc7052c99587633f14681569db587d04ef68 Mon Sep 17 00:00:00 2001
 From: Rishi Gupta <rishgupt@codeaurora.org>
 Date: Sun, 4 Apr 2021 17:20:27 +0530
 Subject: [PATCH] evm: exclude data partition from verification
@@ -27,12 +27,16 @@ success.
 4. init_evm: remove sysfs entry that informs kernel that
 HMAC key is loaded. We are not using this key.
 
-Change-Id: I68b75b30533172eb98900e7c6ef442011645dbc1
+5. evm_load_x509: if the evm public key file is deleted or
+tampered, it will fail to load during boot. This results
+in evm protection getting disabled therefore raise fatal
+error when this situation is detected.
+
 Signed-off-by: Rishi Gupta <rishgupt@codeaurora.org>
 ---
  security/integrity/evm/evm_crypto.c |  3 +++
- security/integrity/evm/evm_main.c   | 36 ++++++++++++++++++++++++++++++------
- 2 files changed, 33 insertions(+), 6 deletions(-)
+ security/integrity/evm/evm_main.c   | 38 +++++++++++++++++++++++++++++++------
+ 2 files changed, 35 insertions(+), 6 deletions(-)
 
 diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
 index d5c713a..d121dda 100644
@@ -49,7 +53,7 @@ index d5c713a..d121dda 100644
  	rc = evm_calc_hmac(dentry, xattr_name, xattr_value,
  			   xattr_value_len, &data);
 diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index e794abf..4a7f078 100644
+index e794abf..e2ff340 100644
 --- a/security/integrity/evm/evm_main.c
 +++ b/security/integrity/evm/evm_main.c
 @@ -273,9 +273,35 @@ EXPORT_SYMBOL_GPL(evm_verifyxattr);
@@ -99,7 +103,16 @@ index e794abf..4a7f078 100644
  	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
  	if (!xattr_data)
  		return -ENOMEM;
-@@ -529,12 +559,6 @@ static int __init init_evm(void)
+@@ -516,6 +546,8 @@ void __init evm_load_x509(void)
+ 	rc = integrity_load_x509(INTEGRITY_KEYRING_EVM, CONFIG_EVM_X509_PATH);
+ 	if (!rc)
+ 		evm_initialized |= EVM_INIT_X509;
++	else
++		panic("can't load evm public key!");
+ }
+ #endif
+ 
+@@ -529,12 +561,6 @@ static int __init init_evm(void)
  	if (error)
  		return error;
  
