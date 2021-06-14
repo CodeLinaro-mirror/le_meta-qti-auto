@@ -1,4 +1,4 @@
-From d75ab044b440de9e8416097565900690415a092d Mon Sep 17 00:00:00 2001
+From b939993eb533d4a1c8fa8ccb665b065dbfda2b18 Mon Sep 17 00:00:00 2001
 From: Johnathan Cobden-Nolan <jcobdenn@codeaurora.org>
 Date: Tue, 12 Jan 2021 23:03:02 -0800
 Subject: [PATCH] infineon-hsm-v2x: changes to support CCARD
@@ -7,17 +7,17 @@ Code changes to support CCARD, and makefile changes to produce shared library.
 
 Signed-off-by: Johnathan Cobden-Nolan <jcobdenn@codeaurora.org>
 ---
- Makefile                                  | 58 ++++++++++++-------------------
+ Makefile                                  | 60 ++++++++++++-------------------
  include/sls37v2x_prototype_API.h          |  4 +--
  include/sls37v2x_prototype_SPI_protocol.h |  2 +-
  src/SPI_master_driver.c                   |  8 ++---
  src/common.c                              |  2 +-
- src/sls37v2x_prototype_API.c              |  6 ++--
- src/v2xtool.c                             |  4 +--
- 7 files changed, 34 insertions(+), 50 deletions(-)
+ src/sls37v2x_prototype_API.c              |  8 ++---
+ src/v2xtool.c                             |  7 ++--
+ 7 files changed, 39 insertions(+), 52 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index d99f439..8448d73 100644
+index d99f439..534cf9b 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,56 +1,42 @@
@@ -176,11 +176,15 @@ index 79353e5..449e39d 100644
  	//-------------------------------
  	// 0 - no screen log
 diff --git a/src/sls37v2x_prototype_API.c b/src/sls37v2x_prototype_API.c
-index c24325c..50a76c6 100644
+index c24325c..f56b129 100644
 --- a/src/sls37v2x_prototype_API.c
 +++ b/src/sls37v2x_prototype_API.c
-@@ -81,8 +81,8 @@ V2X_RESULT V2X_Initialize()
-         if ((stream = openFile(CONFIG_FILENAME)) != NULL) {
+@@ -78,11 +78,11 @@ V2X_RESULT V2X_Initialize()
+ 
+ 	// Check if configuration file exists, try getting SPI bitrate and debug mode from it
+     if (FileExists(CONFIG_FILENAME))
+-        if ((stream = openFile(CONFIG_FILENAME)) != NULL) {
++        if ((stream = fopen(CONFIG_FILENAME,"r")) != NULL) {
              // First line encodes SPI bit tate in kHz (decimal number)
              // ex., 500 = 500 kHz, 1000 = 1 MHz, 8000 = 8 MHz
 -            if (readLineFromFile(stream, text, sizeof(text)-1)) {
@@ -200,10 +204,20 @@ index c24325c..50a76c6 100644
          }
      // Find SPI host adapter, open it and configure SPI host adapter
 diff --git a/src/v2xtool.c b/src/v2xtool.c
-index 3234009..05acc1f 100644
+index 3234009..440139f 100644
 --- a/src/v2xtool.c
 +++ b/src/v2xtool.c
-@@ -1066,9 +1066,7 @@ int main(int argc, char *argv[])
+@@ -1029,6 +1029,9 @@ int main(int argc, char *argv[])
+ 	// (In the case, the function does nothing)
+ 	if (V2X_Initialize() == 0) goto err_exit;
+ 
++    // Make sure log level at least 1, to see tool output
++    if (LogLevel == 0) LogLevel = 1;
++
+ 	// Initialize host crypto library
+ 	Crypto_init(ConvertAlgID(AlgID));
+ 
+@@ -1066,9 +1069,7 @@ int main(int argc, char *argv[])
  		// A file was given as input ... read in!
  		char CDir[1024] = { 0x00 };
  		// get current directory to assemble full path of file
