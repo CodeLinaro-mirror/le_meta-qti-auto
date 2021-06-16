@@ -2,6 +2,7 @@
 IMAGE_INSTALL += "start-scripts-init-can"
 IMAGE_INSTALL += "open-avb"
 IMAGE_INSTALL += "aerolink-configurations"
+IMAGE_INSTALL += "aerolink-demo"
 IMAGE_INSTALL += "rgptp"
 
 # Test tools
