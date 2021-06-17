@@ -7,11 +7,18 @@ inherit packagegroup
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     packagegroup-qti-telematics \
-    packagegroup-qti-telematics-sensors \
     packagegroup-qti-telematics-utils \
     packagegroup-qti-telematics-vnw \
-    ${@bb.utils.contains("DISTRO_FEATURES", "qti-cv2x", "packagegroup-qti-telematics-cv2x", "", d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', 'packagegroup-qti-telematics-cv2x', '', d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
     '
+
+RDEPENDS_packagegroup-qti-telematics = "\
+    packagegroup-qti-telematics-utils \
+    packagegroup-qti-telematics-vnw \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', 'packagegroup-qti-telematics-cv2x', '', d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
+    "
 
 RDEPENDS_packagegroup-qti-telematics-cv2x = "\
     aerolink-configurations \
@@ -22,6 +29,6 @@ RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors"
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
-    ${@bb.utils.contains("DISTRO_FEATURES", "openavb", "open-avb rgptp", "", d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'openavb', 'open-avb rgptp', '', d)} \
     start-scripts-init-can can-utils \
     "
