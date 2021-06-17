@@ -14,6 +14,7 @@ SRCREV = "b0b9bce7c07ea0b5d71ac382a20718e426a387e6"
 
 SRC_URI = "git://source.codeaurora.org/quic/le/external/infineon-hsm-v2x.git;protocol=git;branch=glimpses/master"
 SRC_URI += "file://ccard-v2x-host.patch"
+SRC_URI += "file://secureAccess.txt"
 
 S = "${WORKDIR}/git"
 
@@ -25,6 +26,7 @@ do_install () {
     install -d ${D}${userfsdatadir}/v2x-host/keys
     install -m 0755 ${S}/init.txt ${D}${userfsdatadir}/v2x-host
     install -m 0755 ${S}/keys/* ${D}${userfsdatadir}/v2x-host/keys
+    install -m 0755 ${WORKDIR}/secureAccess.txt ${D}${userfsdatadir}/v2x-host
 }
 
 SOLIBS = ".so*"
