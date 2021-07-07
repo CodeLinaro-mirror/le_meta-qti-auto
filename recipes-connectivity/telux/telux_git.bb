@@ -8,6 +8,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/${LICENSE};md5=550794465ba0ec53
 
 PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
+RDEPENDS_${PN} += "glib-2.0"
+
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://telux/public/include/"
 S = "${WORKDIR}/telux/public/include"
