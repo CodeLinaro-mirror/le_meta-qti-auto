@@ -28,7 +28,7 @@ do_install_append() {
         install -m 0555 ${WORKDIR}/iio.sh ${D}${sysconfdir}/udev/scripts/iio.sh
     fi
     install -d ${D}${base_libdir}/firmware/
-    install -m 0755 ${S}/st/Documentation/LinuxHal/mlc_asm330lhhx/towing_impact/towing_impact_v0_2.ucf ${D}${base_libdir}/firmware/st_asm330lhhx_mlc.bin
+    install -m 0755 ${S}/st/Documentation/LinuxHal/mlc_asm330lhhx/towing_impact/towing_impact_v0_52.ucf ${D}${base_libdir}/firmware/st_asm330lhhx_mlc.bin
 }
 
 FILES_${PN} += "${sysconfdir}/udev/rules.d/61-sensor.rules \
