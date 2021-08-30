@@ -37,7 +37,6 @@ Before=systemd-udev-trigger.service sockets.target loc_launcher.service
 User=sensors
 Group=sensors
 Restart=always
-RemainAfterExit=yes
 ExecStartPre=+/etc/initscripts/loc_bootup_iio.sh
 Nice=-15
 ExecStart=/usr/bin/sensor_hal_daemon
