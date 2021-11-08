@@ -1,0 +1,4 @@
+imu_sensor_placement = [000000,000000,000000]
+imu_sensor_euler_angles = [00000,00000,00000]
+imu_towing_threshhold = 00000
+imu_crash_threshhold = 00000
