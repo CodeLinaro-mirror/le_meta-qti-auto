@@ -5,7 +5,7 @@ DESCRIPTION = "Sensor util test app used to configure hal_config file"
 PR = "r1"
 LICENSE = "BSD-3-Clause-Clear"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta-qti-bsp/files/common-licenses/\
-${LICENSE};md5=aa1caf1ecca146c499d29f5ff4709389"
+${LICENSE};md5=48b43ba58d0f8e9ef3704313a46b7a43"
 
 DEPENDS = "sensor-util-lib"
 FILESPATH =+ "${WORKSPACE}:"
