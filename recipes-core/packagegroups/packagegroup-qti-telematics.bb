@@ -24,7 +24,7 @@ RDEPENDS_packagegroup-qti-telematics-cv2x = "\
     aerolink-configurations \
     "
 
-RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors"
+RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp "
 
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
