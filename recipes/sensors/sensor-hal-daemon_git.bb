@@ -18,6 +18,7 @@ SRC_URI +="file://hal_config"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
+		--with-pwrmgrlib \
 		--with-glib"
 
 SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
@@ -36,7 +37,7 @@ do_install_append () {
         install -m 0644 ${WORKDIR}/sensor_hal_daemon.service -D ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
 
 	install -m 0644 -D ${WORKDIR}/sensors.conf  ${D}${sysconfdir}/sensors.conf
-        install -d -m 0755 -o 3011 -g 3011 ${D}${userfsdatadir}/sensorhal/
-        install -m 0644 -D -o 3011 -g 3011 ${WORKDIR}/hal_config  ${D}${userfsdatadir}/sensorhal/hal_config
+        install -d -m 0755 -o 3011 -g 3011 ${D}${sysconfdir}/sensorhal/
+        install -m 0644 -D -o 3011 -g 3011 ${WORKDIR}/hal_config  ${D}${sysconfdir}/sensorhal/hal_config
     fi
 }
