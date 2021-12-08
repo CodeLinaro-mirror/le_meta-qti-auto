@@ -1,4 +1,6 @@
 imu_sensor_placement = [000000,000000,000000]
 imu_sensor_euler_angles = [00000,00000,00000]
-imu_towing_threshhold = 00000
-imu_crash_threshhold = 00000
+algo_towing_jack_delta_th = 00000
+algo_towing_jack_min_duration = 0000000000
+algo_crash_impact_th = 00000
+algo_crash_min_duration = 0000000000
