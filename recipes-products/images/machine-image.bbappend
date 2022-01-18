@@ -9,4 +9,6 @@ do_update_permissions() {
 }
 
 ROOTFS_POSTPROCESS_COMMAND += " do_update_permissions; "
-
+IMAGE_INSTALL += "libsensors"
+IMAGE_INSTALL += "sensor-socket"
+IMAGE_INSTALL += "sensor-client-api-testapp"
