@@ -4,6 +4,7 @@ SRC_URI_append += "file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch
 SRC_URI_append += "file://0001-Allow-powermgr-group-to-communicate.patch"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch"
+SRC_URI_append += "file://0001-Allow-system-user-to-use-dbus-for-communication.patch"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
