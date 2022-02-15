@@ -35,4 +35,10 @@ do_install_append_sa2150p() {
 
 }
 
+do_install_append_sa410m() {
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+	rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
+    fi
+}
+
 FILES_${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
