@@ -14,9 +14,10 @@ SRC_URI += "file://61-iio.rules"
 SRC_URI += "file://61-sensor.rules"
 S = "${WORKDIR}/hardware/qcom/sensors"
 
-DEPENDS = "glib-2.0"
+DEPENDS = "glib-2.0 libcutils"
 
-EXTRA_OECONF = "--with-glib"
+EXTRA_OECONF = "--with-glibi \
+		--with-core-includes=${WORKSPACE}/system/core/include"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
