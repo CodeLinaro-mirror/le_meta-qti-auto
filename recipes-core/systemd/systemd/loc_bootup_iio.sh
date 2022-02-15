@@ -26,6 +26,8 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+/sbin/mount-copybind /systemrw/sensorhal/hal_config /etc/sensorhal/hal_config
+
 for file in `ls /sys/bus/iio/devices`
 do
 	/etc/udev/scripts/iio.sh $file
