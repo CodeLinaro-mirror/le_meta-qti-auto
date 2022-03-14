@@ -38,6 +38,6 @@ do_install_append () {
 
 	install -m 0644 -D ${WORKDIR}/sensors.conf  ${D}${sysconfdir}/sensors.conf
         install -d -m 0755 -o 3011 -g 3011 ${D}${sysconfdir}/sensorhal/
-        install -m 0644 -D -o 3011 -g 3011 ${WORKDIR}/hal_config  ${D}${sysconfdir}/sensorhal/hal_config
+        install -m 0664 -D -o 3011 -g 3011 ${WORKDIR}/hal_config  ${D}${sysconfdir}/sensorhal/hal_config
     fi
 }
