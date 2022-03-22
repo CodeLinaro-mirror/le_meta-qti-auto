@@ -1,0 +1,3 @@
+# stream-update policy rules
+ACTION=="add", SUBSYSTEM=="mtd", KERNEL=="mtd*", GROUP="disk", MODE="0660"
+ACTION=="add" SUBSYSTEM=="ubi", GROUP="ubi", MODE="0660"
