@@ -1,0 +1,16 @@
+[Unit]
+Description=stream update Service
+SourcePath=/usr/bin/update_engine_sideload
+After=multi-user.target
+
+[Service]
+User=system
+Group=system
+SupplementaryGroups=ubi disk system
+Restart=on-failure
+RemainAfterExit=yes
+ExecStart=/usr/bin/update_engine_sideload
+
+[Install]
+WantedBy=multi-user.target
+

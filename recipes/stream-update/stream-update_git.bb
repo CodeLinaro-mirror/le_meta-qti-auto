@@ -11,9 +11,11 @@ DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-
 
 RDEPENDS_${PN} = "zlib"
 RDEPENDS_${PN}-bin = "recovery-lib"
-FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://OTA/streaming/system/update_engine/"
+SRC_URI =+ "file://stream-update.service"
+SRC_URI =+ "file://stream-update.rules"
 S = "${WORKDIR}/OTA/streaming/system/update_engine/"
+
 EXTRA_OECONF = "--with-glib --with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include \
                 --with-core-headers=${STAGING_INCDIR} "
 
@@ -42,6 +44,7 @@ FILES_${PN} += "/cache"
 FILES_${PN} += "/data"
 FILES_${PN} += "/res"
 FILES_${PN} += "/system"
+#FILES_${PN} += "/tmp"
 FILES_${PN} += "/res"
 FILES_${PN} += "/data"
 FILES_${PN} += "/lib"
@@ -64,6 +67,17 @@ do_install_append() {
         install -d ${D}/res/
         install -d ${D}/data/
         install -d ${D}/system/
-        install -m 0755 ${S}/start_update_engine -D ${D}${sysconfdir}/init.d/update_engine
+        install -d ${D}${sysconfdir}/initscripts/
+        install -d ${D}${systemd_unitdir}/system/
+        install -d ${D}${systemd_unitdir}/system/multi-user.target.wants/
+        install -m 0755 ${S}/start_update_engine -D ${D}${sysconfdir}/initscripts/start_update_engine
+        install -m 0644 ${WORKDIR}/stream-update.service -D ${D}${systemd_unitdir}/system/stream-update.service
+        ln -sf ${systemd_unitdir}/system/stream-update.service \
+        ${D}${systemd_unitdir}/system/multi-user.target.wants/stream-update.service
+        install -d ${D}${sysconfdir}/udev/rules.d/
+        install -m 0644 ${WORKDIR}/stream-update.rules -D ${D}${sysconfdir}/udev/rules.d/stream-update.rules
+        install -m 0755 -o system -g system -d ${D}${userfsdatadir}/stream_update/
+
         install -m 0755 ${WORKSPACE}/poky/meta-qti-bsp/recipes-bsp/base-files-recovery/fstab_AB -D ${D}/res/recovery_volume_config
 }
+FILESPATH =+ "${WORKSPACE}:"
