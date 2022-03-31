@@ -11,18 +11,24 @@ and it uses .aidl files for IPC"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
-DEPENDS += "bzip2-replacement-native libdivsufsort-native libmincrypt-native bison-native flex-native glib-2.0-native \"
-             zlib-native libcutils-native liblog-native libbase-native libsparse-native"
+DEPENDS += "bzip2-replacement-native libdivsufsort-native libmincrypt-native bison-native flex-native glib-2.0-native \
+             zlib-native libcutils-native liblog-native libbase-native libsparse-native aidl-lib-native"
 
 FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://OTA/streaming/system/tools/aidl/"
+SRC_URI = "file://OTA/streaming/system/tools/aidl/src/"
 
-S = "${WORKDIR}/OTA/streaming/system/tools/aidl/"
+S = "${WORKDIR}/OTA/streaming/system/tools/aidl/src/"
 
-EXTRA_OECONF = "--with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include \
-                --with-core-headers=${STAGING_INCDIR_NATIVE}"
 
 BBCLASSEXTEND = "native"
+
+do_configure[depends] += "aidl-lib-native:do_compile"
+
+do_configure_append() {
+  cp ${TMPDIR}/work/x86_64-linux/aidl-lib-native/git-r0/build/location.hh ${S}
+  cp ${TMPDIR}/work/x86_64-linux/aidl-lib-native/git-r0/build/position.hh ${S}
+  cp ${RECIPE_SYSROOT}-native/usr/include/aidl_language_l.ll ${S}
+}
 
 PACKAGES += "${PN}-bin"
 FILES_${PN}-bin += "${bindir}"
