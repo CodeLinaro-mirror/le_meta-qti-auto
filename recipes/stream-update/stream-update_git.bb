@@ -10,6 +10,7 @@ ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome protobuf-native aidl-native aidl-lib-native telaf-flash-access"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'abctl', '', d)}"
+DEPENDS_class-native = "glib-2.0-native libmincrypt-native system-core-native libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming-native libevent libchrome protobuf-native aidl-native aidl-lib-native"
 PR = "r0"
 SRC_URI = "file://OTA/streaming/system/update_engine/ \
            file://stream-update.service \
@@ -30,7 +31,9 @@ do_compile_prepend () {
    ${S}/update_aidl_interface.sh
 }
 
-do_install() {
+BBCLASSEXTEND = "native"
+
+do_install_append_class-target() {
    install -d ${D}${userfsdatadir}
    install -m 0755 ${S}/update_engine_sideload -D ${D}/usr/bin/update_engine_sideload
    install -d ${D}${sysconfdir}/initscripts/

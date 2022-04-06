@@ -6,7 +6,9 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-DEPENDS = "liblog libcutils system-core glib-2.0"
+DEPENDS = "liblog libcutils system-core glib-2.0 \
+           libcutils-native libselinux-native system-core-native glib-2.0-native libutils-native linux-libc-headers \
+           "
 PR = "r0"
 FILESPATH =+ "${WORKSPACE}/OTA/streaming/frameworks/:"
 
@@ -23,6 +25,8 @@ EXTRA_OECONF += " --with-glib"
 EXTRA_OECONF_append_arm = " \
     ${@bb.utils.contains('MULTILIB_VARIANTS', 'lib32','','--enable-32bit-binder-ipc',d)} \
 "
+
+BBCLASSEXTEND = "native"
 
 # sdmsteppe uses 64bit IPC though userspace is 32bit.
 EXTRA_OECONF_remove_sdmsteppe = "--enable-32bit-binder-ipc"
