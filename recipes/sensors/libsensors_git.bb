@@ -9,4 +9,5 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://hardware/qcom/sensors/"
 S = "${WORKDIR}/hardware/qcom/sensors"
 DEPENDS = "glib-2.0"
-EXTRA_OECONF = "--with-glib"
+EXTRA_OECONF = "--with-glib \
+		--with-core-includes=${WORKSPACE}/system/core/include"
