@@ -10,6 +10,7 @@ SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0008-evm-
 SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0009-evm-Allow-non-SHA1-digital-signatures.patch', '', d)}"
 SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0010-evm-check-hash-algorithm-passed-to-init_desc.patch', '', d)}"
 SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'vbleevm', 'file://0011-evm-exclude-data-partition-from-verification.patch', '', d)}"
+SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'nad-prod', 'file://0012-sa515m.dtsi-nad-core-subsys-backup-cma-removal.patch', '', d)}"
 
 do_patch_prepend () {
 	if ${@bb.utils.contains('DISTRO_FEATURES', 'vbleima', 'true', 'false', d)}; then
@@ -37,5 +38,11 @@ do_patch_prepend () {
 		rm -f ${WORKDIR}/0009-evm-Allow-non-SHA1-digital-signatures.patch
 		rm -f ${WORKDIR}/0010-evm-check-hash-algorithm-passed-to-init_desc.patch
 		rm -f ${WORKDIR}/0011-evm-exclude-data-partition-from-verification.patch
+	fi
+	if ${@bb.utils.contains('DISTRO_FEATURES', 'nad-prod', 'true', 'false', d)}; then
+		cd ${S}/
+		patch -p1 < ${WORKDIR}/0012-sa515m.dtsi-nad-core-subsys-backup-cma-removal.patch
+		cd -
+		rm -f ${WORKDIR}/0012-sa515m.dtsi-nad-core-subsys-backup-cma-removal.patch
 	fi
 }
