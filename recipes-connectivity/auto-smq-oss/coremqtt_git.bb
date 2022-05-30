@@ -1,9 +1,9 @@
 inherit pkgconfig cmake
 
-SUMMARY = "coreJSON library"
-DESCRIPTION = "coreJSON library"
+SUMMARY = "coreMQTT library"
+DESCRIPTION = "coreMQTT library"
 
-HOMEPAGE         = "https://github.com/FreeRTOS/coreJSON"
+HOMEPAGE         = "https://github.com/FreeRTOS/coreMQTT"
 LICENSE          = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=7ae2be7fb1637141840314b51970a9f7"
 
@@ -11,8 +11,8 @@ PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
 FILESPATH =+ "${WORKSPACE}:"
 
-SRC_URI = "file://c2c/external/FreeRTOS/coreJSON"
-S = "${WORKDIR}/c2c/external/FreeRTOS/coreJSON"
+SRC_URI = "file://auto-smq-oss/FreeRTOS/coreMQTT"
+S = "${WORKDIR}/auto-smq-oss/FreeRTOS/coreMQTT"
 
 SOLIBS = ".so*"
 FILES_SOLIBSDEV = ""
