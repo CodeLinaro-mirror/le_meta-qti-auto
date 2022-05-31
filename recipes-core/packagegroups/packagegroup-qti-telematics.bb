@@ -45,7 +45,9 @@ RDEPENDS_packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm', '', 'sensor-util-lib sensor-util-testapp', d)}\
     libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp sensors-test"
 
-RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
+RDEPENDS_packagegroup-qti-telematics-utils = "\
+    ${@oe.utils.conditional('CV2X_ITS', 'True', 'udpreplay', '', d)} \
+    "
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
     ${@oe.utils.conditional('OPENAVB', 'True', 'open-avb', '', d)} \
