@@ -8,20 +8,15 @@ ${LICENSE};md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
-DEPENDS = "libpcap"
+FILESPATH =+ "${WORKSPACE}:"
+
+DEPENDS = "libpcap glib-2.0"
 
 TARGET_CFLAGS += "-Wno-format-security"
 
-SRCREV = "43ff11641959507b84d967b0c23455084c3da692"
-
-SRC_URI = "${CLO_LE_GIT}/external/rigtorp/udpreplay.git;protocol=https;branch=caf_migration/udpreplay/master"
-SRC_URI += "file://udpreplay_ipv4_dest_1.patch"
-SRC_URI += "file://udpreplay_ipv6_dest_2.patch"
-SRC_URI += "file://udpreplay_dest_port_3.patch"
-SRC_URI += "file://udpreplay_nanosecond_interval_4.patch"
-SRC_URI += "file://udpreplay_burst_and_srcport_5.patch"
-
-S = "${WORKDIR}/git"
+SRC_URI = "file://udpreplay"
+SRC_DIR = "${WORKSPACE}/udpreplay"
+S = "${WORKDIR}/udpreplay"
 
 SOLIBS = ".so*"
 FILES_SOLIBSDEV = ""
