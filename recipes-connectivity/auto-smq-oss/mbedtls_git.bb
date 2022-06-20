@@ -11,8 +11,8 @@ PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
 FILESPATH =+ "${WORKSPACE}:"
 
-SRC_URI = "file://c2c/external/ARMmbed/mbedtls"
-S = "${WORKDIR}/c2c/external/ARMmbed/mbedtls"
+SRC_URI = "file://auto-smq-oss/ARMmbed/mbedtls"
+S = "${WORKDIR}/auto-smq-oss/ARMmbed/mbedtls"
 
 SOLIBS = ".so*"
 FILES_SOLIBSDEV = ""
