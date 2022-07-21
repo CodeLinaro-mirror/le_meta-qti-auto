@@ -18,6 +18,7 @@ RDEPENDS_packagegroup-qti-telematics = "\
     packagegroup-qti-telematics-vnw \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', 'packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
+    ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', 'packagegroup-qti-telematics-mvm', '', d)} \
     "
 
 RDEPENDS_packagegroup-qti-telematics-cv2x = "\
@@ -31,4 +32,8 @@ RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
     ${@bb.utils.contains('DISTRO_FEATURES', 'openavb', 'open-avb rgptp', '', d)} \
     start-scripts-init-can can-utils \
+    "
+
+RDEPENDS_packagegroup-qti-telematics-mvm = "\
+    mvm-dlkm \
     "
