@@ -20,8 +20,11 @@ SYSTEMD_SERVICE_${PN} = "chrony-sock.service"
 
 SRCREV = "${AUTOREV}"
 
-DEPENDS += "telux telux-lib systemd v2x-lib"
+DEPENDS += "telux telux-lib systemd"
 
 do_install_append() {
     install -m 0644 ${WORKDIR}/telux/public/apps/tests/telsdk_console_app/config_files/telsdk_app.conf -D ${D}${sysconfdir}/telsdk_app.conf
 }
+
+FILES_SOLIBSDEV = ""
+FILES_${PN} += "${libdir}/*.so"
