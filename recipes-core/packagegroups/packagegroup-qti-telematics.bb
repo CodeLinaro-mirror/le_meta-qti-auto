@@ -32,6 +32,7 @@ RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
     ${@bb.utils.contains('DISTRO_FEATURES', 'openavb', 'open-avb rgptp', '', d)} \
     start-scripts-init-can can-utils \
+    ${@bb.utils.contains('MACHINE', 'sa515m', 'vnw-eth-switch', '', d)} \
     "
 
 RDEPENDS_packagegroup-qti-telematics-mvm = "\
