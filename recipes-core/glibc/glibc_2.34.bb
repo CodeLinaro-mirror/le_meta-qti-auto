@@ -67,6 +67,7 @@ SRC_URI =  "${GLIBC_GIT_URI};branch=${SRCBRANCH};name=glibc \
          https://source.codeaurora.org/quic/ype/external/yoctoproject.org/poky/plain/meta/recipes-core/glibc/glibc/0002-CVE-2021-3998.patch?h=yocto/honister&id=ebca8f3ac9372b7ebb3d39e8f7f930b63b481448;downloadfilename=0002-CVE-2021-3998.patch;md5sum=bf6e224c18dc2c4681227f9aca97642c;sha256sum=317f09c6a548bfe7fe39d9a9d9631f7afb3023e47ba261be8dee1e3f97ac94a1 \
          https://source.codeaurora.org/quic/ype/external/yoctoproject.org/poky/plain/meta/recipes-core/glibc/glibc/0001-CVE-2021-3999.patch?h=yocto/honister&id=ebca8f3ac9372b7ebb3d39e8f7f930b63b481448;downloadfilename=0001-CVE-2021-3999.patch;md5sum=c41eec8e658c254f8dfc02e3a34c4e30;sha256sum=b563ccdcced70186be5dcc1a8cf3385bf1d8f7d7c35ed09f0d6f9d0247ee353d \
          https://source.codeaurora.org/quic/ype/external/yoctoproject.org/poky/plain/meta/recipes-core/glibc/glibc/0002-CVE-2021-3999.patch?h=yocto/honister&id=ebca8f3ac9372b7ebb3d39e8f7f930b63b481448;downloadfilename=0002-CVE-2021-3999.patch;md5sum=b4d6f18669fffba074c9a2ecca74d911;sha256sum=047cc8f1d45ae9a764e82743527358158e595845b0ba0c7e14bb44f1275dc931 \
+         file://glibc-upstream-2.34-fix_for_fcntl_ioctl_prctl_redirects.patch \
            "
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
@@ -140,3 +141,6 @@ do_compile () {
 require glibc-package.inc
 
 BBCLASSEXTEND = "nativesdk"
+
+TARGET_CFLAGS_append_sa515m = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"
+TARGET_CPPFLAGS_append_sa515m = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"
