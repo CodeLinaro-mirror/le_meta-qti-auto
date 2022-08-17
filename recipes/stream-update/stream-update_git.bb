@@ -8,7 +8,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome protobuf-native aidl-native aidl-lib-native"
+DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome protobuf-native aidl-native aidl-lib-native telaf-flash-access"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'abctl', '', d)}"
 PR = "r0"
 SRC_URI = "file://OTA/streaming/system/update_engine/ \

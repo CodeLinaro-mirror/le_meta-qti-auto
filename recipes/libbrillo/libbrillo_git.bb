@@ -16,4 +16,6 @@ S = "${WORKDIR}/OTA/streaming/external/libbrillo/"
 
 BBCLASSEXTEND = "native"
 
+EXTRA_OECONF += " ${@bb.utils.contains('DISTRO_FEATURES', 'nand-boot', '--with-nand_boot=true', '', d)}"
+
 inherit autotools pkgconfig
