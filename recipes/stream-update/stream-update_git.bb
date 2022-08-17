@@ -7,9 +7,10 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome ota-mtd-utils \
+DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome \
 protobuf protobuf-native \
-aidl-native aidl-lib-native"
+aidl-native aidl-lib-native \
+telaf-flash-access"
 
 RDEPENDS_${PN} = "zlib"
 RDEPENDS_${PN}-bin = "recovery-lib"
@@ -18,11 +19,16 @@ SRC_URI =+ "file://stream-update.service"
 SRC_URI =+ "file://stream-update.rules"
 S = "${WORKDIR}/OTA/streaming/system/update_engine/"
 
+INSANE_SKIP_${PN} += "file-rdeps"
+INSANE_SKIP_${PN}-bin += "file-rdeps"
+
 EXTRA_OECONF = "--with-glib --with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include \
                 --with-core-headers=${STAGING_INCDIR} "
 
 CFLAGS += "-lsparse -llog"
 
+HEADERS_PATH="${WORKDIR}/recipe-sysroot/telaf/legato/legato-af/framework/include"
+HEADERS_CONFIG_PATH="${WORKDIR}/recipe-sysroot/telaf/legato/legato-af/build/sa515m/framework/include"
 
 SYSTEMD_SUPPORT = "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
 
@@ -30,12 +36,18 @@ SELINUX_SUPPORT = "${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux',
 
 AB_SUPPORT = "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'TARGET_SUPPORTS_AB=true', '', d)}"
 NEED_ABCTL = "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'abctl', '', d)}"
+EXTRA_OECONF += " ${@bb.utils.contains('DISTRO_FEATURES', 'nand-boot', '--with-nand_boot=true', '', d)}"
 # temp enable abctl with nand-boot, later enable with ab once partition changes are done
 EXTRA_OECONF += " ${AB_SUPPORT}"
 DEPENDS += " ${NEED_ABCTL}"
 DEPENDS += "qemu-native"
+DEPENDS += "telaf-build"
+
 
 BBCLASSEXTEND = "native"
+
+EXTRA_OECONF += "--with-telaf-headers=${HEADERS_PATH}"
+EXTRA_OECONF += "--with-telafconfig-headers=${HEADERS_CONFIG_PATH}"
 
 PARALLEL_MAKE = ""
 INITSCRIPT_NAME = "update_engine"
@@ -45,6 +57,7 @@ FILES_${PN}  = "${sysconfdir}"
 FILES_${PN} += "/system"
 PACKAGES += "${PN}-bin"
 FILES_${PN} += "/lib"
+FILES_${PN} += "/data"
 FILES_${PN}-bin += "${bindir}"
 
 do_compile_prepend () {

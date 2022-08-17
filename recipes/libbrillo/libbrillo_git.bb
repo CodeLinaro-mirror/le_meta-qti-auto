@@ -7,7 +7,7 @@ LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 BSD-3-Clause;md5=550794465ba0ec5312d6919e203a55f9"
 
-DEPENDS += "bzip2-replacement-native libdivsufsort-native curl openssl libmodpb64 liblog libchrome binderstreaming boringssl"
+DEPENDS += "bzip2-replacement-native libdivsufsort-native curl openssl libmodpb64 liblog libchrome binderstreaming boringssl telaf-flash-access"
 DEPENDS += " ${@bb.utils.contains('DISTRO_FEATURES', '', 'libcutils curl data', '', d)}"
 PACKAGECONFIG[curl] = "--enable-curl,--disable-curl,curl"
 PACKAGECONFIG[ssl-curl] = "--enable-ssl-curl,--disable-ssl-curl,curl,openssl"
@@ -29,6 +29,7 @@ BBCLASSEXTEND = "native"
 EXTRA_OECONF += " --with-core-includes=${WORKSPACE}/system/core/include"
 EXTRA_OECONF += " --with-host-os=${HOST_OS}"
 EXTRA_OECONF += " --disable-static"
+EXTRA_OECONF += " ${@bb.utils.contains('DISTRO_FEATURES', 'nand-boot', '--with-nand_boot=true', '', d)}"
 
 EXTRA_OECONF_append_msm = " --enable-leproperties"
 EXTRA_OECONF_append_msm = " LE_PROPERTIES_ENABLED=true"
