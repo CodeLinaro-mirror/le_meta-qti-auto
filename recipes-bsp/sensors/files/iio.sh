@@ -25,6 +25,11 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Changes from Qualcomm Innovation Center are provided under the following license:
+#
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
 
 chown root:sensors /sys/bus/iio/devices
 chown -R root:sensors /dev/$1
@@ -32,6 +37,7 @@ chown -R root:sensors /sys/bus/iio/devices/$1/*
 chown -R root:sensors /sys/bus/iio/devices/$1
 # Give executable permissions on all folders,
 # rw permissions  for group and only read for others
+chmod 755 /dev/$1
 chmod 755 /sys/bus/iio/devices
 chmod 755 $(find /sys/bus/iio/devices/$1 -type d)
 chmod 664 $(find /sys/bus/iio/devices/$1/ -type f)

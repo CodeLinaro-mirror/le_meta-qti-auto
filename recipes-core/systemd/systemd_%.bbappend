@@ -5,10 +5,13 @@ SRC_URI_append += "file://0001-Allow-powermgr-group-to-communicate.patch"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch"
 SRC_URI_append += "file://0001-Allow-system-user-to-use-dbus-for-communication.patch"
+SRC_URI_append += "file://loc_bootup_iio.sh"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
 	install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
+	install -d ${D}${sysconfdir}/initscripts/
+	install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
     fi
 }
 
