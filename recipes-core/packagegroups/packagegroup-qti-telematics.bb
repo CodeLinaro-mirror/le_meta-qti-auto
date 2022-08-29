@@ -9,20 +9,20 @@ PACKAGES = ' \
     packagegroup-qti-telematics \
     packagegroup-qti-telematics-utils \
     packagegroup-qti-telematics-vnw \
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', 'packagegroup-qti-telematics-cv2x', '', d)} \
+    ${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
     '
 
 RDEPENDS_packagegroup-qti-telematics = "\
     packagegroup-qti-telematics-utils \
     packagegroup-qti-telematics-vnw \
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', 'packagegroup-qti-telematics-cv2x', '', d)} \
+    ${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', 'packagegroup-qti-telematics-mvm', '', d)} \
     "
 
 RDEPENDS_packagegroup-qti-telematics-cv2x = "\
-    aerolink-configurations \
+    ${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], 'aerolink-configurations', '', d)} \
     "
 
 RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp "
