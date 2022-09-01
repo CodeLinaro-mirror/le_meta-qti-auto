@@ -30,7 +30,7 @@ RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors sensor-hal-daemon se
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
-    ${@bb.utils.contains('DISTRO_FEATURES', 'openavb', 'open-avb rgptp', '', d)} \
+    open-avb \
     start-scripts-init-can can-utils \
     ${@bb.utils.contains('MACHINE', 'sa515m', 'vnw-eth-switch', '', d)} \
     "
