@@ -7,7 +7,9 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome ota-mtd-utils update-metadata-proto aidl-update-int"
+DEPENDS = "glib-2.0 libmincrypt-native system-core oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome ota-mtd-utils \
+protobuf protobuf-native \
+aidl-native aidl-lib-native"
 
 RDEPENDS_${PN} = "zlib"
 RDEPENDS_${PN}-bin = "recovery-lib"
@@ -52,15 +54,11 @@ FILES_${PN} += "/lib"
 PACKAGES += "${PN}-bin"
 FILES_${PN}-bin += "${bindir}"
 
-do_configure[depends] += "aidl-update-int:do_configure"
-do_configure[depends] += "update-metadata-proto:do_configure"
-
-do_configure_append() {
-    echo "copy update engine interface files to ${S}"
-    cp ${S}/../../../../../../update-metadata-proto/git-r0/update-metadata-proto-git/update_metadata.pb.* ${S}/
-    cp -rf ${S}/../../../../../../../x86_64-linux/aidl/git-r0/build/android/ ${S}/
+do_compile_prepend () {
+   echo "Running interface generation"
+   ${S}/update_metadata_proto.sh
+   ${S}/update_aidl_interface.sh
 }
-
 
 do_install_append() {
         install -d ${D}/cache/
