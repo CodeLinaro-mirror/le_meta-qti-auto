@@ -1,0 +1,40 @@
+From d96d7384c6c81fcdef2d716f62abc078c8af7713 Mon Sep 17 00:00:00 2001
+From: Pintu Kumar <quic_pintu@quicinc.com>
+Date: Thu, 26 May 2022 12:56:51 +0530
+Subject: [PATCH] sa515m.dtsi: nad-core subsys backup cma removal
+
+Change-Id: If61360da2305531be0f750d51aadeb9a86673160
+Signed-off-by: Pintu Kumar <quic_pintu@quicinc.com>
+---
+ arch/arm64/boot/dts/qcom/sa515m.dtsi | 15 ---------------
+ 1 file changed, 15 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/sa515m.dtsi b/arch/arm64/boot/dts/qcom/sa515m.dtsi
+index 01061b2..ccef899 100644
+--- a/arch/arm64/boot/dts/qcom/sa515m.dtsi
++++ b/arch/arm64/boot/dts/qcom/sa515m.dtsi
+@@ -10,21 +10,6 @@
+  * GNU General Public License for more details.
+  */
+
+-&soc {
+-	subsys_backup: qcom,subsys-backup {
+-		compatible = "qcom,subsys-backup";
+-		qcom,buf-size = <0x600000>;
+-		memory-region = <&subsys_backup_region>;
+-	};
+-};
+-
+-&reserved_mem {
+-	subsys_backup_region: subsys_backup_region {
+-		compatible = "shared-dma-pool";
+-		reusable;
+-		size = <0x600000>;
+-	};
+-};
+
+
+
+--
+2.7.4
+
