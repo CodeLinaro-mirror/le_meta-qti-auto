@@ -18,4 +18,6 @@ EXTRA_OECONF_append = " \
                 --with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include \
                 "
 FILESPATH =+ "${WORKSPACE}:"
-FILES_${PN} += "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/*"
+FILES_${PN} += "${libdir}/modules/*"
+
+RPROVIDES_${PN} += "mvm-dlkm"
