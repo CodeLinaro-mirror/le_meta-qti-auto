@@ -36,25 +36,22 @@ cp -rf destn/BOOTABLE_IMAGES/boot.img destn/IMAGES/
 cd destn
 zip -r target-sa515.zip BOOT/ BOOTABLE_IMAGES/ DATA/ IMAGES/ META/ OTA/ RADIO/ RECOVERY/ SYSTEM/
 cd ..
-cp destn/target-sa515.zip $PWD/../../../build/tmp-glibc/work/sa515m-oe-linux-gnueabi/machine-image/1.0-r0/rootfs/usr/bin/destn-target-sa515.zip
+cp destn/target-sa515.zip $PWD/../../../build/tmp-glibc/work/x86_64-linux/stream-update-native/git-r0/OTA/streaming/system/update_engine/payload_generator/destn-target-sa515.zip
 
-cd $PWD/../../../build/tmp-glibc/work/sa515m-oe-linux-gnueabi/machine-image/1.0-r0/rootfs/usr/bin
-export PATH=$PATH:$PWD/../../lib:$PWD/../../usr/bin:$PWD/../../usr/lib:$PWD/../../../recipe-sysroot-native/usr/bin:$PWD/../../../recipe-sysroot-native/usr/lib
+cd $PWD/../../../build/tmp-glibc/work/x86_64-linux/stream-update-native/git-r0/OTA/streaming/system/update_engine/payload_generator
+export PATH=$PATH:$PWD:$PWD/../../../../../../../libsparse-native/1.0-r0/build/:$PWD/../../lib:$PWD/../../usr/bin:$PWD/../../usr/lib:$PWD/../../../recipe-sysroot-native/usr/bin:$PWD/../../../recipe-sysroot-native/usr/lib
 LD_LIBRARY_PATH=$PWD/../../lib:$PWD/../../usr/lib
 export  LD_LIBRARY_PATH
 
-mkdir -p lib/shflags
-sudo rm -rf /lib/ld-linux-armhf.so.3
-sudo ln -s $PWD/../../lib/ld-2.28.so /lib/ld-linux-armhf.so.3 
 
-cp -rf ../../../../../../../../../../OTA/streaming/external/shflags/src/shflags lib/shflags/
-cp -rf  ../../../../../../../../../../OTA/streaming/system/update_engine/scripts/brillo_update_payload scripts_brillo_update_payload
-cp -rf ../../../../../../../deploy/images/sa515m/destn-target-files-ubi_ab.zip .
-cp -rf ../../../../../../../deploy/images/sa515m/target-files-ubi_ab.zip .
+mkdir -p lib/shflags
+
+cp -rf ../../../../../../../../../../../../OTA/streaming/external/shflags/src/shflags lib/shflags/
+cp -rf ../../../../../../../../../../../../OTA/streaming/system/update_engine/scripts/brillo_update_payload scripts_brillo_update_payload
 chmod 0777 *
 scripts_brillo_update_payload generate --payload payload.bin --target_image  destn-target-sa515.zip
 scripts_brillo_update_payload properties --payload payload.bin > properties.txt
 
-cp payload.bin ../../../../../../../deploy/images/sa515m/
-cp properties.txt ../../../../../../../deploy/images/sa515m/
+cp payload.bin    ../../../../../../../../../deploy/images/sa515m-nad/
+cp properties.txt ../../../../../../../../../deploy/images/sa515m-nad/
 

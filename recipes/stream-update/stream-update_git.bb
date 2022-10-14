@@ -42,16 +42,9 @@ INITSCRIPT_NAME = "update_engine"
 INITSCRIPT_PARAMS = "start 99 5 . stop 80 0 1 6 ."
 
 FILES_${PN}  = "${sysconfdir}"
-FILES_${PN} += "/cache"
-FILES_${PN} += "/data"
-FILES_${PN} += "/res"
 FILES_${PN} += "/system"
-#FILES_${PN} += "/tmp"
-FILES_${PN} += "/res"
-FILES_${PN} += "/data"
-FILES_${PN} += "/lib"
-
 PACKAGES += "${PN}-bin"
+FILES_${PN} += "/lib"
 FILES_${PN}-bin += "${bindir}"
 
 do_compile_prepend () {
