@@ -18,6 +18,7 @@ SRC_URI +="file://hal_config"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
+                --with-pwrmgrlib \
 		--with-glib"
 
 SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
