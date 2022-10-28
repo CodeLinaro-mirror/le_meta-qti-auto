@@ -12,10 +12,11 @@ SRC_URI = "file://vendor/qcom/opensource/mvm-kernel/"
 
 S = "${WORKDIR}/vendor/qcom/opensource/mvm-kernel"
 
-inherit pkgconfig module
+inherit pkgconfig module systemd
 
 FILESPATH =+ "${WORKSPACE}:"
 
+SYSTEMD_SERVICE_${PN} += "mvm_dlkm.service"
 do_compile() {
 
     cd ${WORKSPACE}/kernel-${PREFERRED_VERSION_linux-msm}/kernel_platform  && \
@@ -36,6 +37,10 @@ do_install() {
     ${STAGING_KERNEL_BUILDDIR}/scripts/sign-file sha1 ${STAGING_KERNEL_BUILDDIR}/certs/signing_key.pem \
     ${STAGING_KERNEL_BUILDDIR}/certs/signing_key.x509 ${WORKDIR}/vendor/qcom/opensource/mvm-kernel-out/mvm_dlkm.ko
     install -m 0755 ${WORKDIR}/vendor/qcom/opensource/mvm-kernel-out/mvm_dlkm.ko -D ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/mvm.ko
+
+    #Install the mvm_dlkm service file
+    install -d ${D}${systemd_unitdir}/system/
+    install -m 0644 ${S}/mvm_dlkm.service -D ${D}${systemd_unitdir}/system/mvm_dlkm.service
 }
 
 FILES_${PN} += "${libdir}/modules/*"
