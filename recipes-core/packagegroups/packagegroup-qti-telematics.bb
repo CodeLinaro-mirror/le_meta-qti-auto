@@ -4,6 +4,10 @@ LICENSE = "BSD-3-Clause"
 
 inherit packagegroup
 
+OPENAVB ?= "False"
+OPENAVB_sa415m = "True"
+OPENAVB_sa515m = "True"
+
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     packagegroup-qti-telematics \
@@ -30,7 +34,7 @@ RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors sensor-hal-daemon se
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
-    open-avb \
+    ${@oe.utils.conditional('OPENAVB', 'True', 'open-avb', '', d)} \
     start-scripts-init-can can-utils \
     ${@bb.utils.contains('MACHINE', 'sa515m', 'vnw-eth-switch', '', d)} \
     "
