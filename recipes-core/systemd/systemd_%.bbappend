@@ -15,7 +15,7 @@ do_install_append() {
     fi
 }
 
-do_install_append_sa2150p() {
+do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         rm -f ${D}${base_libdir}/udev/ata_id
         rm -f ${D}${base_libdir}/udev/cdrom_id
@@ -34,13 +34,7 @@ do_install_append_sa2150p() {
         rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
-    fi
-
-}
-
-do_install_append_sa410m() {
-    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
-	rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
     fi
 }
 
