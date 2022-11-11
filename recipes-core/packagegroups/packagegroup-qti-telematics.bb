@@ -23,6 +23,7 @@ RDEPENDS_packagegroup-qti-telematics = "\
     ${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', 'packagegroup-qti-telematics-mvm', '', d)} \
+    ${@bb.utils.contains('COMBINED_FEATURES', 'vbleima', 'keyutils ima-evm-utils attr ima-cert-setup', '',d)} \
     "
 
 RDEPENDS_packagegroup-qti-telematics-cv2x = "\
