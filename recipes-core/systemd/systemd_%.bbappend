@@ -5,14 +5,17 @@ SRC_URI_append += "file://0001-Allow-powermgr-group-to-communicate.patch"
 SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch"
 SRC_URI_append += "file://0001-Allow-system-user-to-use-dbus-for-communication.patch"
+SRC_URI_append += "file://loc_bootup_iio.sh"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
 	install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
+	install -d ${D}${sysconfdir}/initscripts/
+	install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
     fi
 }
 
-do_install_append_sa2150p() {
+do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         rm -f ${D}${base_libdir}/udev/ata_id
         rm -f ${D}${base_libdir}/udev/cdrom_id
@@ -31,13 +34,7 @@ do_install_append_sa2150p() {
         rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
-    fi
-
-}
-
-do_install_append_sa410m() {
-    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
-	rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
     fi
 }
 
