@@ -29,6 +29,6 @@ RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors sensor-hal-daemon se
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
-    ${@bb.utils.contains('COMBINED_FEATURES', 'openavb', 'open-avb', '', d)} \
+    open-avb \
     start-scripts-init-can can-utils \
     "
