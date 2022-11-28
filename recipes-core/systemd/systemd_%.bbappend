@@ -6,7 +6,6 @@ SRC_URI_append += "file://61-pps.rules"
 SRC_URI_append += "file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch"
 SRC_URI_append += "file://0001-Allow-system-user-to-use-dbus-for-communication.patch"
 SRC_URI_append += "file://loc_bootup_iio.sh"
-SRC_URI_append += "file://systemd-udev-trigger.conf"
 SRC_URI_append += "file://init_sys_mss.conf"
 SRC_URI_append += "file://postmss.service"
 SRC_URI_append += "file://postmss"
@@ -30,7 +29,6 @@ do_install_append() {
 
         if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
         # Install drop-ins for systemd service files
-        install -d ${D}/lib/systemd/system/systemd-udev-trigger.service.d
         install -d ${D}/lib/systemd/system/init_sys_mss.service.d
         install -d ${D}/lib/systemd/system/usb.service.d
         install -d ${D}/lib/systemd/system/adbd.service.d
@@ -43,7 +41,6 @@ do_install_append() {
         install -d ${D}/lib/systemd/system/qwes_license_store.service.d
         install -d ${D}/etc/systemd/system/evdev_load.service.d
         install -d ${D}/etc/systemd/system/sensor_hal_daemon.service.d
-        install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
         install -m 0644 ${WORKDIR}/adbd.conf ${D}/lib/systemd/system/adbd.service.d/adbd.conf
