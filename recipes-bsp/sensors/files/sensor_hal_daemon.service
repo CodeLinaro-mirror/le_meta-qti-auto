@@ -31,7 +31,7 @@ SourcePath=/usr/bin/sensor_hal_daemon
 DefaultDependencies=no
 Requires=data.mount
 After=data.mount logd.service evdev_load.service
-Before=systemd-udev-trigger.service sockets.target loc_launcher.service
+Before=loc_launcher.service
 
 [Service]
 User=sensors
