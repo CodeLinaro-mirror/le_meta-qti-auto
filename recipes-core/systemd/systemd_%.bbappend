@@ -27,6 +27,7 @@ do_install_append() {
         install -d ${D}${sysconfdir}/initscripts/
         install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
 
+        if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
         # Install drop-ins for systemd service files
         install -d ${D}/lib/systemd/system/systemd-udev-trigger.service.d
         install -d ${D}/lib/systemd/system/init_sys_mss.service.d
@@ -40,7 +41,6 @@ do_install_append() {
         install -d ${D}/lib/systemd/system/qseecomd.service.d
         install -d ${D}/lib/systemd/system/qwes_license_store.service.d
         install -d ${D}/etc/systemd/system/evdev_load.service.d
-
         install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
@@ -60,6 +60,8 @@ do_install_append() {
         install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
         install -m 0644 ${WORKDIR}/postmss.service ${D}/lib/systemd/system/postmss.service
         ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/multi-user.target.wants/postmss.service
+        fi
+
     fi
 }
 
