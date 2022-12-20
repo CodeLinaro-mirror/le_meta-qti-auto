@@ -20,6 +20,7 @@ SRC_URI_append += "file://qwesd.conf"
 SRC_URI_append += "file://qseecomd.conf"
 SRC_URI_append += "file://qwes_license_store.conf"
 SRC_URI_append += "file://evdev_load.conf"
+SRC_URI_append += "file://sensor_hal_daemon.conf"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
@@ -41,6 +42,7 @@ do_install_append() {
         install -d ${D}/lib/systemd/system/qseecomd.service.d
         install -d ${D}/lib/systemd/system/qwes_license_store.service.d
         install -d ${D}/etc/systemd/system/evdev_load.service.d
+        install -d ${D}/etc/systemd/system/sensor_hal_daemon.service.d
         install -m 0644 ${WORKDIR}/systemd-udev-trigger.conf ${D}/lib/systemd/system/systemd-udev-trigger.service.d/systemd-udev-trigger.conf
         install -m 0644 ${WORKDIR}/init_sys_mss.conf ${D}/lib/systemd/system/init_sys_mss.service.d/init_sys_mss.conf
         install -m 0644 ${WORKDIR}/usb.conf ${D}/lib/systemd/system/usb.service.d/usb.conf
@@ -53,6 +55,7 @@ do_install_append() {
         install -m 0644 ${WORKDIR}/qseecomd.conf ${D}/lib/systemd/system/qseecomd.service.d/qseecomd.conf
         install -m 0644 ${WORKDIR}/qwes_license_store.conf ${D}/lib/systemd/system/qwes_license_store.service.d/qwes_license_store.conf
         install -m 0644 ${WORKDIR}/evdev_load.conf ${D}/etc/systemd/system/evdev_load.service.d/evdev_load.conf
+        install -m 0644 ${WORKDIR}/sensor_hal_daemon.conf ${D}/etc/systemd/system/sensor_hal_daemon.service.d/sensor_hal_daemon.conf
 
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
