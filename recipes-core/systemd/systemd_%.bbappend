@@ -56,10 +56,10 @@ do_install_append() {
 
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
-        install -d ${D}/lib/systemd/system/multi-user.target.wants
+        install -d ${D}/lib/systemd/system/basic.target.wants
         install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
         install -m 0644 ${WORKDIR}/postmss.service ${D}/lib/systemd/system/postmss.service
-        ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/multi-user.target.wants/postmss.service
+        ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/basic.target.wants/postmss.service
         fi
 
     fi
