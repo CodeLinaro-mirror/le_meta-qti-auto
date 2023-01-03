@@ -6,6 +6,7 @@ inherit packagegroup
 
 OPENAVB ?= "False"
 OPENAVB_sa415m = "True"
+OPENAVB_sa410m = "True"
 OPENAVB_sa515m = "True"
 
 PROVIDES = "${PACKAGES}"
