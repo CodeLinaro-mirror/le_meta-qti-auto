@@ -31,7 +31,9 @@ RDEPENDS_packagegroup-qti-telematics-cv2x = "\
     ${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], 'aerolink-configurations', '', d)} \
     "
 
-RDEPENDS_packagegroup-qti-telematics-sensors = " libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp sensor-util-lib sensor-util-testapp "
+RDEPENDS_packagegroup-qti-telematics-sensors = "\
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm', '', 'sensor-util-lib sensor-util-testapp', d)}\
+    libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp"
 
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
