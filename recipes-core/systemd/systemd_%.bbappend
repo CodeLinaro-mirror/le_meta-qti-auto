@@ -20,12 +20,12 @@ SRC_URI_append += "file://qseecomd.conf"
 SRC_URI_append += "file://qwes_license_store.conf"
 SRC_URI_append += "file://evdev_load.conf"
 SRC_URI_append += "file://sensor_hal_daemon.conf"
+SRC_URI_append += "file://sensor_bootup_iio.sh"
 
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
         install -d ${D}${sysconfdir}/initscripts/
-        install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
 
         if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
         # Install drop-ins for systemd service files
@@ -60,6 +60,13 @@ do_install_append() {
         install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
         install -m 0644 ${WORKDIR}/postmss.service ${D}/lib/systemd/system/postmss.service
         ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/basic.target.wants/postmss.service
+        fi
+
+        #Install iio bootup script for sensors
+        if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
+            install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
+        else
+            install -m 0755 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         fi
 
     fi
