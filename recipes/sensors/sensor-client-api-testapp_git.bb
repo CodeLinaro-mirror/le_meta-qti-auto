@@ -14,4 +14,5 @@ S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_client_api_testapp"
 
 EXTRA_OECONF += "${@bb.utils.contains('MACHINE_FEATURES', 'external-ap', '--with-external_ap', '', d)}"
 
-EXTRA_OECONF += "--with-glib"
+EXTRA_OECONF += "--with-glib \
+                 --with-core-includes=${WORKSPACE}/system/core/include"
