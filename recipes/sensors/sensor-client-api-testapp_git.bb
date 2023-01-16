@@ -12,4 +12,5 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_client_api_testapp"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_client_api_testapp"
 
-EXTRA_OECONF += "--with-glib"
+EXTRA_OECONF += "--with-core-includes=${WORKSPACE}/system/core/include \
+		 --with-glib"
