@@ -22,6 +22,13 @@ SRC_URI_append += "file://evdev_load.conf"
 SRC_URI_append += "file://sensor_hal_daemon.conf"
 SRC_URI_append += "file://sensor_bootup_iio.sh"
 
+PACKAGECONFIG_remove = " \
+    acl \
+    binfmt \
+    hibernate \
+    kmod \
+"
+
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
