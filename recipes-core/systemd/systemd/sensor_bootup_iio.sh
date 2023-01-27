@@ -32,7 +32,6 @@
 # SPDX-License-Identifier: BSD-3-Clause-Clear
 
 /sbin/mount-copybind /systemrw/sensorhal/hal_config /etc/sensorhal/hal_config
-/bin/chown sensors:sensors /systemrw/sensorhal
 
 for file in `ls /sys/bus/iio/devices`
 do
