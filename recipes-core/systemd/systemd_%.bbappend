@@ -69,6 +69,11 @@ do_install_append() {
         ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/basic.target.wants/postmss.service
         fi
 
+        if ${@bb.utils.contains('MACHINE', 'sa415m', 'true', 'false', d)}; then
+        install -d ${D}/etc/systemd/system/evdev_load.service.d
+        install -m 0644 ${WORKDIR}/evdev_load.conf ${D}/etc/systemd/system/evdev_load.service.d/evdev_load.conf
+        fi
+
         #Install iio bootup script for sensors
         if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
             install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
