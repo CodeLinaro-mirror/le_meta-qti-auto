@@ -33,7 +33,7 @@ RDEPENDS_packagegroup-qti-telematics-cv2x = "\
 
 RDEPENDS_packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm', '', 'sensor-util-lib sensor-util-testapp', d)}\
-    libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp"
+    libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp sensors-test"
 
 RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
 
