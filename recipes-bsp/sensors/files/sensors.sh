@@ -28,9 +28,9 @@
 
 ev="$1"
 find="/dev/input/event"
-replace="/sys/class/input/input"
+replace="/sys/class/input/event"
 result=${ev//$find/$replace}
-sensor_name=$(cat $result/name)
+sensor_name=$(cat $result/device/name)
 replace=""
 num=${ev//$find/$replace}
 
@@ -42,8 +42,8 @@ case "x$sensor_name" in
        ln -sf /dev/input/event$num /dev/input/gyrobuff
    ;;
    "xsmi130_acc" | "xsmi130_gyro" | "xsmi_acc_interrupt" | "xSMI230ACC" | "xSMI230GYRO")
-       chown -R root:sensors /sys/class/input/input$num/*
-       chmod 665  /sys/class/input/input$num/*
+       chown -R root:sensors /sys/class/input/event$num/device/
+       chmod 665  /sys/class/input/event$num/device/*
    ;;
 esac
 exit 0

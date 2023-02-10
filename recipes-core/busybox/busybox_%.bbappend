@@ -2,6 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/busybox:"
 
 SRC_URI += "\
             file://automountsdcard.sh \
+            file://no-shell-history.cfg \
 "
 
 do_install_append() {
