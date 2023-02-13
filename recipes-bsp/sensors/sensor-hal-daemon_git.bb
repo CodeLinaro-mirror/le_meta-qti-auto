@@ -18,6 +18,7 @@ SRC_URI +="file://hal_config"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 
 PACKAGECONFIG_append_sa515m = " shd"
+PACKAGECONFIG_append_sa415m = " shd"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \

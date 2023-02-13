@@ -28,11 +28,12 @@
 [Unit]
 SourcePath=/etc/initscripts/postmss
 Description=Post modem boot service
-After=init_sys_mss.service
+After=init_sys_mss.service sockets.target
+DefaultDependencies=no
 
 [Service]
 Restart=no
 ExecStart=/etc/initscripts/postmss start
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=basic.target

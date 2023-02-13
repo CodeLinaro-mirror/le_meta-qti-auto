@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copyright (c) 2019, The Linux Foundation. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,8 +26,6 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set -e
-
 case "$1" in
   start)
         search_dir="/sys/bus/msm_subsys/devices/"
@@ -43,13 +42,10 @@ case "$1" in
            msstate=`cat $search_dir/$entry/state`
            if [ "$msstate" == "ONLINE" ]
            then
-               renice -n 5 -p `pidof init_mss`
-               renice -n 15 -p `pidof adbd`
                renice -n 10 -p `pidof loc_launcher`
                renice -n 10 -p `pidof location_hal_daemon`
                renice -n 15 -p `pidof logd`
-               renice -n 10 -p `pidof qwesd`
-               renice -n 10 -p `pidof qseecomd`
+               renice -n 10 -p `pidof sensor_hal_daemon`
            break
            fi
         done
