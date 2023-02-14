@@ -8,6 +8,7 @@ OPENAVB ?= "False"
 OPENAVB_sa415m = "True"
 OPENAVB_sa410m = "True"
 OPENAVB_sa515m = "True"
+OPENAVB_sa525m = "True"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
