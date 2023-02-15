@@ -17,6 +17,9 @@ SRC_URI +="file://sensors.conf"
 SRC_URI +="file://hal_config"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 
+PACKAGECONFIG_append_sa515m = " shd"
+PACKAGECONFIG_append_sa415m = " shd"
+
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \
 		--with-glib"
@@ -39,5 +42,9 @@ do_install_append () {
 	install -m 0644 -D ${WORKDIR}/sensors.conf  ${D}${sysconfdir}/sensors.conf
         install -d -m 0755 -o 3011 -g 3011 ${D}${sysconfdir}/sensorhal/
         install -m 0664 -D -o 3011 -g 3011 ${WORKDIR}/hal_config  ${D}${sysconfdir}/sensorhal/hal_config
+    fi
+
+    if ${@bb.utils.contains('PACKAGECONFIG', ' shd', 'true', 'false', d)}; then
+        sed -i 's/SENSOR_HAL_LIB_PATH=\/usr\/lib\/libasm330sensors.so.1.0.0/#SENSOR_HAL_LIB_PATH=\/usr\/lib\/libasm330sensors.so.1.0.0/1' ${D}${sysconfdir}/sensors.conf
     fi
 }
