@@ -23,7 +23,7 @@ SRC_URI = "file://external/open-avb/ \
 
 S = "${WORKDIR}/external/open-avb/"
 
-GPTP_AUTO_START_ENABLE= "YES"
+GPTP_AUTO_START_ENABLE= "NO"
 RGPTP_SRV_INCLUDED= "YES"
 RGPTP_CLNT_INCLUDED= "YES"
 
