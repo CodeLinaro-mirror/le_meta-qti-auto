@@ -1,4 +1,4 @@
-inherit cmake
+inherit cmake useradd
 
 DESCRIPTION = "Aerolink V2X security library configurations"
 
@@ -13,4 +13,12 @@ SRC_URI = "file://cv2x/security/aerolink-public/configurations"
 SRC_DIR = "${WORKSPACE}/cv2x/security/aerolink-public/configurations"
 S =  "${WORKDIR}/cv2x/security/aerolink-public/configurations"
 
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM_${PN} = "--system -M --user-group its"
+
 FILES_${PN} += "${userfsdatadir}/*"
+
+do_install_append() {
+    chown -R its:its ${D}${userfsdatadir}/aerolink
+    chmod -R ug=rw,o=r,a+X ${D}${userfsdatadir}/aerolink
+}
