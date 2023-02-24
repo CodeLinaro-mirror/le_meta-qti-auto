@@ -28,27 +28,10 @@
 
 case "$1" in
   start)
-        search_dir="/sys/bus/msm_subsys/devices/"
-        for entry in `ls $search_dir`
-        do
-            subsys_temp=`cat $search_dir/$entry/name`
-            if [ "$subsys_temp" == "modem" ]
-            then
-                break
-            fi
-        done
-        while [ 1 ]
-        do
-           msstate=`cat $search_dir/$entry/state`
-           if [ "$msstate" == "ONLINE" ]
-           then
-               renice -n 10 -p `pidof loc_launcher`
-               renice -n 10 -p `pidof location_hal_daemon`
-               renice -n 15 -p `pidof logd`
-               renice -n 10 -p `pidof sensor_hal_daemon`
-           break
-           fi
-        done
+        renice -n 10 -p `pidof loc_launcher`
+        renice -n 10 -p `pidof location_hal_daemon`
+        renice -n 15 -p `pidof logd`
+        renice -n 10 -p `pidof sensor_hal_daemon`
     exit 0
         ;;
   stop)
