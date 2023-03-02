@@ -36,9 +36,11 @@ num=${ev//$find/$replace}
 
 case "x$sensor_name" in
    "xsmi130_accbuf" | "xbmi160_accbuf" | "xinv_accbuf" | "xasm_accbuf" | "xsmi230_accbuf")
+       echo "Sensor Accel Symlink" > /dev/kmsg
        ln -sf /dev/input/event$num /dev/input/accbuff
    ;;
    "xsmi130_gyrobuf" | "xbmi160_gyrobuf" | "xinv_gyrobuf" | "xasm_gyrobuf" | "xsmi230_gyrobuf")
+       echo "Sensor Gyro Symlink" > /dev/kmsg
        ln -sf /dev/input/event$num /dev/input/gyrobuff
    ;;
    "xsmi130_acc" | "xsmi130_gyro" | "xsmi_acc_interrupt" | "xSMI230ACC" | "xSMI230GYRO")
