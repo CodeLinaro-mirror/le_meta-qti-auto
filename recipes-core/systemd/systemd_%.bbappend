@@ -22,6 +22,13 @@ SRC_URI_append += "file://evdev_load.conf"
 SRC_URI_append += "file://sensor_hal_daemon.conf"
 SRC_URI_append += "file://sensor_bootup_iio.sh"
 
+PACKAGECONFIG_remove = " \
+    acl \
+    binfmt \
+    hibernate \
+    kmod \
+"
+
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
@@ -60,6 +67,11 @@ do_install_append() {
         install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
         install -m 0644 ${WORKDIR}/postmss.service ${D}/lib/systemd/system/postmss.service
         ln -sf /lib/systemd/system/postmss.service ${D}/lib/systemd/system/basic.target.wants/postmss.service
+        fi
+
+        if ${@bb.utils.contains('MACHINE', 'sa415m', 'true', 'false', d)}; then
+        install -d ${D}/etc/systemd/system/evdev_load.service.d
+        install -m 0644 ${WORKDIR}/evdev_load.conf ${D}/etc/systemd/system/evdev_load.service.d/evdev_load.conf
         fi
 
         #Install iio bootup script for sensors

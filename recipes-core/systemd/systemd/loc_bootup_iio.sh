@@ -28,11 +28,10 @@
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
 
-# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause-Clear
 
 /sbin/mount-copybind /systemrw/sensorhal/hal_config /etc/sensorhal/hal_config
-/bin/chown sensors:sensors /systemrw/sensorhal
 
 for file in `ls /sys/bus/iio/devices`
 do

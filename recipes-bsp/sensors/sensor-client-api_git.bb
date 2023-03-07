@@ -12,6 +12,11 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_client_api"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_client_api"
 
+##Entries for VMs
+PACKAGECONFIG_append = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm', 'sensors-vm', '', d)}"
+## Both VMs and EAPs will be treated in similar way
+PACKAGECONFIG[sensors-vm] = "--with-vm"
+
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-glib"
 
