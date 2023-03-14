@@ -6,9 +6,9 @@ inherit packagegroup
 
 OPENAVB ?= "False"
 OPENAVB_sa415m = "True"
-OPENAVB_sa410m = "True"
+OPENAVB_sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 OPENAVB_sa515m = "True"
-OPENAVB_sa525m = "True"
+OPENAVB_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
