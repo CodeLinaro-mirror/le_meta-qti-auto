@@ -9,6 +9,11 @@ OPENAVB_sa415m = "True"
 OPENAVB_sa410m = "True"
 OPENAVB_sa515m = "True"
 
+# Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
+# Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
+CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
+CV2X_ITS_sa525m = "True"
+
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     packagegroup-qti-telematics \
@@ -16,6 +21,7 @@ PACKAGES = ' \
     packagegroup-qti-telematics-vnw \
     ${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', 'packagegroup-qti-telematics-sensors', '', d)} \
+    ${@oe.utils.conditional('CV2X_ITS', 'True', 'packagegroup-qti-telematics-cv2x-its', '', d)} \
     '
 
 RDEPENDS_packagegroup-qti-telematics = "\
@@ -28,7 +34,11 @@ RDEPENDS_packagegroup-qti-telematics = "\
     "
 
 RDEPENDS_packagegroup-qti-telematics-cv2x = "\
-    ${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], 'aerolink-configurations', '', d)} \
+    ${@oe.utils.conditional('CV2X_ITS', 'True', 'packagegroup-qti-telematics-cv2x-its', '', d)} \
+    "
+
+RDEPENDS_packagegroup-qti-telematics-cv2x-its = "\
+    aerolink-configurations \
     "
 
 RDEPENDS_packagegroup-qti-telematics-sensors = "\
