@@ -36,11 +36,13 @@ RDEPENDS_packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
     libsensors sensor-hal-daemon sensor-hal-daemon-hdr sensor-socket sensor-client-api sensor-client-api-testapp sensors-test"
 
-RDEPENDS_packagegroup-qti-telematics-utils = " udpreplay"
+RDEPENDS_packagegroup-qti-telematics-utils = "\
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'udpreplay', d)} \
+    "
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
     ${@oe.utils.conditional('OPENAVB', 'True', 'open-avb', '', d)} \
-    start-scripts-init-can can-utils \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'start-scripts-init-can can-utils', d)} \
     ${@bb.utils.contains('MACHINE', 'sa515m', 'vnw-eth-switch', '', d)} \
     "
 
