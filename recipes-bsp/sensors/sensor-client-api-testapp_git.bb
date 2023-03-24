@@ -13,7 +13,7 @@ SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_client_api_testapp
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_client_api_testapp"
 
 ##Entries for VMs
-PACKAGECONFIG_append = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm', 'sensors-vm', '', d)}"
+PACKAGECONFIG_append = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'sensors-vm', '', d)}"
 ## Both VMs and EAPs will be treated in similar way
 PACKAGECONFIG[sensors-vm] = "--with-vm"
 
