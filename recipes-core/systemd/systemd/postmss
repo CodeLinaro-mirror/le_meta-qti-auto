@@ -26,42 +26,12 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-case "$1" in
-  start)
-        search_dir="/sys/bus/msm_subsys/devices/"
-        for entry in `ls $search_dir`
-        do
-            subsys_temp=`cat $search_dir/$entry/name`
-            if [ "$subsys_temp" == "modem" ]
-            then
-                break
-            fi
-        done
-        while [ 1 ]
-        do
-           msstate=`cat $search_dir/$entry/state`
-           if [ "$msstate" == "ONLINE" ]
-           then
-               renice -n 10 -p `pidof loc_launcher`
-               renice -n 10 -p `pidof location_hal_daemon`
-               renice -n 15 -p `pidof logd`
-               renice -n 10 -p `pidof sensor_hal_daemon`
-           break
-           fi
-        done
-    exit 0
-        ;;
-  stop)
-        echo "done"
-        ;;
-  restart)
-        $0 stop
-        $0 start
-        ;;
-  *)
-        echo "Usage postmss { start | stop | restart}" >&2
-        exit 1
-        ;;
-esac
+# Changes from Qualcomm Innovation Center are provided under the following license:
 
-exit 0
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+renice -n 10 -p `pidof loc_launcher`
+renice -n 10 -p `pidof location_hal_daemon`
+renice -n 15 -p `pidof logd`
+renice -n 10 -p `pidof sensor_hal_daemon`
