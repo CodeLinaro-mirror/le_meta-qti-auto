@@ -12,7 +12,7 @@ TARGET_CFLAGS += "-Wno-format-security"
 
 SRCREV = "b0b9bce7c07ea0b5d71ac382a20718e426a387e6"
 
-SRC_URI = "git://source.codeaurora.org/quic/le/external/infineon-hsm-v2x.git;protocol=git;branch=glimpses/master"
+SRC_URI = "${CLO_LE_GIT}/external/infineon-hsm-v2x.git;protocol=https;branch=caf_migration/glimpses/master"
 SRC_URI += "file://ccard-v2x-host.patch"
 
 S = "${WORKDIR}/git"
