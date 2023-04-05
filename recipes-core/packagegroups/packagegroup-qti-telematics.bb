@@ -13,7 +13,7 @@ OPENAVB_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'Fals
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
 # Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
 CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
-CV2X_ITS_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
+CV2X_ITS_sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'True', 'False',d)}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
