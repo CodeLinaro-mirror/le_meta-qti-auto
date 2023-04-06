@@ -14,7 +14,7 @@ TARGET_CFLAGS += "-Wno-format-security"
 
 SRCREV = "43ff11641959507b84d967b0c23455084c3da692"
 
-SRC_URI = "git://source.codeaurora.org/quic/le/external/rigtorp/udpreplay.git;protocol=git;branch=udpreplay/master"
+SRC_URI = "${CLO_LE_GIT}/external/rigtorp/udpreplay.git;protocol=https;branch=caf_migration/udpreplay/master"
 SRC_URI += "file://udpreplay_ipv4_dest_1.patch"
 SRC_URI += "file://udpreplay_ipv6_dest_2.patch"
 SRC_URI += "file://udpreplay_dest_port_3.patch"
