@@ -16,7 +16,8 @@ inherit pkgconfig module systemd
 
 FILESPATH =+ "${WORKSPACE}:"
 
-SYSTEMD_SERVICE_${PN} += "mvm_dlkm.service"
+SYSTEMD_SERVICE_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '' ,'mvm_dlkm.service', d)}"
+
 do_compile() {
 
     cd ${WORKSPACE}/kernel-${PREFERRED_VERSION_linux-msm}/kernel_platform  && \
@@ -44,4 +45,5 @@ do_install() {
 }
 
 FILES_${PN} += "${libdir}/modules/*"
+FILES_${PN} += "${systemd_unitdir}/system/mvm_dlkm.service"
 RPROVIDES_${PN} += "mvm-dlkm"
