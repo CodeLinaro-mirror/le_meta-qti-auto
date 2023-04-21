@@ -28,6 +28,7 @@
 
 
 if [ -L /sys/class/net/can0 ]; then
+    echo "Configure CAN0 bitrate to 500kbps & Enable"
 	/sbin/ip link set can0 type can bitrate 500000
 	/sbin/ip link set up can0
 fi

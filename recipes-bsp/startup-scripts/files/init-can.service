@@ -33,9 +33,10 @@ Before=powermanager-daemon.service
 
 [Service]
 Type=oneshot
+StandardOutput=tty
 RemainAfterExit=yes
 ExecStart=/etc/initscripts/init-can.sh start
 ExecStop=/etc/initscripts/init-can.sh stop
 
 [Install]
-WantedBy=sockets.target
+WantedBy=multi-user.target
