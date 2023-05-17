@@ -39,7 +39,7 @@ do_install_append() {
         fi
 
         #Install iio bootup script for sensors
-        if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
+        if ${@bb.utils.contains('MACHINE', 'sa415m', 'true', 'false', d)}; then
             install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         else
             install -m 0755 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
