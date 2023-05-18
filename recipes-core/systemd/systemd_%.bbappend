@@ -11,6 +11,7 @@ SRC_URI_append += " \
     file://postmss \
     file://sensor_bootup_iio.sh \
     file://${BASEMACHINE}/ \
+    ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'file://mtd.rules', '',d)} \
 "
 
 PACKAGECONFIG_remove = " \
@@ -23,6 +24,10 @@ PACKAGECONFIG_remove = " \
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
+
+        if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
+                install -m 0644 ${WORKDIR}/mtd.rules -D ${D}${sysconfdir}/udev/rules.d/mtd.rules
+        fi
 
         install -d ${D}${systemd_unitdir}/system/
         cp -fR ${WORKDIR}/${BASEMACHINE}/* ${D}${systemd_unitdir}/system/
