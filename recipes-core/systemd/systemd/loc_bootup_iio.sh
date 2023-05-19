@@ -31,7 +31,6 @@
 # Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause-Clear
 
-/sbin/mount-copybind /systemrw/sensorhal/hal_config /etc/sensorhal/hal_config
 
 for file in `ls /sys/bus/iio/devices`
 do
