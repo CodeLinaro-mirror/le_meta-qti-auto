@@ -12,11 +12,14 @@ SRC_URI = "file://vendor/qcom/opensource/mvm-kernel/"
 
 S = "${WORKDIR}/vendor/qcom/opensource/mvm-kernel"
 
-inherit pkgconfig module systemd
+inherit pkgconfig module systemd deploy
 
 FILESPATH =+ "${WORKSPACE}:"
 
 SYSTEMD_SERVICE_${PN} += "mvm_dlkm.service"
+
+addtask deploy after do_install
+
 do_compile() {
 
     cd ${WORKSPACE}/kernel-${PREFERRED_VERSION_linux-msm}/kernel_platform  && \
@@ -43,5 +46,15 @@ do_install() {
     install -m 0644 ${S}/mvm_dlkm.service -D ${D}${systemd_unitdir}/system/mvm_dlkm.service
 }
 
+# Copy kernel modules into image specific deploy directory.
+do_deploy() {
+    if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-host', 'false', 'true', d)}; then
+        install -d ${DEPLOYDIR}/kernel_modules/${PN}
+        install -m 0644 ${WORKDIR}/vendor/qcom/opensource/mvm-kernel-out/mvm_dlkm.ko ${DEPLOYDIR}/kernel_modules/${PN}/mvm.ko
+    fi
+}
+
 FILES_${PN} += "${libdir}/modules/*"
 RPROVIDES_${PN} += "mvm-dlkm"
+
+RM_WORK_EXCLUDE += "mvm-dlkm"
