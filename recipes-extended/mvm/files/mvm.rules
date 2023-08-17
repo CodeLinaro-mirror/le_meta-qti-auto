@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="mvm_stats", OWNER="mvm", GROUP="mvm", MODE="0660"
