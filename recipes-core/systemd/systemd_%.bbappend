@@ -44,6 +44,8 @@ do_install_append() {
             install -m 0644 ${WORKDIR}/postmss.service ${D}${systemd_unitdir}/system/postmss.service
             ln -sf ${systemd_unitdir}/system/postmss.service \
                     ${D}${systemd_unitdir}/system/basic.target.wants/postmss.service
+
+            rm -rf ${D}${systemd_unitdir}/system/adbd.service.d/adbd-gvm.conf
         fi
 
         #Install iio bootup script for sensors
