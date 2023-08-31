@@ -21,9 +21,8 @@ S = "${WORKDIR}/payload"
 
 PACKAGES += "${PN}-bin"
 FILES_${PN}-bin += "${bindir}"
-
 do_configure[depends] += "stream-update-native:do_compile"
-
+RM_WORK_EXCLUDE += "${PN}"
 do_configure() {
     echo "Running update engine interface files ${S}"
     cp -f ${WORKDIR}/gen_full_stream.sh ${S}
