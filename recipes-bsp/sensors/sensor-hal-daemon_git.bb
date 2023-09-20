@@ -19,6 +19,7 @@ S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 
 PACKAGECONFIG_append_sa515m = " shd"
 PACKAGECONFIG_append_sa415m = " shd"
+PACKAGECONFIG_append_mdm9607 = " shd"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \
