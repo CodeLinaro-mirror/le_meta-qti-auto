@@ -12,6 +12,7 @@ SRC_URI_append += " \
     file://sensor_bootup_iio.sh \
     file://${BASEMACHINE}/ \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'file://mtd.rules', '',d)} \
+    file://platform.rules \
 "
 
 PACKAGECONFIG_remove = " \
@@ -24,6 +25,8 @@ PACKAGECONFIG_remove = " \
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
+
+        install -m 0644 ${WORKDIR}/platform.rules ${D}${sysconfdir}/udev/rules.d/platform.rules
 
         if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
                 install -m 0644 ${WORKDIR}/mtd.rules -D ${D}${sysconfdir}/udev/rules.d/mtd.rules
@@ -41,6 +44,8 @@ do_install_append() {
             install -m 0644 ${WORKDIR}/postmss.service ${D}${systemd_unitdir}/system/postmss.service
             ln -sf ${systemd_unitdir}/system/postmss.service \
                     ${D}${systemd_unitdir}/system/basic.target.wants/postmss.service
+
+            rm -rf ${D}${systemd_unitdir}/system/adbd.service.d/adbd-gvm.conf
         fi
 
         #Install iio bootup script for sensors
@@ -75,3 +80,4 @@ do_install_append() {
     fi
 }
 FILES_${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
+FILES_${PN} += "${sysconfdir}/udev/rules.d/platform.rules"
