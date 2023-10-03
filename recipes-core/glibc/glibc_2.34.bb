@@ -150,3 +150,6 @@ TARGET_CPPFLAGS_append_sa415m = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"
 
 TARGET_CFLAGS_append_mdm9607 = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"
 TARGET_CPPFLAGS_append_mdm9607 = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"
+
+TARGET_CFLAGS_append_sa525m = "${@bb.utils.contains('MLPREFIX', 'lib32-', ' -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32', '', d)}"
+TARGET_CPPFLAGS_append_sa525m = "${@bb.utils.contains('MLPREFIX', 'lib32-', ' -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32', '', d)}"
