@@ -36,6 +36,12 @@ do_install_append() {
         install -d ${D}${sysconfdir}/initscripts/
         install -d ${D}${systemd_unitdir}/system/basic.target.wants/
 
+        if [ -e ${D}${systemd_unitdir}/system/sys_reboot.service ]; then
+            install -d ${D}${systemd_unitdir}/system/reboot.target.wants/
+            ln -sf ${systemd_unitdir}/system/sys_reboot.service \
+                ${D}${systemd_unitdir}/system/reboot.target.wants/sys_reboot.service
+        fi
+
         if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'false', 'true', d)}; then
             install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
             install -m 0644 ${WORKDIR}/postmss.service ${D}${systemd_unitdir}/system/postmss.service
