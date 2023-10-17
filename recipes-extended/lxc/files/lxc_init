@@ -1,0 +1,5 @@
+#Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: LGPL-2.1-only
+
+#!/bin/mksh
+/bin/mksh -i -T!/dev/tty1
