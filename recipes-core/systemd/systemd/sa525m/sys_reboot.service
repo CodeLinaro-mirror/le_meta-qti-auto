@@ -7,5 +7,5 @@ Before=systemd-reboot.service
 DefaultDependencies=no
 
 [Service]
-ExecStart=/bin/sh -c '/usr/lib/busybox/sbin/reboot -f'
+ExecStart=/bin/sh -c " if [ -e /usr/lib/busybox ]; then /usr/lib/busybox/sbin/reboot -f; else /usr/lib/lib32-busybox/sbin/reboot -f; fi "
 Type=forking
