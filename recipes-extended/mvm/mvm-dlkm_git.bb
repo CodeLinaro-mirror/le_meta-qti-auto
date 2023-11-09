@@ -13,16 +13,13 @@ SRC_URI += "file://mvm.rules"
 
 S = "${WORKDIR}/vendor/qcom/opensource/mvm-kernel"
 
-inherit pkgconfig module systemd deploy qdlkm useradd
+inherit pkgconfig module systemd deploy qdlkm
 
 FILESPATH =+ "${WORKSPACE}:"
 
 SYSTEMD_SERVICE_${PN} += "mvm_dlkm.service"
 
 addtask deploy after do_install
-
-USERADD_PACKAGES = "${PN}"
-USERADD_PARAM_${PN} =  "-u 3019 -U mvm"
 
 do_compile() {
 
