@@ -7,6 +7,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/${LICENSE};md5=550794465ba0ec53
 
 PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
+DEPENDS += "telux-samples"
+
 FILESPATH =+ "${WORKSPACE}:"
 
 SRC_URI = "file://cv2x/security/aerolink-public/configurations"
@@ -14,3 +16,8 @@ SRC_DIR = "${WORKSPACE}/cv2x/security/aerolink-public/configurations"
 S =  "${WORKDIR}/cv2x/security/aerolink-public/configurations"
 
 FILES_${PN} += "${userfsdatadir}/*"
+
+do_install_append() {
+    chown -R its:its ${D}${userfsdatadir}/aerolink
+    chmod -R ug=rw,o=r,a+X ${D}${userfsdatadir}/aerolink
+}
