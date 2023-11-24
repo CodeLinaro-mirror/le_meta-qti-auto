@@ -36,4 +36,6 @@ CFLAGS += "-DPB_FIELD_16BIT=1"
 
 EXTRA_OECMAKE_append_class-native = "-Dnanopb_BUILD_GENERATOR=ON -Dnanopb_BUILD_RUNTIME=OFF -Dnanopb_MSVC_STATIC_RUNTIME=OFF"
 
+EXTRA_OECMAKE += "-DCMAKE_INSTALL_CMAKEDIR=${libdir}/cmake/nanopb"
+
 BBCLASSEXTEND = "native nativesdk"

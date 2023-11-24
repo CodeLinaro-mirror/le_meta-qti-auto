@@ -26,6 +26,7 @@ EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
 		--with-glib"
 
 SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
+SYSTEMD_SERVICE_${PN}_remove_mdm9607 = "sensor_hal_daemon.service"
 
 FILES_${PN} += "${userfsdatadir}/sensorhal"
 
