@@ -18,6 +18,11 @@ exec_lxc_ops() {
    case $OPS in
       start)
          if [ -n "$(ls -A /lxcrootfs 2>/dev/null)" ]; then
+            #loading modules for lxc
+            modprobe macvlan
+            modprobe ip6table_nat
+            modprobe xt_CHECKSUM
+
             lxc-create -n $LXC_CON_NAME -f $LXC_CONF_PATH -t none -o $LXC_CONTAINER_LOG_PATH/lxc-create.log -l TRACE
             lxc-start -n $LXC_CON_NAME -o $LXC_CONTAINER_LOG_PATH/lxc-start.log -l TRACE
             #set ip for veth host
@@ -33,6 +38,9 @@ exec_lxc_ops() {
             #manually deleting the container path, because
             #container marked as non mananged in conf
             rm "/tmp/container" -rf
+            rmmod xt_CHECKSUM
+            rmmod ip6table_nat
+            rmmod macvlan
          else
             echo "No files in /lxcrootfs, skipping lxc stop/destroy" > /dev/kmsg
          fi
