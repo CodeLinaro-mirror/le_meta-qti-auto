@@ -88,6 +88,8 @@ FW_DIR="/firmware"
 STATUS_OK=0
 STATUS_ERR=1
 
+ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
+
 LOGD() {
   busybox echo "$1"
 }
@@ -682,6 +684,31 @@ MountSystem () {
     return ${STATUS_OK}
 }
 
+MountSystemrw() {
+    GetUbiVolumeID ${SYS_UBI_DEV_NUM} "systemrw"
+    if [ "${GetUbiVolumeID_RESULT}" == "" ]; then
+        LOGD "Cannot get 'systemrw' volume."
+        return ${STATUS_ERR}
+    fi
+    vol=${GetUbiVolumeID_RESULT}
+
+    char_device=/dev/ubi${SYS_UBI_DEV_NUM}_${vol}
+
+    busybox.suid mount -t ubifs "${char_device}" ${ROOT_MOUNT}/systemrw -o bulk_read,rw
+    return ${STATUS_OK}
+}
+
+MountSystemdOverlay() {
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/lib-systemd-system
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/lib-systemd-system-work
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system-work
+
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/lib/systemd/system -o lowerdir=${ROOT_MOUNT}/lib/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/lib-systemd-system,workdir=${ROOT_MOUNT}/systemrw/lib-systemd-system-work
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/etc/systemd/system -o lowerdir=${ROOT_MOUNT}/etc/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/etc-systemd-system,workdir=${ROOT_MOUNT}/systemrw/etc-systemd-system-work
+    return ${STATUS_OK}
+}
+
 MainBoot() {
 
     local tasks_list1="
@@ -715,6 +742,14 @@ MainBoot() {
                     MoveMountToSystem
                     SwitchToSystem
                     "
+    if [ -e ${ENABLE_SYSTEMD_OVERLAY} ]
+    then
+        tasks_list2="
+                    MountSystemrw
+                    MountSystemdOverlay
+                    $tasks_list2
+                    "
+    fi
     for task2 in ${tasks_list2}; do
         ${task2}
         if [ $? -ne ${STATUS_OK} ]; then
