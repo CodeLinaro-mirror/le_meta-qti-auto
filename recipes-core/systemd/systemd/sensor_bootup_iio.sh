@@ -33,6 +33,11 @@
 
 /sbin/mount-copybind /systemrw/sensorhal/hal_config /etc/sensorhal/hal_config
 
+for file in `ls /sys/bus/iio/devices`
+do
+	/etc/udev/scripts/iio.sh $file
+done
+
 for files in `ls /dev/input/event*`
 do
        /etc/udev/scripts/sensors.sh $files
