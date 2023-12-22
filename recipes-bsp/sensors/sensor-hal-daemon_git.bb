@@ -8,7 +8,7 @@ LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=550794465ba0ec5312d6919e203a55f9"
 
-DEPENDS = "glib-2.0 libsensors sensor-socket powermanager-lib"
+DEPENDS = "glib-2.0 libsensors sensor-util-lib sensor-socket powermanager-lib common-api-c++ vsomeip common-api-c++-someip open-avb location-client-api"
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 SRC_URI +="file://sensor_hal_daemon.service"
@@ -23,12 +23,21 @@ PACKAGECONFIG_append_mdm9607 = " shd"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \
+                --with-gptp \
+                --with-sensor_head_type \
 		--with-glib"
 
 SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
 SYSTEMD_SERVICE_${PN}_remove_mdm9607 = "sensor_hal_daemon.service"
 
+RDEPENDS:${PN} = "open-avb"
+
 FILES_${PN} += "${userfsdatadir}/sensorhal"
+FILES:${PN} += "${libdir}/*"
+FILES:${PN} += "/usr/etc/*"
+SOLIBS = ".so*"
+FILES_SOLIBSDEV = ""
+INSANE_SKIP:${PN} = "dev-so"
 
 do_install_append () {
 
@@ -41,7 +50,7 @@ do_install_append () {
         install -d ${D}${sysconfdir}/systemd/system/
         install -m 0644 ${WORKDIR}/sensor_hal_daemon.service -D ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
 
-	install -m 0644 -D ${WORKDIR}/sensors.conf  ${D}${sysconfdir}/sensors.conf
+	install -m 0644 -D -o 3011 -g 3011 ${WORKDIR}/sensors.conf  ${D}${sysconfdir}/sensors.conf
         install -d -m 0755 -o 3011 -g 3011 ${D}${sysconfdir}/sensorhal/
         install -m 0664 -D -o 3011 -g 3011 ${WORKDIR}/hal_config  ${D}${sysconfdir}/sensorhal/hal_config
     fi
