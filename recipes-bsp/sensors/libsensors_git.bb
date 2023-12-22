@@ -7,12 +7,12 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/${LICENSE};md5
 
 FILESPATH =+ "${WORKSPACE}:"
 
-SRC_URI += "file://hardware/qcom/sensors/"
+SRC_URI += "file://hardware/qcom/sensors/sensor-hal"
 SRC_URI += "file://iio.sh"
 SRC_URI += "file://sensors.sh"
 SRC_URI += "file://61-iio.rules"
 SRC_URI += "file://61-sensor.rules"
-S = "${WORKDIR}/hardware/qcom/sensors"
+S = "${WORKDIR}/hardware/qcom/sensors/sensor-hal"
 
 DEPENDS = "glib-2.0 libcutils"
 
