@@ -29,6 +29,8 @@
 # Changes from Qualcomm Innovation Center are provided under the following license:
 # Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause-Clear
+ROOT_MOUNT="/mnt/vfs"
+ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
 
 busybox.suid mount -n -o mode=0755 -t devtmpfs none "/dev"
 busybox echo "mounted devtmpfsr"
@@ -58,6 +60,19 @@ fi
 
 if [ $? -ne 0]; then
     busybox echo "mounting rootfs failed"
+fi
+
+if [ -e ${ENABLE_SYSTEMD_OVERLAY} ]; then
+    busybox echo "Mounting systemrw and systemd overlay" > /dev/kmsg
+    busybox.suid mount -t ext4 /dev/vdb ${ROOT_MOUNT}/systemrw -o noatime,data=ordered,noauto_da_alloc,discard,noexec,nodev,noauto
+
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/lib-systemd-system
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/lib-systemd-system-work
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system-work
+
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/lib/systemd/system -o lowerdir=${ROOT_MOUNT}/lib/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/lib-systemd-system,workdir=${ROOT_MOUNT}/systemrw/lib-systemd-system-work
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/etc/systemd/system -o lowerdir=${ROOT_MOUNT}/etc/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/etc-systemd-system,workdir=${ROOT_MOUNT}/systemrw/etc-systemd-system-work
 fi
 
 busybox echo "Switching root"
