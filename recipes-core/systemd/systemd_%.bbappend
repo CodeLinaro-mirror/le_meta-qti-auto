@@ -54,7 +54,7 @@ do_install_append() {
             rm -rf ${D}${systemd_unitdir}/system/adbd.service.d/adbd-gvm.conf
         fi
 
-        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'true', 'false', d)}; then
+        if ${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-guest emmc-boot', 'true', 'false', d)}; then
             rm -rf ${D}${systemd_unitdir}/system/QCMAP_ConnectionManagerd.service.d/QCMAP_ConnectionManagerd-pvm.conf
         fi
 
