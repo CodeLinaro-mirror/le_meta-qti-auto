@@ -4,7 +4,7 @@ DESCRIPTION = "\
     protects (up to certain extent) from tampering, \
     takes necessary action (generally denies to access the file), when a physical modification to storage media is detected \
     "
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 DEPENDS += "openssl attr keyutils"
@@ -25,6 +25,6 @@ S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools
 
-RDEPENDS_${PN}_class-target += "libcrypto libattr keyutils"
+RDEPENDS:${PN}:class-target += "libcrypto libattr keyutils"
 
 BBCLASSEXTEND = "native nativesdk"

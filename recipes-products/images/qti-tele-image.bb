@@ -6,13 +6,13 @@ require qti-tele-image.inc
 
 # Install km-loader for selected machines
 EVDEVMODULE ?= 'False'
-EVDEVMODULE_sa515m = 'True'
-EVDEVMODULE_sa415m = 'True'
-EVDEVMODULE_mdm9607 = 'True'
+EVDEVMODULE:sa515m = 'True'
+EVDEVMODULE:sa415m = 'True'
+EVDEVMODULE:mdm9607 = 'True'
 
 # Install powerapp for selected machines
 POWERAPPMODULE ?= 'False'
-POWERAPPMODULE_mdm9607 = 'True'
+POWERAPPMODULE:mdm9607 = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
@@ -53,12 +53,13 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 "
 
 # Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL_remove_sa525m = "\
+CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
        ${MLIBPREFIX}qmi-shutdown-modem ${MLIBPREFIX}modem-shutdown \
        ${MLIBPREFIX}packagegroup-qti-security-test \
+       ${MLIBPREFIX}packagegroup-qti-telematics \
 "
 
 # Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL_remove_mdm9607 = "\
+CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
        ${MLIBPREFIX}qmi-shutdown-modem \
 "

@@ -1,3 +1,3 @@
-RDEPENDS_packagegroup-android-utils-base_remove_qti-distro-teleap = "\
+RDEPENDS:packagegroup-android-utils-base:remove:qti-distro-teleap = "\
     binder \
     "

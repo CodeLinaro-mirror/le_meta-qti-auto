@@ -2,7 +2,7 @@ SUMMARY = "QTI MVM driver"
 DESCRIPTION = "MVM driver takes care of sending the CV2X messages \
 for verification to MVM and sending the results back to userspace. \
 This driver will be loaded as a module from the userspace"
-LICENSE = "GPL-2.0"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/${LICENSE};md5=801f80980d171dd6425610833a22dbe6"
 DEPENDS = "virtual/kernel"
 
@@ -17,7 +17,7 @@ inherit pkgconfig module systemd deploy qdlkm
 
 FILESPATH =+ "${WORKSPACE}:"
 
-SYSTEMD_SERVICE_${PN} += "mvm_dlkm.service"
+SYSTEMD_SERVICE:${PN} += "mvm_dlkm.service"
 
 addtask deploy after do_install
 
@@ -62,6 +62,6 @@ do_deploy() {
     fi
 }
 
-FILES_${PN} += "${libdir}/modules/*"
-FILES_${PN} += "${sysconfdir}/udev/rules.d/mvm.rules"
-RPROVIDES_${PN} += "mvm-dlkm"
+FILES:${PN} += "${libdir}/modules/*"
+FILES:${PN} += "${sysconfdir}/udev/rules.d/mvm.rules"
+RPROVIDES:${PN} += "mvm-dlkm"

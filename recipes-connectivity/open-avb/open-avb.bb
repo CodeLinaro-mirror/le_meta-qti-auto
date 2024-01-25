@@ -30,7 +30,7 @@ EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', 'LE_GVM
 EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_AUTO_START=1', 'GPTP_AUTO_START=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_SRV_INCLUDED', 'YES', 'RGPTP_ENABLED=1', 'RGPTP_ENABLED=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_CLNT_INCLUDED', 'YES', 'RGPTP_CLNT_ENABLED=1', 'RGPTP_CLNT_ENABLED=0', d)}"
-SYSTEMD_SERVICE_${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
+SYSTEMD_SERVICE:${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
 
 do_compile() {
     if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'false', 'true', d)}; then
@@ -64,9 +64,9 @@ do_install() {
     fi
 }
 
-RPROVIDES_${PN} += "open-avb"
-FILES_SOLIBSDEV = ""
-FILES_${PN} += "${bindir}/*"
-FILES_${PN} += "${libdir}/*"
-FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/qgptp_params', d)}"
-FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/udev/rules.d/qgptp.rules', d)}"
+RPROVIDES:${PN} += "open-avb"
+FILES:SOLIBSDEV = ""
+FILES:${PN} += "${bindir}/*"
+FILES:${PN} += "${libdir}/*"
+FILES:${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/qgptp_params', d)}"
+FILES:${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/udev/rules.d/qgptp.rules', d)}"

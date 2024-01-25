@@ -10,34 +10,41 @@ PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native = "mkbootimg-gki-native"
 PREFERRED_PROVIDER_virtual/dtc-native = "dtc-android-build-native"
 PREFERRED_PROVIDER_virtual/mkdtimg-native = "mkdtimg-gki-native"
+PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-generic"
 PREFERRED_VERSION_linux-msm = "5.15"
 PREFERRED_VERSION_linux-msm-headers = "5.15"
 PREFERRED_VERSION_kernel-toolchain = "5.15"
+PREFERRED_VERSION_mod-signing-keys = "5.15"
 PREFERRED_VERSION_dtc-android-build = "5.15"
 PREFERRED_VERSION_mkbootimg-gki-native = "5.15"
 PREFERRED_VERSION_dtc-android-build-native = "5.15"
 PREFERRED_VERSION_mkdtimg-gki-native = "5.15"
 PREFERRED_VERSION_qcrosvm = "1.1"
-PREFERRED_VERSION:securemsmdlkm ?= "1.0"
+PREFERRED_VERSION_securemsmdlkm = "1.0"
 SERIAL_CONSOLES = "115200;ttyMSM0"
 KERNEL_IMAGETYPE = "Image"
 KERNEL_BASE = "0xa8000000"
 KERNEL_TAGS_OFFSET = "0x1e00000"
 KERNEL_CONFIG ?= "vendor/sa525_defconfig"
-KERNEL_CONFIG_qti-distro-debug ?= "vendor/sa525-debug_defconfig"
+KERNEL_CONFIG:qti-distro-debug ?= "vendor/sa525-debug_defconfig"
 CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 no_console_suspend=1"
-CONSOLE_PARAM_qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1 loglevel=0 systemd.log_level=0 systemd.show_status=0"
+CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1 loglevel=0 systemd.log_level=0 systemd.show_status=0"
 KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0"
 KERNEL_VARIANT ??= ""
-KERNEL_VARIANT_qti-distro-debug ??= "debug_"
-KERNEL_VARIANT_qti-distro-perf ??= "perf_"
-KERNEL_DTB_NAMES = "dtbs/dtb.img"
+KERNEL_VARIANT:qti-distro-debug ??= "debug_"
+KERNEL_VARIANT:qti-distro-perf ??= "perf_"
+KERNEL_DTB_NAMES = "dtb.img"
+
+KERNEL_TYPE = "msm-kernel"
 
 MACHINE_USES_KERNEL_PREBUILTS = "True"
-KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-5.15/out/msm-kernel-sa525-${KERNEL_VARIANT}defconfig/dist"
-KERNEL_OUT_PATH ?= "${WORKSPACE}/kernel-5.15/out/msm-kernel-sa525-${KERNEL_VARIANT}defconfig"
+KERNEL_PLATFORM_PATH = "${WORKSPACE}/kernel-5.15/kernel_platform"
+KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-5.15/out/msm-kernel-sa525-${KERNEL_VARIANT}defconfig/"
+KERNEL_PREBUILT_DISTDIR = "${KERNEL_PREBUILT_PATH}/dist"
+KERNEL_OUT_PATH ?= "${KERNEL_PREBUILT_PATH}"
 KERNEL_BUILD_CONFIG ?= "msm-kernel/build.config.msm.sa525"
 
+KERNEL_DEFCONFIG = "msm-kernel-sa525-${KERNEL_VARIANT}defconfig"
 
 # MACHINE_FEATURES ##
 # qti-adsp:               Machine supports QTI adsp solution
@@ -59,7 +66,7 @@ KERNEL_BUILD_CONFIG ?= "msm-kernel/build.config.msm.sa525"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-mvm qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qti-recovery qti-wwan-plus-cv2x qti-wlan qti-bluetooth qwesd ssgtzd android-binder qti-c2c qti-cv2x-compensator qti-dynamic-tsensreset qti-nad-telaf qti-nad-mrc qti-softsku"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-mvm qti-security qseecompat qti-tzlog qti-smciqseecomd qwesd ssgtzd android-binder qti-c2c qti-cv2x-compensator qti-dynamic-tsensreset qti-softsku"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
@@ -89,8 +96,8 @@ UFS_BSG_DEV_USAGE = "True"
 
 PREFERRED_VERSION_protobuf = "3.19.6"
 PREFERRED_VERSION_protobuf-native = "3.19.6"
-PREFERRED_VERSION_openssl = "3.0.9"
-PREFERRED_VERSION_openssl-native = "3.0.9"
+PREFERRED_VERSION_avbtool = "git"
+PREFERRED_VERSION_avbtool-native = "git"
 
 # Fixes for boot image dtb appending
 BOOT_HEADER_VERSION = "2"

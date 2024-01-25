@@ -15,9 +15,9 @@ SRC_URI = "file://cv2x/security/aerolink-public/configurations"
 SRC_DIR = "${WORKSPACE}/cv2x/security/aerolink-public/configurations"
 S =  "${WORKDIR}/cv2x/security/aerolink-public/configurations"
 
-FILES_${PN} += "${userfsdatadir}/*"
+FILES:${PN} += "${userfsdatadir}/*"
 
-do_install_append() {
+do_install:append() {
     chown -R its:its ${D}${userfsdatadir}/aerolink
     chmod -R ug=rw,o=r,a+X ${D}${userfsdatadir}/aerolink
 }

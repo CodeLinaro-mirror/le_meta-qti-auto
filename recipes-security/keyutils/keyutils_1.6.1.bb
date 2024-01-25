@@ -7,7 +7,7 @@ DESCRIPTION = "\
 HOMEPAGE = "http://people.redhat.com/dhowells/keyutils"
 SECTION = "base"
 
-LICENSE = "LGPLv2.1+ & GPLv2.0+"
+LICENSE = "LGPL-2.1-or-later & GPL-2.0-or-later"
 
 LIC_FILES_CHKSUM = "file://LICENCE.GPL;md5=5f6e72824f5da505c1f4a7197f004b45 \
                     file://LICENCE.LGPL;md5=7d1cacaa3ea752b72ea5e525df54a21f"
@@ -40,7 +40,7 @@ do_install () {
     oe_runmake DESTDIR=${D} install
 }
 
-do_install_append_class-nativesdk() {
+do_install:append:class-nativesdk() {
     install -d ${D}${datadir}
     src_dir="${D}${target_datadir}"
     mv $src_dir/* ${D}${datadir}
@@ -57,9 +57,9 @@ do_install_ptest () {
     sed -i -e 's/OSDIST=Unknown/OSDIST=${DISTRO}/' ${D}${PTEST_PATH}/tests/prepare.inc.sh
 }
 
-RDEPENDS_${PN}-ptest += "lsb-release"
-RDEPENDS_${PN}-ptest_append_libc-glibc = " glibc-utils"
-RDEPENDS_${PN}-ptest_append_libc-musl = " musl-utils"
+RDEPENDS:${PN}-ptest += "lsb-release"
+RDEPENDS:${PN}-ptest:append:libc-glibc = " glibc-utils"
+RDEPENDS:${PN}-ptest:append:libc-musl = " musl-utils"
 
 sysroot_preprocess() {
 	install -d ${SYSROOT_DESTDIR}${includedir}
@@ -68,5 +68,5 @@ sysroot_preprocess() {
 
 SYSROOT_PREPROCESS_FUNCS += "sysroot_preprocess"
 
-DEPENDS_append_class-target = " keyutils-native"
+DEPENDS:append:class-target = " keyutils-native"
 BBCLASSEXTEND = "native nativesdk"

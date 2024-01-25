@@ -1,10 +1,8 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append += " \
-    file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch \
+SRC_URI:append += " \
     file://0001-Allow-powermgr-group-to-communicate.patch \
     file://61-pps.rules \
-    file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch \
     file://0001-Allow-system-user-to-use-dbus-for-communication.patch \
     file://loc_bootup_iio.sh \
     file://postmss.service \
@@ -15,14 +13,14 @@ SRC_URI_append += " \
     file://platform.rules \
 "
 
-PACKAGECONFIG_remove = " \
+PACKAGECONFIG:remove = " \
     acl \
     binfmt \
     hibernate \
     kmod \
 "
 
-do_install_append() {
+do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
 
@@ -61,7 +59,7 @@ do_install_append() {
     fi
 }
 
-do_install_append() {
+do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         rm -f ${D}${base_libdir}/udev/ata_id
         rm -f ${D}${base_libdir}/udev/cdrom_id
@@ -83,5 +81,5 @@ do_install_append() {
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
     fi
 }
-FILES_${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
-FILES_${PN} += "${sysconfdir}/udev/rules.d/platform.rules"
+FILES:${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
+FILES:${PN} += "${sysconfdir}/udev/rules.d/platform.rules"

@@ -1,2 +1,2 @@
-SYSTEMD_SERVICE_${PN}-rdisc_remove = "rdisc.service"
-SYSTEMD_SERVICE_${PN}-ninfod_remove = "ninfod.service"
+SYSTEMD_SERVICE:${PN}-rdisc:remove = "rdisc.service"
+SYSTEMD_SERVICE:${PN}-ninfod:remove = "ninfod.service"

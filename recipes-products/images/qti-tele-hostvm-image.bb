@@ -8,8 +8,8 @@ IMAGE_FEATURES += "vm-bootsys-volume vm-systemrw-volume"
 
 # Install km-loader for selected machines
 EVDEVMODULE ?= 'False'
-EVDEVMODULE_sa515m = 'True'
-EVDEVMODULE_sa415m = 'True'
+EVDEVMODULE:sa515m = 'True'
+EVDEVMODULE:sa415m = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
@@ -51,7 +51,8 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 "
 
 # Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL_remove_sa525m = "\
+CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
        ${MLIBPREFIX}qmi-shutdown-modem ${MLIBPREFIX}modem-shutdown \
        ${MLIBPREFIX}packagegroup-qti-security-test \
+       ${MLIBPREFIX}packagegroup-qti-telematics \
 "

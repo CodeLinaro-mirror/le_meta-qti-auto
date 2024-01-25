@@ -1,1 +1,1 @@
-MACHINE_FEATURES_append = " qti-eap"
+MACHINE_FEATURES:append = " qti-eap"

@@ -21,7 +21,7 @@ EXTRA_OECONF = "--with-glib \
 
 RM_WORK_EXCLUDE += "libsensors"
 
-do_install_append() {
+do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/udev/rules.d/
         install -m 0444 ${WORKDIR}/61-sensor.rules ${D}${sysconfdir}/udev/rules.d/61-sensor.rules
@@ -34,7 +34,7 @@ do_install_append() {
     install -m 0755 ${S}/st/Documentation/LinuxHal/mlc_asm330lhhx/towing_impact/towing_impact_v0_52.ucf ${D}${base_libdir}/firmware/st_asm330lhhx_mlc.bin
 }
 
-FILES_${PN} += "${sysconfdir}/udev/rules.d/61-sensor.rules \
+FILES:${PN} += "${sysconfdir}/udev/rules.d/61-sensor.rules \
                ${sysconfdir}/udev/rules.d/61-iio.rules \
                ${sysconfdir}/udev/scripts/* \
                ${base_libdir}/firmware/*"

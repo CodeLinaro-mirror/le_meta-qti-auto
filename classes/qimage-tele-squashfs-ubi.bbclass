@@ -16,8 +16,12 @@ CORE_IMAGE_EXTRA_INSTALL += "\
                             ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', '${MLIBPREFIX}recovery-ab', '', d)} \
                             "
 
+DEPENDS += "\
+             squashfs-tools-native \
+"
+
 SYSTEM_IMAGE_UBI_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs/sysfs.ubi"
-SYSTEM_IMAGE_UBIFS_TARGET ?= "${@bb.utils.contains('IMAGE_FEATURES', 'gluebi', bb.utils.contains('DISTRO_FEATURES', 'dm-verity', '${IMGDEPLOYDIR}/${IMAGE_BASENAME}/verity/${SYSTEMIMAGE_GLUEBI_TARGET}/${SYSTEMIMAGE_GLUEBI_TARGET}', '${SYSTEMIMAGE_GLUEBI_TARGET}', d), 'ubifs/sysfs.ubifs', d)}"
+SYSTEM_IMAGE_UBIFS_TARGET ?= "${@bb.utils.contains('IMAGE_FEATURES', 'gluebi', bb.utils.contains('DISTRO_FEATURES', 'dm-verity', '${IMGDEPLOYDIR}/${IMAGE_BASENAME}/verity/${SYSTEMIMAGE_GLUEBI_TARGET}/${SYSTEMIMAGE_GLUEBI_TARGET}', '${SYSTEMIMAGE_GLUEBI_TARGET}', d), '${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs/sysfs.ubifs', d)}"
 USER_IMAGE_UBIFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/userfs.ubifs"
 USER_IMAGE_ROOTFS ?= "${WORKDIR}/usrfs-data"
 MODEM_UBIFS_IMAGE = "${WORKSPACE}/NON-HLOS.ubifs"
@@ -49,6 +53,8 @@ SELINUX_IMG_UBI_S = "${@['--selinux=${SELINUX_FILE_CONTEXTS}', ''][d.getVar('SEL
 SELINUX_IMG_UBI_S_DATA = "${@['--selinux=${SELINUX_FILE_CONTEXTS_DATA}', ''][d.getVar('SELINUX_FILE_CONTEXTS_DATA') == '']}"
 IMAGE_UBIFS_SELINUX_OPTIONS = "${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '${SELINUX_IMG_UBI_S}', '', d)}"
 IMAGE_UBIFS_SELINUX_OPTIONS_DATA = "${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '${SELINUX_IMG_UBI_S_DATA}', '', d)}"
+
+MKUBIFS_USERFS_ARGS ?= "-m 4096 -e 253952 -c 2146 -F"
 
 do_image_ubi[noexec] = "1"
 do_image_ubifs[noexec] = "1"
@@ -153,7 +159,7 @@ vol_id=0
 cat << EOF > ${UBINIZE_SYSTEM_CFG}
 [sysfs_a_volume]
 mode=ubi
-image="${SYSTEMIMAGE_UBIFS_TARGET}"
+image="${SYSTEM_IMAGE_UBIFS_TARGET}"
 vol_id=$vol_id
 vol_type=dynamic
 vol_name=rootfs_a
@@ -161,7 +167,7 @@ vol_size="${ROOTFS_VOLUME_SIZE}"
 
 [sysfs_b_volume]
 mode=ubi
-image="${SYSTEMIMAGE_UBIFS_TARGET}"
+image="${SYSTEM_IMAGE_UBIFS_TARGET}"
 vol_id=$((++vol_id))
 vol_type=dynamic
 vol_name=rootfs_b
@@ -263,7 +269,7 @@ EOF
 }
 
 # Squahshfs cfg
-do_create_squash_ubinize_config_ab[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}"
+do_create_squash_ubinize_config_ab[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 do_create_squash_ubinize_config_ab[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
 
 do_create_squash_ubinize_config_ab() {
@@ -467,6 +473,7 @@ do_makesystem_tele_ubi[prefuncs] += "do_create_ubinize_tele_config"
 do_makesystem_tele_ubi[prefuncs] += "create_rootfs_tele_ubifs"
 do_makesystem_tele_ubi[postfuncs] += "${@bb.utils.contains('INHERIT', 'uninative', 'do_patch_ubi_tools', '', d)}"
 do_makesystem_tele_ubi[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}"
+do_makesystem_tele_ubi[dirs] += "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs ${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 
 fakeroot do_makesystem_tele_ubi() {
    mkdir ${USER_IMAGE_ROOTFS}/cache
@@ -479,14 +486,16 @@ fakeroot do_makesystem_tele_ubi() {
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/telaf.mount.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/telaf.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/mrc-daemon.service
+   rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/rbm-daemon.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system-preset/98-mrc-daemon.preset
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/gluebi-dlkm.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/multi-user.target.wants/telaf.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/multi-user.target.wants/telaf.mount.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/etc/systemd/system/multi-user.target.wants/mrc-daemon.service
+   rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/etc/systemd/system/multi-user.target.wants/rbm-daemon.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/etc/systemd/system/multi-user.target.wants/gluebi-dlkm.service
 
-   mkfs.ubifs -r ${USER_IMAGE_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS_DATA} -o ${USER_IMAGE_UBIFS_TARGET} ${MKUBIFS_ARGS}
+   mkfs.ubifs -r ${USER_IMAGE_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS_DATA} -o ${USER_IMAGE_UBIFS_TARGET} ${MKUBIFS_USERFS_ARGS}
    if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
        if [ -d ${MODEM_IMAGE_DIR} ]; then
            mkfs.ubifs -r ${MODEM_IMAGE_DIR} --selinux=${SELINUX_CONTEXT_MODEM} -o ${MODEM_UBIFS_IMAGE} ${MKUBIFS_ARGS}
@@ -497,7 +506,7 @@ fakeroot do_makesystem_tele_ubi() {
 }
 
 do_makesystem_squashfs[prefuncs] += "do_create_squash_ubinize_config_ab"
-do_makesystem_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}"
+do_makesystem_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 
 fakeroot do_makesystem_squashfs() {
     if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then

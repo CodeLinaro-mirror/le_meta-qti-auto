@@ -12,15 +12,20 @@ PREFERRED_PROVIDER_virtual/mkdtimg-native ?= "mkdtimg-gki-native"
 PREFERRED_VERSION_linux-msm ?= "5.15"
 PREFERRED_VERSION_linux-msm-headers ?= "5.15"
 PREFERRED_VERSION_kernel-toolchain ?= "5.15"
+PREFERRED_VERSION_mod-signing-keys = "5.15"
 PREFERRED_VERSION_dtc-android-build ?= "5.15"
 PREFERRED_VERSION_mkbootimg-gki-native ?= "5.15"
 PREFERRED_VERSION_dtc-android-build-native ?= "5.15"
 PREFERRED_VERSION_mkdtimg-gki-native ?= "5.15"
-PREFERRED_VERSION:securemsmdlkm ?= "1.0"
+PREFERRED_VERSION_securemsmdlkm = "1.0"
+PREFERRED_VERSION_avbtool = "git"
+PREFERRED_VERSION_avbtool-native = "git"
 
 KERNEL_VARIANT = ""
-KERNEL_VARIANT_qti-distro-debug = "debug_"
-KERNEL_VARIANT_qti-distro-perf = "perf_"
+KERNEL_VARIANT:qti-distro-debug = "debug_"
+KERNEL_VARIANT:qti-distro-perf = "perf_"
+
+KERNEL_TYPE = "msm-kernel"
 
 PAGE_SIZE ?= '4096'
 

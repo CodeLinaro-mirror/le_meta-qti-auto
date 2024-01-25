@@ -15,4 +15,4 @@ S =  "${WORKDIR}/cv2x/security/aerolink-public/demo"
 
 DEPENDS = "aerolink-headers aerolink"
 
-FILES_${PN} += "${bindir}/*"
+FILES:${PN} += "${bindir}/*"
