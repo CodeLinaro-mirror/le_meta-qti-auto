@@ -1,4 +1,4 @@
-inherit qimage populate_sdk_qti ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'qramdisk', '', d)}
+inherit qimage qimage-tele-squashfs-ubi populate_sdk_qti dm-verity-initramfs-v4 ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'qramdisk', '', d)}
 
 MLIBPREFIX ?= ""
 
@@ -35,16 +35,16 @@ do_merge_dtbs[depends] += "virtual/kernel:do_deploy"
 
 do_copy_abl[dirs] = "${DEPLOY_DIR_IMAGE}"
 do_copy_abl() {
-    if [ -f ${KERNEL_PREBUILT_PATH}/abl_userdebug.elf ]; then
-        install -m 0644 ${KERNEL_PREBUILT_PATH}/abl_userdebug.elf ${DEPLOY_DIR_IMAGE}/${PN}/abl_userdebug.elf
+    if [ -f ${KERNEL_PREBUILT_DISTDIR}/abl_userdebug.elf ]; then
+        install -m 0644 ${KERNEL_PREBUILT_DISTDIR}/abl_userdebug.elf ${DEPLOY_DIR_IMAGE}/${PN}/abl_userdebug.elf
     fi
 }
 
-TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
+#TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
 TOOLCHAIN_TARGET_TASK += "gcc-sanitizers"
 
 TOOLCHAIN_HOST_TASK += "gcc-sanitizers"
 
 # Remove unsupported SDK packages
-TOOLCHAIN_TARGET_TASK_remove = "ath6kl-utils-staticdev"
-TOOLCHAIN_TARGET_TASK_remove = "kernel-devsrc"
+TOOLCHAIN_TARGET_TASK:remove = "ath6kl-utils-staticdev"
+TOOLCHAIN_TARGET_TASK:remove = "kernel-devsrc"

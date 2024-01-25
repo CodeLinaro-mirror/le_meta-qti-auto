@@ -16,4 +16,4 @@ S =  "${WORKDIR}/cv2x/security/aerolink-public/bin"
 DEPENDS = "aerolink-headers"
 
 FILES_SOLIBSDEV = ""
-FILES_${PN} += "${libdir}/*.so"
+FILES:${PN} += "${libdir}/*.so"

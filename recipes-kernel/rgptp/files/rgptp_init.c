@@ -281,7 +281,7 @@ static struct qmi_ops rptp_qmi_cntl_ops = {
     .del_server = rgptp_del_server,
 };
 
-static int rgptp_drv_remove(struct platform_device *pdev)
+static int rgptp_drv:remove(struct platform_device *pdev)
 {
     struct rgptp_prv_data *priv = NULL;
     priv = platform_get_drvdata(pdev);
@@ -459,7 +459,7 @@ static struct of_device_id rgptp_match[] = {
 
 static struct platform_driver rgptp_driver = {
     .probe  = rgptp_drv_probe,
-    .remove = rgptp_drv_remove,
+    .remove = rgptp_drv:remove,
     .driver = {
         .name   = "rgptp",
         .owner    = THIS_MODULE,

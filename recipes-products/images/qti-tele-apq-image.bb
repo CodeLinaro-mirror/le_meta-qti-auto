@@ -10,8 +10,8 @@ require qti-tele-image.inc
 
 # Install km-loader for selected machines
 EVDEVMODULE ?= 'False'
-EVDEVMODULE_sa515m = 'True'
-EVDEVMODULE_sa415m = 'True'
+EVDEVMODULE:sa515m = 'True'
+EVDEVMODULE:sa415m = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
@@ -51,13 +51,13 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 "
 
 # Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL_remove_sa525m = "\
+CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
        qmi-shutdown-modem modem-shutdown \
        packagegroup-qti-security-test \
 "
 
 # Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL_remove_mdm9607 = "\
+CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
        ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', 'packagegroup-qti-telsdk', '', d)} \
        subsystem-ramdump \
        qmi-shutdown-modem \

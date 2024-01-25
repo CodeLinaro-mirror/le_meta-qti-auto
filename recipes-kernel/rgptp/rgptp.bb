@@ -1,5 +1,5 @@
 DESCRIPTION = "rgptp client driver"
-LICENSE = "GPL-2.0 & BSD-3-Clause"
+LICENSE = "GPL-2.0-only & BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://rgptp_init.c;\
 startline=4;endline=11;md5=f8a4d965e4d68a4dd1340fe615be7db4 \
 file://rgptp-start-stop_le;startline=5;endline=28;md5=9af25fa7a8af3640b15d12e6d460f33b"
@@ -31,5 +31,5 @@ do_install() {
     fi
 }
 
-FILES_${PN} += "${systemd_unitdir}/system/*"
-FILES_${PN} += "${sysconfdir}/initscripts/*"
+FILES:${PN} += "${systemd_unitdir}/system/*"
+FILES:${PN} += "${sysconfdir}/initscripts/*"

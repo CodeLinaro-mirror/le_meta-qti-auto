@@ -26,7 +26,7 @@ EXTRA_OEMAKE += "${@bb.utils.contains("DISTRO_FEATURES", "systemd", " SYSTEMD_SU
 EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_AUTO_START=1', 'GPTP_AUTO_START=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_SRV_INCLUDED', 'YES', 'RGPTP_ENABLED=1', 'RGPTP_ENABLED=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_CLNT_INCLUDED', 'YES', 'RGPTP_CLNT_ENABLED=1', 'RGPTP_CLNT_ENABLED=0', d)}"
-SYSTEMD_SERVICE_${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
+SYSTEMD_SERVICE:${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
 
 do_compile() {
     oe_runmake gptp
@@ -51,7 +51,7 @@ do_install() {
     fi
 }
 
-RPROVIDES_${PN} += "open-avb"
+RPROVIDES:${PN} += "open-avb"
 FILES_SOLIBSDEV = ""
-FILES_${PN} += "${bindir}/*"
-FILES_${PN} += "${libdir}/*"
+FILES:${PN} += "${bindir}/*"
+FILES:${PN} += "${libdir}/*"

@@ -34,4 +34,4 @@ do_install() {
     fi
 }
 
-FILES_${PN} += "${systemd_unitdir}/system/*"
+FILES:${PN} += "${systemd_unitdir}/system/*"

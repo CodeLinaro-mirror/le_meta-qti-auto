@@ -1,1 +1,1 @@
-PACKAGECONFIG_remove = "dlt"
+PACKAGECONFIG:remove = "dlt"

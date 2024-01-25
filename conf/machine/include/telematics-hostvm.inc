@@ -1,4 +1,4 @@
-MACHINE_FEATURES_append = " qti-vm-host qti-virtualization"
+MACHINE_FEATURES:append = " qti-vm-host qti-virtualization"
 
 MACHINE_MNT_POINTS = " \
     /firmware \
@@ -10,7 +10,7 @@ MACHINE_MNT_POINTS = " \
     /vm_systemrw \
 "
 
-KERNEL_VARIANT_qti-distro-debug ??= "hostvm_debug_"
-KERNEL_VARIANT_qti-distro-perf ??= "hostvm_perf_"
+KERNEL_VARIANT:qti-distro-debug ??= "hostvm_debug_"
+KERNEL_VARIANT:qti-distro-perf ??= "hostvm_perf_"
 
-MACHINE_FEATURES_remove = "qti-wwan-plus-cv2x"
+MACHINE_FEATURES:remove = "qti-wwan-plus-cv2x"

@@ -1,4 +1,4 @@
-inherit qimage qramdisk qimage-vm
+inherit qimage qramdisk qimage-vm qimage-tele-squashfs-ubi
 
 DEPENDS += "virtual/kernel"
 
@@ -27,8 +27,16 @@ CORE_IMAGE_EXTRA_INSTALL += " \
     ${MLIBPREFIX}packagegroup-qti-data-vm \
 "
 
+# Following packages will be enabled later
+CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
+    ${MLIBPREFIX}packagegroup-qti-telematics \
+    ${MLIBPREFIX}packagegroup-qti-data-vm \
+"
+
+#TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
+
 # Exclude packages
 PACKAGE_EXCLUDE += "readline"
 
-ROOTFS_POSTPROCESS_COMMAND_remove = " do_fsconfig;"
+ROOTFS_POSTPROCESS_COMMAND:remove = " do_fsconfig;"
 USE_DEPMOD = "0"

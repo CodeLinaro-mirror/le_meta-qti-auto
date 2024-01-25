@@ -17,19 +17,19 @@ SRC_URI +="file://sensors.conf"
 SRC_URI +="file://hal_config"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 
-PACKAGECONFIG_append_sa515m = " shd"
-PACKAGECONFIG_append_sa415m = " shd"
-PACKAGECONFIG_append_mdm9607 = " shd"
+PACKAGECONFIG:append:sa515m = " shd"
+PACKAGECONFIG:append:sa415m = " shd"
+PACKAGECONFIG:append:mdm9607 = " shd"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \
 		--with-glib"
 
-SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
+SYSTEMD_SERVICE:${PN} = "sensor_hal_daemon.service"
 
-FILES_${PN} += "${userfsdatadir}/sensorhal"
+FILES:${PN} += "${userfsdatadir}/sensorhal"
 
-do_install_append () {
+do_install:append () {
 
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         ## Install systemd-tmpfiles config file

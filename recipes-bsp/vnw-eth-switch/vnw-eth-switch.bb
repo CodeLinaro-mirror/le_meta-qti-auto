@@ -10,7 +10,7 @@ SRC_URI = "file://vnw-eth-sw-kernel/"
 
 S = "${WORKDIR}/vnw-eth-sw-kernel/"
 
-SYSTEMD_SERVICE_${PN} += "vnw_eth_switch.service"
+SYSTEMD_SERVICE:${PN} += "vnw_eth_switch.service"
 
 do_install() {
     module_do_install

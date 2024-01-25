@@ -30,4 +30,4 @@ do_install () {
 SOLIBS = ".so*"
 FILES_SOLIBSDEV = ""
 
-FILES_${PN} += "${userfsdatadir}/*"
+FILES:${PN} += "${userfsdatadir}/*"
