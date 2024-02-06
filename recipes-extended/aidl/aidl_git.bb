@@ -15,9 +15,9 @@ DEPENDS += "bzip2-replacement-native libdivsufsort-native libmincrypt-native bis
              zlib-native libcutils-native liblog-native libbase-native libsparse-native"
 
 FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://OTA/streaming/system/tools/aidl/"
+SRC_URI = "file://system/tools/aidl/"
 
-S = "${WORKDIR}/OTA/streaming/system/tools/aidl/"
+S = "${WORKDIR}/system/tools/aidl/"
 
 BBCLASSEXTEND = "native"
 
