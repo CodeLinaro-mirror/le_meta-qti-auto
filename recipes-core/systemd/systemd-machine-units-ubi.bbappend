@@ -1,3 +1,14 @@
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+
+SRC_URI += " file://firmware-mount.service"
+SRC_URI += " file://mountpartitions.rules"
+SRC_URI += " file://systemrw.conf"
+SRC_URI += " file://firmware-ubi-mount.sh"
+SRC_URI += " file://non-hlos-squash.sh"
+SRC_URI += " file://vm-bootsys-ubi-mount.sh"
+SRC_URI += " file://vm-bootsys-mount.service"
+SRC_URI += " file://vm_systemrw.mount"
+
 do_install:append () {
     if ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'true', 'false', d)}; then
         if ${@bb.utils.contains('DISTRO_FEATURES','nand-squashfs','true','false',d)}; then
