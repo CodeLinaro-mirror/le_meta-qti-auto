@@ -395,6 +395,10 @@ IMAGE_EXT4_SELINUX_OPTIONS ?= "${@bb.utils.contains('DISTRO_FEATURES', 'selinux'
 ################################################
 ### Generate system.img #####
 ################################################
+
+MACHINE_FSCONFIG_CONF_SEARCH_PATH ?= "${@':'.join('%s/conf/machine/fsconfig' % p for p in '${BBPATH}'.split(':'))}}"
+MACHINE_FSCONFIG_CONF_FULL_PATH = "${@machine_search(d.getVar('MACHINE_FSCONFIG_CONF'), d.getVar('MACHINE_FSCONFIG_CONF_SEARCH_PATH')) or ''}"
+
 do_makesystem_gluebi() {
     # Build ext4 system image
     cp ${MACHINE_FSCONFIG_CONF_FULL_PATH} ${WORKDIR}/rootfs-fsconfig-gluebi.conf
