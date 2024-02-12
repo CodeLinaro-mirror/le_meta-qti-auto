@@ -1,4 +1,4 @@
-inherit autotools systemd pkgconfig
+inherit autotools systemd pkgconfig useradd
 
 SUMMARY = "sensor hal daemon service"
 DESCRIPTION = "This recipe compiles sensor service and configuration files"

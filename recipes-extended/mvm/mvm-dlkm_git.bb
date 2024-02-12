@@ -13,7 +13,7 @@ SRC_URI += "file://mvm.rules"
 
 S = "${WORKDIR}/vendor/qcom/opensource/mvm-kernel"
 
-inherit pkgconfig module systemd deploy qdlkm
+inherit pkgconfig systemd deploy qdlkm
 
 FILESPATH =+ "${WORKSPACE}:"
 
@@ -34,7 +34,7 @@ do_compile() {
 
 
 do_install() {
-    install -d ${D}/usr/lib/modules/
+    install -d ${D}${nonarch_base_libdir}/modules/
 
     # Copy unsigned kernel modules
     install -m 0644 ${WORKDIR}/vendor/qcom/opensource/mvm-kernel-out/mvm_dlkm.ko ${WORKDIR}/vendor/qcom/opensource/mvm-kernel-out/mvm_unsigned.ko
@@ -62,6 +62,7 @@ do_deploy() {
     fi
 }
 
-FILES:${PN} += "${libdir}/modules/*"
+FILES:${PN} += "${nonarch_base_libdir}/modules/*"
 FILES:${PN} += "${sysconfdir}/udev/rules.d/mvm.rules"
 RPROVIDES:${PN} += "mvm-dlkm"
+RPROVIDES:${PN} += "kernel-module-mvm-${KERNEL_VERSION}"
