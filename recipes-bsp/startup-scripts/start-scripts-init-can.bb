@@ -1,7 +1,7 @@
 DESCRIPTION = "Start up script for setting up the can link"
 HOMEPAGE = "http://codeaurora.org"
-LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=3775480a712fc46a69647678acb234cb"
-LICENSE = "BSD"
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD-3-Clause-Clear;md5=7a434440b651f4a472ca93716d01033a"
+LICENSE = "BSD-3-Clause-Clear"
 inherit update-rc.d systemd
 
 SRC_URI += "file://init-can.sh"
