@@ -1,4 +1,4 @@
-inherit ${@bb.utils.contains("BBFILE_COLLECTIONS", "rust-layer", "cargo", "", d)} systemd
+inherit cargo pkgconfig systemd
 
 SUMMARY  = "QCrosVM Support"
 HOMEPAGE = "https://www.codelinaro.org/"
