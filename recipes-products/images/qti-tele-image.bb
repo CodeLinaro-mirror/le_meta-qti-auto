@@ -56,7 +56,6 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
        ${MLIBPREFIX}qmi-shutdown-modem ${MLIBPREFIX}modem-shutdown \
        ${MLIBPREFIX}packagegroup-qti-security-test \
-       ${MLIBPREFIX}packagegroup-qti-telematics \
 "
 
 # Following packages will be enabled later
