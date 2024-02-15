@@ -10,6 +10,10 @@ EVDEVMODULE:sa515m = 'True'
 EVDEVMODULE:sa415m = 'True'
 EVDEVMODULE:mdm9607 = 'True'
 
+# Install coresight loading module for selected machines
+CORESIGHTDLKM ?= 'False'
+CORESIGHTDLKM:sa525m = 'True'
+
 # Install powerapp for selected machines
 POWERAPPMODULE ?= 'False'
 POWERAPPMODULE:mdm9607 = 'True'
@@ -51,6 +55,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@oe.utils.conditional('DEBUG_BUILD', '1', '${MLIBPREFIX}packagegroup-qti-debug-tools', '', d )} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'packagegroup-qti-lxc', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
+        ${@oe.utils.conditional('CORESIGHTDLKM', 'True', 'coresight-dlkm', '', d)} \
 "
 
 # Following packages will be enabled later
