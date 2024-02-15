@@ -1,0 +1,17 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+[Unit]
+Description=Load coresight dlkm
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+[Service]
+Restart=no
+RemainAfterExit=yes
+Type=oneshot
+ExecStart=/etc/initscripts/load_coresight_dlkm
+Nice=-20
+
+[Install]
+WantedBy=local-fs.target
