@@ -13,7 +13,7 @@ SRC_URI += "file://mvm.rules"
 
 S = "${WORKDIR}/vendor/qcom/opensource/mvm-kernel"
 
-inherit pkgconfig systemd deploy qdlkm
+inherit pkgconfig module systemd deploy qdlkm
 
 FILESPATH =+ "${WORKSPACE}:"
 
