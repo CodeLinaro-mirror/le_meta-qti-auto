@@ -2,18 +2,20 @@ SUMMARY = "QTI package groups for Telematics modules"
 DESCRIPTION = "Package group to bring in all basic packages for LE Telematics system"
 LICENSE = "BSD-3-Clause"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 OPENAVB ?= "False"
 OPENAVB:sa415m = "True"
 OPENAVB:sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 OPENAVB:sa515m = "True"
-OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
+#OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
 # Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
 CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
-CV2X_ITS:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'True', 'False',d)}"
+#CV2X_ITS:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'True', 'False',d)}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
