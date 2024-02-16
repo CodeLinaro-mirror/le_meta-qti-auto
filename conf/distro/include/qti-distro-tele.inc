@@ -37,9 +37,7 @@ DISTRO_FEATURES:append = " qti-adsp qti-security qti-vble qti-audio qti-earlyusb
 INHERIT += "features_check"
 
 # Include in native DISTRO_FEATURES if present in the target DISTRO_FEATURES.
-#DISTRO_FEATURES_FILTER_NATIVE += " selinux"
-
-DISTRO_FEATURES:remove = "selinux"
+DISTRO_FEATURES_FILTER_NATIVE += " selinux"
 
 # Enable system-integrity through IMA
 DISTRO_FEATURES_NATIVE:append  = " ${@bb.utils.contains_any('MACHINE', 'sa515m', 'vbleima', '', d)} "

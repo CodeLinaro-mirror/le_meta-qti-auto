@@ -20,6 +20,7 @@ PREFERRED_VERSION_mkdtimg-gki-native ?= "5.15"
 PREFERRED_VERSION_securemsmdlkm = "1.0"
 PREFERRED_VERSION_avbtool = "git"
 PREFERRED_VERSION_avbtool-native = "git"
+PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-generic"
 
 KERNEL_VARIANT = ""
 KERNEL_VARIANT:qti-distro-debug = "debug_"
