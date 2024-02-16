@@ -15,11 +15,12 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/ \
 		file://gptp-daemon.service \
 		file://gptp-daemon-tmpfilesd.conf \
-		file://qgptp_params"
+		file://qgptp_params \
+		file://qgptp.rules"
 
 S = "${WORKDIR}/external/open-avb/"
 
-GPTP_AUTO_START_ENABLE= "YES"
+GPTP_AUTO_START_ENABLE= "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'NO', 'YES', d)}"
 RGPTP_SRV_INCLUDED= "YES"
 RGPTP_CLNT_INCLUDED= "YES"
 
@@ -54,6 +55,8 @@ do_install() {
        if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
           install -d ${D}${systemd_unitdir}/system/
           install -m 0644 ${WORKDIR}/gptp-daemon.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
+          install -d ${D}${sysconfdir}/udev/rules.d/
+          install -m 0644 ${WORKDIR}/qgptp.rules -D ${D}${sysconfdir}/udev/rules.d/qgptp.rules
           install -d ${D}${sysconfdir}/tmpfiles.d/
           install -m 0644 ${WORKDIR}/gptp-daemon-tmpfilesd.conf ${D}${sysconfdir}/tmpfiles.d/gptp-daemon-tmpfilesd.conf
 	  install -m 0644 ${WORKDIR}/qgptp_params ${D}${sysconfdir}/qgptp_params
@@ -65,3 +68,5 @@ RPROVIDES_${PN} += "open-avb"
 FILES_SOLIBSDEV = ""
 FILES_${PN} += "${bindir}/*"
 FILES_${PN} += "${libdir}/*"
+FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/qgptp_params', d)}"
+FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/udev/rules.d/qgptp.rules', d)}"

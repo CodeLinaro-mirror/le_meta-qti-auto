@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="ptp0", SUBSYSTEM=="ptp", OWNER="vnw", GROUP="vnw", MODE="0660"
