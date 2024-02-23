@@ -41,9 +41,6 @@ do_copy_abl() {
 }
 
 #TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
-TOOLCHAIN_TARGET_TASK += "gcc-sanitizers"
-
-TOOLCHAIN_HOST_TASK += "gcc-sanitizers"
 
 # Remove unsupported SDK packages
 TOOLCHAIN_TARGET_TASK:remove = "ath6kl-utils-staticdev"
