@@ -22,4 +22,4 @@ S = "${WORKDIR}/system/tools/aidl/"
 BBCLASSEXTEND = "native"
 
 PACKAGES += "${PN}-bin"
-FILES_${PN}-bin += "${bindir}"
+FILES:${PN}-bin += "${bindir}"

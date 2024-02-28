@@ -11,7 +11,7 @@ ${LICENSE};md5=3771d4920bd6cdb8cbdf1e8344489ee0"
 
 DEPENDS += "stream-update-native libsparse-native unzip-native aidl-native"
 
-RDEPENDS_${PN} = "releasetools-native"
+RDEPENDS:${PN} = "releasetools-native"
 SRC_URI = "file://OTA/streaming/system/update_engine/scripts/brillo_update_payload \
             file://OTA/streaming/external/shflags/src/shflags \
             file://gen_full_stream.sh \
@@ -20,7 +20,7 @@ SRC_URI = "file://OTA/streaming/system/update_engine/scripts/brillo_update_paylo
 S = "${WORKDIR}/payload"
 
 PACKAGES += "${PN}-bin"
-FILES_${PN}-bin += "${bindir}"
+FILES:${PN}-bin += "${bindir}"
 do_configure[depends] += "stream-update-native:do_compile"
 RM_WORK_EXCLUDE += "${PN}"
 do_configure() {
