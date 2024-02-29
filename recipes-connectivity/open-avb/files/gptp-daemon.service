@@ -27,15 +27,16 @@
 
 [Unit]
 Description=gptp daemon Service
-SourcePath=/usr/bin/daemon_cl
+SourcePath=/usr/bin/qgptp
 
 [Service]
+EnvironmentFile=/etc/qgptp_params
 User=vnw
 Group=vnw
 Restart=on-failure
 ExecStartPre=+/bin/chmod 0660 /dev/ptp0
 ExecStartPre=+/bin/chown vnw:vnw /dev/ptp0
-ExecStart=/usr/bin/daemon_cl eth0
+ExecStart=/usr/bin/qgptp eth0 ${GPTP_OPTION1} ${GPTP_OPTION2} ${GPTP_OPTION3} ${GPTP_OPTION4} ${GPTP_OPTION5}
 SupplementaryGroups=net_admin net_raw
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW

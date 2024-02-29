@@ -14,11 +14,12 @@ DEPENDS += "glib-2.0 libpcap pciutils cmake-native qmi-framework"
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/ \
 		file://gptp-daemon.service \
-		file://gptp-daemon-tmpfilesd.conf"
+		file://gptp-daemon-tmpfilesd.conf \
+		file://qgptp_params"
 
 S = "${WORKDIR}/external/open-avb/"
 
-GPTP_AUTO_START_ENABLE= "NO"
+GPTP_AUTO_START_ENABLE= "YES"
 RGPTP_SRV_INCLUDED= "YES"
 RGPTP_CLNT_INCLUDED= "YES"
 
@@ -47,6 +48,7 @@ do_install() {
           install -m 0644 ${WORKDIR}/gptp-daemon.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
           install -d ${D}${sysconfdir}/tmpfiles.d/
           install -m 0644 ${WORKDIR}/gptp-daemon-tmpfilesd.conf ${D}${sysconfdir}/tmpfiles.d/gptp-daemon-tmpfilesd.conf
+	  install -m 0644 ${WORKDIR}/qgptp_params ${D}${sysconfdir}/qgptp_params
        fi
     fi
 }
