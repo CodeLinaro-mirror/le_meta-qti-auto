@@ -10,10 +10,9 @@ OPENAVB ?= "False"
 OPENAVB:sa415m = "True"
 OPENAVB:sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 OPENAVB:sa515m = "True"
-#OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
+OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
 PTPVIRT ?=  "False"
-PTPVIRT:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
-#OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
+PTPVIRT:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-vm-tele', 'True', 'False',d)}"
 
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
 # Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
