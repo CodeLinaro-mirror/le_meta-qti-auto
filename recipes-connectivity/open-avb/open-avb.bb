@@ -1,4 +1,4 @@
-inherit systemd
+inherit systemd pkgconfig
 
 SUMMARY = "GPTP"
 DESCRIPTION = "Time Sensitive Networking stack Time Sync"
@@ -27,6 +27,8 @@ EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_SRV_INCLUDED', 'YES', 'RGPTP_ENABLED=1', 'RGPTP_ENABLED=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_CLNT_INCLUDED', 'YES', 'RGPTP_CLNT_ENABLED=1', 'RGPTP_CLNT_ENABLED=0', d)}"
 SYSTEMD_SERVICE:${PN} = "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'gptp-daemon.service', '', d)}"
+
+TARGET_CC_ARCH += "${LDFLAGS}"
 
 do_compile() {
     oe_runmake gptp
