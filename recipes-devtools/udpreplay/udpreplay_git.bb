@@ -1,4 +1,4 @@
-inherit cmake
+inherit cmake pkgconfig
 
 DESCRIPTION = "UDPReplay Software"
 
