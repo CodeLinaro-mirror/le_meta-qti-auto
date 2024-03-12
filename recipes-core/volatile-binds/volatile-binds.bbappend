@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend:sa525m := "${THISDIR}/files:"
 
-VOLATILE_BINDS_sa525m = "\
+VOLATILE_BINDS:sa525m = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
 /systemrw/data /etc/data/\n\
 /systemrw/data/adpl /etc/data/adpl/\n\
@@ -16,7 +16,7 @@ VOLATILE_BINDS_sa525m = "\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
 "
 
-VOLATILE_BINDS_sa525m-televm = "\
+VOLATILE_BINDS:sa525m-televm = "\
 /systemrw/enable /etc/cv2x/enable\n\
 /systemrw/data /etc/data/\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
@@ -24,7 +24,7 @@ VOLATILE_BINDS_sa525m-televm = "\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 "
 
-VOLATILE_BINDS_sa525m-fotavm = "\
+VOLATILE_BINDS:sa525m-fotavm = "\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 "
