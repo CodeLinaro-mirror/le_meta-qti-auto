@@ -35,6 +35,7 @@ mkdir $PWD/destn/
 unzip -o -q $1 -d $PWD/destn/
 cp -rf destn/BOOTABLE_IMAGES/boot.img destn/IMAGES/
 cd destn
+mv IMAGES/system.img IMAGES/rootfs.img
 zip -r target.zip BOOT/ BOOTABLE_IMAGES/ DATA/ IMAGES/ META/ OTA/ RADIO/ RECOVERY/ SYSTEM/
 mv target.zip ../
 cd SYSTEM
