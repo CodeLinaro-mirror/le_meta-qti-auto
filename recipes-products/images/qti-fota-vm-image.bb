@@ -30,7 +30,7 @@ CORE_IMAGE_EXTRA_INSTALL += " \
 #TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
 
 # Exclude packages
-PACKAGE_EXCLUDE += "readline"
+PACKAGE_EXCLUDE += "readline kernel-dev"
 
 ROOTFS_POSTPROCESS_COMMAND:remove = " do_fsconfig;"
 USE_DEPMOD = "0"
