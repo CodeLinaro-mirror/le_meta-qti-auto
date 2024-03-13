@@ -45,3 +45,6 @@ do_copy_abl() {
 # Remove unsupported SDK packages
 TOOLCHAIN_TARGET_TASK:remove = "ath6kl-utils-staticdev"
 TOOLCHAIN_TARGET_TASK:remove = "kernel-devsrc"
+
+# Exclude packages
+PACKAGE_EXCLUDE += "kernel-dev"
