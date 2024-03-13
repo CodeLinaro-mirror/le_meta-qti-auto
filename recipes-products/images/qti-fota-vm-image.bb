@@ -27,11 +27,6 @@ CORE_IMAGE_EXTRA_INSTALL += " \
     ${MLIBPREFIX}packagegroup-qti-data-vm \
 "
 
-# Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
-    ${MLIBPREFIX}packagegroup-qti-data-vm \
-"
-
 #TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
 
 # Exclude packages
