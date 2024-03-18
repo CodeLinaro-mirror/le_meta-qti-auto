@@ -43,6 +43,6 @@ DISTRO_FEATURES_FILTER_NATIVE += " selinux"
 DISTRO_FEATURES_NATIVE:append  = " ${@bb.utils.contains_any('MACHINE', 'sa515m', 'vbleima', '', d)} "
 
 # Set selinux in enforcing state by default
-DEFAULT_ENFORCING = "permissive"
+DEFAULT_ENFORCING ?= "enforcing"
 
 PREFERRED_VERSION_chrony = "3.5"
