@@ -14,12 +14,17 @@ ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 DEPENDS += "bzip2-replacement-native libdivsufsort-native libmincrypt-native bison-native flex-native glib-2.0-native \
              zlib-native libcutils-native liblog-native libbase-native libsparse-native"
 
-FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://system/tools/aidl/"
+DEPENDS_class-native += "aidl-lib-native"
 
-S = "${WORKDIR}/system/tools/aidl/"
+FILESPATH =+ "${WORKSPACE}:"
+SRC_URI = "file://system/tools/aidl/src/"
+
+S = "${WORKDIR}/system/tools/aidl/src/"
 
 BBCLASSEXTEND = "native"
+
+RM_WORK_EXCLUDE += "${PN}"
+
 
 PACKAGES += "${PN}-bin"
 FILES_${PN}-bin += "${bindir}"
