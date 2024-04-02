@@ -18,5 +18,6 @@ S = "${WORKDIR}/OTA/streaming/external/libbrillo/"
 BBCLASSEXTEND = "native"
 
 EXTRA_OECONF_append = " ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'TARGET_NAND_BOOT=true', '', d)}"
+EXTRA_OECONF_append = " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'TELAF=true', '', d)}"
 
 inherit autotools pkgconfig
