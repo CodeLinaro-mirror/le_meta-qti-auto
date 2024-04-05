@@ -8,7 +8,9 @@ OPENAVB ?= "False"
 OPENAVB_sa415m = "True"
 OPENAVB_sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 OPENAVB_sa515m = "True"
-OPENAVB_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
+OPENAVB_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
+PTPVIRT ?=  "False"
+PTPVIRT_sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-vm-tele', 'True', 'False',d)}"
 
 SENSORIDL ?= "False"
 SENSORIDL_sa525m = "True"
@@ -58,6 +60,7 @@ RDEPENDS_packagegroup-qti-telematics-utils = "\
 
 RDEPENDS_packagegroup-qti-telematics-vnw = "\
     ${@oe.utils.conditional('OPENAVB', 'True', 'open-avb', '', d)} \
+    ${@oe.utils.conditional('PTPVIRT', 'True', 'ptp-virtual', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'start-scripts-init-can can-utils', d)} \
     ${@bb.utils.contains('MACHINE', 'sa515m', 'vnw-eth-switch', '', d)} \
     "
