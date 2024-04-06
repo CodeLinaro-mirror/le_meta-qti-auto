@@ -14,6 +14,7 @@ ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 DEPENDS += "bzip2-replacement-native libdivsufsort-native libmincrypt-native bison-native flex-native glib-2.0-native \
              zlib-native libcutils-native liblog-native libbase-native libsparse-native"
 
+EXTRA_OECONF:append = "BISON=true"
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://system/tools/aidl/"
 
