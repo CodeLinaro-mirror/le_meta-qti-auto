@@ -8,7 +8,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-DEPENDS = "glib-2.0 libmincrypt-native fsmgr oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper boringssl binderstreaming libevent libchrome protobuf-native aidl-native telaf-flash-access nad-ab-al"
+DEPENDS = "glib-2.0 libmincrypt-native fsmgr oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper openssl binderstreaming libevent libchrome protobuf-native aidl-native nad-mtd-al nad-ubi-al nad-ab-al"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'abctl', '', d)}"
 DEPENDS:class-native = "glib-2.0-native libmincrypt-native fsmgr-native libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper openssl binderstreaming-native libevent libchrome protobuf-native aidl-native"
 PR = "r0"
