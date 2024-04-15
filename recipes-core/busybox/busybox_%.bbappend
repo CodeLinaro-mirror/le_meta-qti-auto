@@ -6,6 +6,10 @@ SRC_URI += "\
             file://core_opts.cfg \
             file://debug_opts.cfg \
             file://applets_opts.cfg \
+            file://common_opts.cfg \
+            file://load_set_font.cfg \
+            file://debian_utils_opts.cfg \
+            file://fs_opts.cfg \
 "
 
 do_install_append() {
