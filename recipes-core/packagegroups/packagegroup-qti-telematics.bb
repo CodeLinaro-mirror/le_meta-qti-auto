@@ -63,7 +63,7 @@ RDEPENDS:packagegroup-qti-telematics-mvm = "\
     mvm-dlkm \
     "
 
-RDEPENDS_packagegroup-qti-telematics-nad-core = "\
+RDEPENDS:packagegroup-qti-telematics-nad-core = "\
     stream-update \
     "
 
