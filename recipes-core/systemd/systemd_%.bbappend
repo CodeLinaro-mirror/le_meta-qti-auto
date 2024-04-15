@@ -15,6 +15,8 @@ SRC_URI:append += " \
     file://platform.rules \
 "
 
+SRC_URI:append:sa525m = " file://001-remove_tmpfs_limits.patch"
+
 PACKAGECONFIG:remove = " \
     acl \
     binfmt \
