@@ -25,7 +25,7 @@ RGPTP_SRV_INCLUDED= "YES"
 RGPTP_CLNT_INCLUDED= "YES"
 
 EXTRA_OEMAKE += "${@bb.utils.contains("DISTRO_FEATURES", "systemd", " SYSTEMD_SUPPORT_INCLUDED=1", " SYSTEMD_SUPPORT_INCLUDED=0", d)}"
-EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', 'LE_SHARED_MEM=0', 'LE_SHARED_MEM=1', d)}"
+EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-host', 'LE_SHARED_MEM=1', 'LE_SHARED_MEM=0', d)}"
 EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', 'LE_GVM=1', 'LE_GVM=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('GPTP_AUTO_START_ENABLE', 'YES', 'GPTP_AUTO_START=1', 'GPTP_AUTO_START=0', d)}"
 EXTRA_OEMAKE += "${@oe.utils.conditional('RGPTP_SRV_INCLUDED', 'YES', 'RGPTP_ENABLED=1', 'RGPTP_ENABLED=0', d)}"

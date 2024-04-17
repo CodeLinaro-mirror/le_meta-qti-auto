@@ -10,7 +10,10 @@ OPENAVB_sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'Fals
 OPENAVB_sa515m = "True"
 OPENAVB_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
 PTPVIRT ?=  "False"
-PTPVIRT_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
+PTPVIRT_sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-vm-tele', 'True', 'False',d)}"
+
+SENSORIDL ?= "False"
+SENSORIDL_sa525m = "True"
 
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
 # Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
@@ -34,6 +37,7 @@ RDEPENDS_packagegroup-qti-telematics = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', '${MLPREFIX}packagegroup-qti-telematics-sensors', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', '${MLPREFIX}packagegroup-qti-telematics-mvm', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'vbleima', 'keyutils ima-evm-utils attr ima-cert-setup', '',d)} \
+    ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'packagegroup-qti-telematics-nad-core', '', d)} \
     "
 
 RDEPENDS_packagegroup-qti-telematics-cv2x = "\
@@ -46,7 +50,9 @@ RDEPENDS_packagegroup-qti-telematics-cv2x-its = "\
 
 RDEPENDS_packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
-    libsensors sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp sensors-test"
+    libsensors sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
+    "
 
 RDEPENDS_packagegroup-qti-telematics-utils = "\
     ${@oe.utils.conditional('CV2X_ITS', 'True', 'udpreplay', '', d)} \
@@ -62,3 +68,8 @@ RDEPENDS_packagegroup-qti-telematics-vnw = "\
 RDEPENDS_packagegroup-qti-telematics-mvm = "\
     mvm-dlkm \
     "
+
+RDEPENDS_packagegroup-qti-telematics-nad-core = "\
+    stream-update \
+    "
+
