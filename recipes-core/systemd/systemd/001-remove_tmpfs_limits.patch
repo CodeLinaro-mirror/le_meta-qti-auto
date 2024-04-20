@@ -1,0 +1,50 @@
+From 12eb9d83d1e52c4167a7118f32d5252283d4bfc0 Mon Sep 17 00:00:00 2001
+From: mohit pal singh <quic_mohitpal@quicinc.com>
+Date: Thu, 18 Apr 2024 10:40:30 -0700
+Subject: [PATCH] Size and nr_inode have increased in Krkstone as listed below,
+ setting them to default.
+
+tmpfs on /etc/machine-id type tmpfs (ro,seclabel,size=19696k,nr_inodes=819200,mode=755)
+tmpfs on /run type tmpfs (rw,nosuid,nodev,seclabel,size=19696k,nr_inodes=819200,mode=755)
+devtmpfs on /dev type devtmpfs (rw,nosuid,seclabel,size=4096k,nr_inodes=1048576,mode=755)
+---
+ src/shared/mount-util.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/shared/mount-util.h b/src/shared/mount-util.h
+index ce73aebd4b..449099e981 100644
+--- a/src/shared/mount-util.h
++++ b/src/shared/mount-util.h
+@@ -13,25 +13,25 @@
+ 
+ /* 4MB for contents of regular files, 1m inodes for directories, symbolic links and device nodes, using
+  * large storage array systems as a baseline */
+-#define TMPFS_LIMITS_DEV             ",size=4m,nr_inodes=1m"
++#define TMPFS_LIMITS_DEV             ""
+ 
+ /* Very little, if any use expected */
+-#define TMPFS_LIMITS_EMPTY_OR_ALMOST ",size=4m,nr_inodes=1k"
++#define TMPFS_LIMITS_EMPTY_OR_ALMOST ""
+ #define TMPFS_LIMITS_SYS             TMPFS_LIMITS_EMPTY_OR_ALMOST
+ #define TMPFS_LIMITS_SYS_FS_CGROUP   TMPFS_LIMITS_EMPTY_OR_ALMOST
+ 
+ /* On an extremely small device with only 256MB of RAM, 20% of RAM should be enough for the re-execution of
+  * PID1 because 16MB of free space is required. */
+-#define TMPFS_LIMITS_RUN             ",size=20%,nr_inodes=800k"
++#define TMPFS_LIMITS_RUN             ""
+ 
+ /* The limit used for various nested tmpfs mounts, in particular for guests started by systemd-nspawn.
+  * 10% of RAM (using 16GB of RAM as a baseline) translates to 400k inodes (assuming 4k each) and 25%
+  * translates to 1M inodes.
+  * (On the host, /tmp is configured through a .mount unit file.) */
+-#define NESTED_TMPFS_LIMITS          ",size=10%,nr_inodes=400k"
++#define NESTED_TMPFS_LIMITS          ""
+ 
+ /* More space for volatile root and /var */
+-#define TMPFS_LIMITS_VAR             ",size=25%,nr_inodes=1m"
++#define TMPFS_LIMITS_VAR             ""
+ #define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
+ #define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
+
+--
+2.17.1
