@@ -1,6 +1,6 @@
 SUMMARY = "implement the Precision Time Protocol(ptp) virtual driver"
 DESCRIPTION = "Precision Time Protocol(ptp) virtual driver leverage the share memory machanism to sync the gptp timestamp between Host and GVM"
-LICENSE = "GPL-2.0"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/${LICENSE};md5=801f80980d171dd6425610833a22dbe6"
 DEPENDS = "virtual/kernel"
 
@@ -41,5 +41,6 @@ do_install() {
     install -m 0644 ${S}/ptp_dlkm.service -D ${D}${systemd_unitdir}/system/ptp_dlkm.service
 }
 
-FILES:${PN} += "${libdir}/modules/*"
+FILES:${PN} += "/usr/lib/"
+FILES:${PN} += "${systemd_unitdir}/"
 RPROVIDES:${PN} += "ptp-dlkm"
