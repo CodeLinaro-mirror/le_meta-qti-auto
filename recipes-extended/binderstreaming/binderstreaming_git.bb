@@ -22,14 +22,14 @@ EXTRA_OECONF += " --with-glib"
 # multilib compilation is enabled. If kernel is 64bit and binder is compiled
 # for 32bit due to multilib settings default 64bit IPC need to be supported
 # as kernel is 64bit. Only when kernel is 32bit, 32bit IPC need to be enabled.
-EXTRA_OECONF_append_arm = " \
+EXTRA_OECONF:append:arm = " \
     ${@bb.utils.contains('MULTILIB_VARIANTS', 'lib32','','--enable-32bit-binder-ipc',d)} \
 "
 
 BBCLASSEXTEND = "native"
 
 # sdmsteppe uses 64bit IPC though userspace is 32bit.
-EXTRA_OECONF_remove_sdmsteppe = "--enable-32bit-binder-ipc"
+EXTRA_OECONF:remove:sdmsteppe = "--enable-32bit-binder-ipc"
 
-FILES_${PN} += "${systemd_unitdir}/system/"
+FILES:${PN} += "${systemd_unitdir}/system/"
 inherit autotools pkgconfig useradd

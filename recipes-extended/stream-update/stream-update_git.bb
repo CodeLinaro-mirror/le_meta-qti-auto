@@ -10,22 +10,22 @@ ${LICENSE};md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 DEPENDS = "glib-2.0 libmincrypt-native fsmgr oem-recovery libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper openssl binderstreaming libevent libchrome protobuf-native aidl-native telaf-flash-access nad-ab-al"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'abctl', '', d)}"
-DEPENDS_class-native = "glib-2.0-native libmincrypt-native fsmgr-native libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper openssl binderstreaming-native libevent libchrome protobuf-native aidl-native"
+DEPENDS:class-native = "glib-2.0-native libmincrypt-native fsmgr-native libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper openssl binderstreaming-native libevent libchrome protobuf-native aidl-native"
 PR = "r0"
 SRC_URI = "file://OTA/streaming/system/update_engine/ \
            file://stream-update.service \
           "
 S = "${WORKDIR}/OTA/streaming/system/update_engine/"
-SYSTEMD_SERVICE_${PN} = "stream-update.service"
+SYSTEMD_SERVICE:${PN} = "stream-update.service"
 
 inherit autotools-brokensep pkgconfig systemd useradd
 
-EXTRA_OECONF_append = " --with-glib"
-EXTRA_OECONF_append = " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', 'TARGET_SUPPORTS_AB=true', '', d)}"
-EXTRA_OECONF_append = " ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'TARGET_NAND_BOOT=true', '', d)}"
+EXTRA_OECONF:append = " --with-glib"
+EXTRA_OECONF:append = " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', 'TARGET_SUPPORTS_AB=true', '', d)}"
+EXTRA_OECONF:append = " ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'TARGET_NAND_BOOT=true', '', d)}"
 
-FILES_${PN} += "/${userfsdatadir}"
-do_compile_prepend () {
+FILES:${PN} += "/${userfsdatadir}"
+do_compile:prepend () {
    echo "Running interface generation"
    ${S}/update_metadata_proto.sh
    ${S}/update_aidl_interface.sh
@@ -33,7 +33,7 @@ do_compile_prepend () {
 
 BBCLASSEXTEND = "native"
 
-do_install_append_class-target() {
+do_install:append:class-target() {
    install -d ${D}${userfsdatadir}
    install -m 0755 ${S}/update_engine_sideload -D ${D}/usr/bin/update_engine_sideload
    install -d ${D}${sysconfdir}/initscripts/
@@ -43,4 +43,4 @@ do_install_append_class-target() {
    install -m 0755 -o system -g system -d ${D}${userfsdatadir}/stream_update/
 }
 FILESPATH =+ "${WORKSPACE}:"
-FILES_${PN} += "${systemd_unitdir}/system/* ${userfsdatadir}/stream_update/*"
+FILES:${PN} += "${systemd_unitdir}/system/* ${userfsdatadir}/stream_update/*"

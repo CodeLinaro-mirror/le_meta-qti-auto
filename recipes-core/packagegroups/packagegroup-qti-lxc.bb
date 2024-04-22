@@ -9,6 +9,6 @@ PACKAGES = ' \
     packagegroup-qti-lxc \
 '
 
-RDEPENDS_packagegroup-qti-lxc = "\
+RDEPENDS:packagegroup-qti-lxc = "\
     lxc \
 "

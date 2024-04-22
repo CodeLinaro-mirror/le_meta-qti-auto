@@ -19,8 +19,8 @@ do_install() {
 
 }
 
-FILES_${PN} += "${sysconfdir}/*"
-FILES_${PN} += "/proc"
-FILES_${PN} += "/sys"
-FILES_${PN} += "/tmp"
-FILES_${PN} += "/dev"
+FILES:${PN} += "${sysconfdir}/*"
+FILES:${PN} += "/proc"
+FILES:${PN} += "/sys"
+FILES:${PN} += "/tmp"
+FILES:${PN} += "/dev"

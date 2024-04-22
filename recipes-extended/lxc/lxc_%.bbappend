@@ -1,5 +1,5 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-SRC_URI_append += " \
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+SRC_URI:append += " \
                     file://lxc_networking.conf  \
                     file://qti-lxc-common.conf  \
                     file://lxc_launch.service   \
@@ -8,17 +8,17 @@ SRC_URI_append += " \
                     file://seccom_attach_unsupported_fix.patch \
                     "
 
-FILES_${PN}-configs = " \
+FILES:${PN}-configs = " \
                     ${S}/lxc_networking.conf \
                     ${S}/qti-lxc-common.conf"
 
-FILES_${PN}-service = " \
+FILES:${PN}-service = " \
                     ${S}/lxc_launch.service"
 
-FILES_${PN}-initscript = " \
+FILES:${PN}-initscript = " \
                     ${S}/lxc_launch.sh"
 
-do_install_append() {
+do_install:append() {
 
 
    install -m 0644  -d ${D}${sysconfdir}/initscripts
@@ -48,9 +48,9 @@ do_install_append() {
    install -m 0744 ${WORKDIR}/lxc_system.conf ${D}${sysconfdir}/lxc/lxc.conf
 
 }
-FILES_${PN} += "${systemd_unitdir}/system/*"
-FILES_${PN} += "${sysconfdir}/initscripts/*"
-FILES_${PN} += "${sysconfdir}/lxc/*"
-FILES_${PN} += "${userfsdatadir}/lxc_rw"
+FILES:${PN} += "${systemd_unitdir}/system/*"
+FILES:${PN} += "${sysconfdir}/initscripts/*"
+FILES:${PN} += "${sysconfdir}/lxc/*"
+FILES:${PN} += "${userfsdatadir}/lxc_rw"
 
-SYSTEMD_AUTO_ENABLE_${PN} = "disable"
+SYSTEMD_AUTO_ENABLE:${PN} = "disable"

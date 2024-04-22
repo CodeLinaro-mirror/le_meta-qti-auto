@@ -11,7 +11,7 @@ PACKAGES = ' \
     packagegroup-qti-lxc-con \
     '
 
-RDEPENDS_packagegroup-qti-lxc-con = " \
+RDEPENDS:packagegroup-qti-lxc-con = " \
             busybox-init  \
             lxc-con-setup  \
             libssl \

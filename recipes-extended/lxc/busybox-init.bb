@@ -5,7 +5,7 @@ S = "${WORKDIR}/busybox-${PV}"
 
 BUSYBOXBASEDIR = "${COREBASE}/meta/recipes-core/busybox"
 
-FILESEXTRAPATHS_prepend := "${BUSYBOXBASEDIR}/busybox:${BUSYBOXBASEDIR}/files:"
+FILESEXTRAPATHS:prepend := "${BUSYBOXBASEDIR}/busybox:${BUSYBOXBASEDIR}/files:"
 
 SRC_URI += "file://busybox-init.cfg"
 

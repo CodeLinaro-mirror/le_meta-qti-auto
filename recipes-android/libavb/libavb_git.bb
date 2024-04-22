@@ -14,4 +14,4 @@ SRC_URI = "file://external/avb/"
 S = "${WORKDIR}/external/avb/"
 
 EXTRA_OECONF += " --disable-static"
-FILES_${PN} = "${libdir}/libavb.so.*"
+FILES:${PN} = "${libdir}/libavb.so.*"

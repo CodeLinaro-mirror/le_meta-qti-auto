@@ -14,7 +14,7 @@ inherit pkgconfig module systemd
 
 FILESPATH =+ "${WORKSPACE}:"
 
-SYSTEMD_SERVICE_${PN} += "ptp_dlkm.service"
+SYSTEMD_SERVICE:${PN} += "ptp_dlkm.service"
 do_compile() {
 
     cd ${WORKSPACE}/kernel-${PREFERRED_VERSION_linux-msm}/kernel_platform  && \
@@ -41,5 +41,5 @@ do_install() {
     install -m 0644 ${S}/ptp_dlkm.service -D ${D}${systemd_unitdir}/system/ptp_dlkm.service
 }
 
-FILES_${PN} += "${libdir}/modules/*"
-RPROVIDES_${PN} += "ptp-dlkm"
+FILES:${PN} += "${libdir}/modules/*"
+RPROVIDES:${PN} += "ptp-dlkm"

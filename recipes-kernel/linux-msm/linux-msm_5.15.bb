@@ -38,7 +38,7 @@ get_cc_option () {
 }
 
 DEPENDS += " virtual/mkbootimg-native openssl-native mod-signing-keys"
-RDEPENDS_${KERNEL_PACKAGE_NAME}-base = ""
+RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""
 
 LDFLAGS_:aarch64 = "-O1 --hash-style=gnu --as-needed"
 
