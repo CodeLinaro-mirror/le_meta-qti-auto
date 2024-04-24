@@ -14,6 +14,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/enable /etc/cv2x/enable\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
+/systemrw/wpa_supplicant.conf  /etc/misc/wifi/wpa_supplicant.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
