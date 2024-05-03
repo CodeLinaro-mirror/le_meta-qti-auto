@@ -26,6 +26,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         coreutils \
         packagegroup-android-utils \
         packagegroup-qti-core \
+        packagegroup-qti-ppat \
         ${@bb.utils.contains('MACHINE_FEATURES', 'android-binder', 'binder', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-data-modem', 'packagegroup-qti-data', '', d)} \
         ${@bb.utils.contains_any('COMBINED_FEATURES', 'qti-adsp qti-cdsp qti-modem qti-slpi', 'packagegroup-qti-dsp', '', d)} \
