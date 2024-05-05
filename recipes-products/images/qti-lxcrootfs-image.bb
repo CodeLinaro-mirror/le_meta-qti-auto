@@ -22,7 +22,7 @@ CORE_IMAGE_BASE_INSTALL = '\
      '
 
 CORE_IMAGE_EXTRA_INSTALL = "\
-     packagegroup-qti-lxc-con \
+     ${MLIBPREFIX}packagegroup-qti-lxc-con \
 "
 # Use busybox as login manager
 IMAGE_LOGIN_MANAGER = "busybox-static"

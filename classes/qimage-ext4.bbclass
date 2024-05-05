@@ -20,7 +20,7 @@ QIMGEXT4CLASSES += "${@bb.utils.contains('MNT_POINTS', '/lib/modules', 'qimage-v
 
 inherit ${QIMGEXT4CLASSES}
 
-CORE_IMAGE_EXTRA_INSTALL += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', ' recovery-ab', '', d)}"
+CORE_IMAGE_EXTRA_INSTALL += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', ' ${MLIBPREFIX}recovery-ab', '', d)}"
 
 CORE_IMAGE_EXTRA_INSTALL += "systemd-machine-units-ext4"
 
