@@ -10,11 +10,12 @@ SRC_URI:append += " \
     file://postmss.service \
     file://postmss \
     file://sensor_bootup_iio.sh \
+    ${@bb.utils.contains('MACHINE', 'sa525m', 'file://ddr_min_freq_change.service', '', d)} \
+    ${@bb.utils.contains('MACHINE', 'sa525m', 'file://ddr_min_freq_change.sh', '', d)} \
     file://${BASEMACHINE}/ \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'file://mtd.rules', '',d)} \
     file://platform.rules \
 "
-
 SRC_URI:append:sa525m = " file://001-remove_tmpfs_limits.patch"
 
 PACKAGECONFIG:remove = " \
@@ -40,6 +41,7 @@ do_install:append() {
         #Install service files and scripts
         install -d ${D}${sysconfdir}/initscripts/
         install -d ${D}${systemd_unitdir}/system/basic.target.wants/
+        install -d ${D}${systemd_unitdir}/system/shutdown.target.wants/
 
         if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'false', 'true', d)}; then
             install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
@@ -60,6 +62,24 @@ do_install:append() {
         else
             install -m 0755 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         fi
+
+        #Install DDR frequency change script for sa525
+        if ${@bb.utils.contains('MACHINE', 'sa525m', 'true', 'false', d)}; then
+            if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'false', 'true', d)}; then
+                # Place script script in initscripts dir
+	        install -m 0755 ${WORKDIR}/ddr_min_freq_change.sh \
+                        ${D}${sysconfdir}/initscripts/ddr_min_freq_change.sh
+
+		# Place service file in systemd unitdir
+                install -d ${D}${systemd_unitdir}/system/
+                install -m 0644 ${WORKDIR}/ddr_min_freq_change.service  \
+                        -D ${D}${systemd_unitdir}/system/ddr_min_freq_change.service
+                ln -sf ${systemd_unitdir}/system/ddr_min_freq_change.service \
+                    ${D}${systemd_unitdir}/system/shutdown.target.wants/ddr_min_freq_change.service
+
+            fi
+        fi
+
     fi
 }
 
