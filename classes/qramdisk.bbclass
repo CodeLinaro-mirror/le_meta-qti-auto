@@ -165,7 +165,7 @@ fakeroot do_ramdisk_create() {
             if [[ "${TOYBOX_RAMDISK}" == "True" ]]; then
                 cp ${COREBASE}/meta-qti-bsp/recipes-products/images/include/vmrd-init-toybox vmrd-init
             else
-                cp ${COREBASE}/meta-qti-bsp/recipes-products/images/include/vmrd-init .
+                cp ${COREBASE}/meta-qti-auto/recipes-products/images/include/vmrd-init .
             fi
             chmod 744 vmrd-init
             ln -s vmrd-init init
