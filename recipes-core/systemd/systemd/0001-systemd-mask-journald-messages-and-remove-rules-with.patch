@@ -1,6 +1,6 @@
-From b9e2ad0299bf7249ef132d980161ac64ac1bf444 Mon Sep 17 00:00:00 2001
-From: Abinaya P <abinayap@codeaurora.org>
-Date: Wed, 7 Jul 2021 21:39:54 +0530
+From c4fa921171868d29757739e0fafa4bd94536e294 Mon Sep 17 00:00:00 2001
+From: mnesarka <quic_mnesarka@quicinc.com>
+Date: Fri, 8 Mar 2024 11:27:42 +0530
 Subject: [PATCH] systemd: mask journald messages and remove rules with render
 
 Mask the error messages from journald and also remove the udev
@@ -10,34 +10,35 @@ exist in the build.
 Signed-off-by: Abinaya P <abinayap@codeaurora.org>
 ---
  rules.d/50-udev-default.rules.in | 2 --
- src/core/execute.c               | 1 -
- 2 files changed, 3 deletions(-)
+ src/core/execute.c               | 2 --
+ 2 files changed, 4 deletions(-)
 
 diff --git a/rules.d/50-udev-default.rules.in b/rules.d/50-udev-default.rules.in
-index 50747a1..da1af12 100644
+index 8fae58f115..7b745a354a 100644
 --- a/rules.d/50-udev-default.rules.in
 +++ b/rules.d/50-udev-default.rules.in
-@@ -36,8 +36,6 @@ SUBSYSTEM=="dvb", GROUP="video"
+@@ -37,8 +37,6 @@ SUBSYSTEM=="dvb", GROUP="video"
  SUBSYSTEM=="media", GROUP="video"
  SUBSYSTEM=="cec", GROUP="video"
  
--SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="render", MODE="@GROUP_RENDER_MODE@"
--SUBSYSTEM=="kfd", GROUP="render", MODE="@GROUP_RENDER_MODE@"
+-SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="render", MODE="{{GROUP_RENDER_MODE}}"
+-SUBSYSTEM=="kfd", GROUP="render", MODE="{{GROUP_RENDER_MODE}}"
  
- # When using static_node= with non-default permissions, also update
- # tmpfiles.d/static-nodes-permissions.conf.in to keep permissions synchronized.
+ SUBSYSTEM=="misc", KERNEL=="sgx_enclave", GROUP="sgx", MODE="0660"
+ SUBSYSTEM=="misc", KERNEL=="sgx_vepc", GROUP="sgx", MODE="0660"
 diff --git a/src/core/execute.c b/src/core/execute.c
-index abc164f..6c32b56 100644
+index 0b20d386d3..3fa3dcc07b 100644
 --- a/src/core/execute.c
 +++ b/src/core/execute.c
-@@ -660,7 +660,6 @@ static int setup_output(
+@@ -681,8 +681,6 @@ static int setup_output(
          case EXEC_OUTPUT_JOURNAL_AND_CONSOLE:
                  r = connect_logger_as(unit, context, params, o, ident, fileno, uid, gid);
                  if (r < 0) {
--                        log_unit_warning_errno(unit, r, "Failed to connect %s to the journal socket, ignoring: %m", fileno == STDOUT_FILENO ? "stdout" : "stderr");
+-                        log_unit_warning_errno(unit, r, "Failed to connect %s to the journal socket, ignoring: %m",
+-                                               fileno == STDOUT_FILENO ? "stdout" : "stderr");
                          r = open_null_as(O_WRONLY, fileno);
                  } else {
                          struct stat st;
 -- 
-2.7.4
+2.17.1
 
