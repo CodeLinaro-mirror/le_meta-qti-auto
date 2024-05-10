@@ -46,7 +46,7 @@ Environment="VSOMEIP_CONFIGURATION=/usr/etc/vsomeip/SensorInterface/vsomeip-sens
 ExecStartPre=+/etc/initscripts/loc_bootup_iio.sh
 Nice=-15
 ExecStart=/usr/bin/sensor_hal_daemon
-SupplementaryGroups=diag plugdev powermgr vnw gps
+SupplementaryGroups=diag plugdev powermgr vnw locclient
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 
