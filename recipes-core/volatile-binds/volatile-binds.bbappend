@@ -7,14 +7,13 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/data/usb /etc/data/usb/\n\
 /systemrw/data/ipa /etc/data/ipa/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
-/systemrw/misc/wifi /etc/misc/wifi/\n\
+/systemrw/wifi /etc/misc/wifi/\n\
 /systemrw/c2c /etc/c2c/\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
 /systemrw/enable /etc/cv2x/enable\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
-/systemrw/wpa_supplicant.conf  /etc/misc/wifi/wpa_supplicant.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
