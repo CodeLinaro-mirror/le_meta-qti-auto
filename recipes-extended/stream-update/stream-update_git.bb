@@ -12,7 +12,6 @@ DEPENDS = "glib-2.0 libmincrypt-native fsmgr oem-recovery libsparse bison-native
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'ab-boot-support', 'abctl', '', d)}"
 DEPENDS_class-native = "glib-2.0-native libmincrypt-native fsmgr-native libsparse bison-native curl bzip2 e2fsprogs zlib xz lzo lz4 liblog libbspatch libxz libbrillo protobuf libalzma libbinderwrapper openssl binderstreaming-native libevent libchrome protobuf-native aidl-native"
 
-DEPENDS += " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'telaf-flash-access', '', d)}"
 
 PR = "r0"
 SRC_URI = "file://OTA/streaming/system/update_engine/ \
@@ -26,7 +25,6 @@ inherit autotools-brokensep pkgconfig systemd useradd
 EXTRA_OECONF_append = " --with-glib"
 EXTRA_OECONF_append = " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', 'TARGET_SUPPORTS_AB=true', '', d)}"
 EXTRA_OECONF_append = " ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'TARGET_NAND_BOOT=true', '', d)}"
-EXTRA_OECONF_append = " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'TELAF=true', '', d)}"
 
 FILES_${PN} += "/${userfsdatadir}"
 do_compile_prepend () {
