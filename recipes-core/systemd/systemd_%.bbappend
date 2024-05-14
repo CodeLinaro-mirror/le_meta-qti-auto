@@ -58,6 +58,8 @@ do_install:append() {
         else
             install -m 0755 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         fi
+        sed -i 's/SUBSYSTEM!="block|ubi", GOTO="persistent_storage_end"/SUBSYSTEM!="block", GOTO="persistent_storage_end"/g' \
+        ${D}/lib/udev/rules.d/60-persistent-storage.rules
     fi
 }
 
