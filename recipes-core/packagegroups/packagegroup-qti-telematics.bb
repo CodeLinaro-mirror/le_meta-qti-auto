@@ -11,8 +11,8 @@ OPENAVB:sa415m = "True"
 OPENAVB:sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 OPENAVB:sa515m = "True"
 #OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
-#PTPVIRT ?=  "False"
-#PTPVIRT:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
+PTPVIRT ?=  "False"
+PTPVIRT:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-fota', 'False', 'True',d)}"
 #OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
