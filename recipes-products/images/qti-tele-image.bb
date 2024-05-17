@@ -49,6 +49,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}modem-shutdown \
         ${@oe.utils.conditional('POWERAPPMODULE', 'True', '${MLIBPREFIX}powerapp ${MLIBPREFIX}powerapp-powerconfig', '', d)} \
         ${@oe.utils.conditional('DEBUG_BUILD', '1', '${MLIBPREFIX}packagegroup-qti-debug-tools', '', d )} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'packagegroup-qti-lxc', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
 "
 

@@ -6,10 +6,16 @@ inherit packagegroup
 
 PROVIDES = "${PACKAGES}"
 
+PACKAGES_ARCH ?= "${MACHINE_ARCH}"
 
 PACKAGES = ' \
     packagegroup-qti-lxc-con \
     '
+
+# These libs has issue, will merge later
+#            vsomeip \     #not present in kirk yet
+#            boost \       #very large including other packages
+#
 
 RDEPENDS:packagegroup-qti-lxc-con = " \
             busybox-init  \
@@ -20,8 +26,6 @@ RDEPENDS:packagegroup-qti-lxc-con = " \
             audit \
             libbz2 \
             libcap-ng \
-            vsomeip \
-            boost \
             libstdc++ \
             libgcc \
             shadow \

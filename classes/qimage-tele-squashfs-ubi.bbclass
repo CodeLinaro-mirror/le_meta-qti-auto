@@ -10,6 +10,7 @@ inherit ${QIMGUBICLASSES}
 
 IMAGE_FEATURES[validitems] += "nand2x gluebi modem-volume cache-volume persist-volume vm-bootsys-volume vm-systemrw-volume"
 IMAGE_FEATURES[validitems] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'telaf-volume', '', d)}"
+IMAGE_FEATURES[validitems] += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'lxcrootfs-volume', '', d)}"
 
 CORE_IMAGE_EXTRA_INSTALL += "\
                             ${MLIBPREFIX}systemd-machine-units-ubi \
@@ -21,6 +22,7 @@ DEPENDS += "\
 "
 
 SYSTEM_IMAGE_UBI_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs/sysfs.ubi"
+SYSTEM_IMAGE_UBI_TARGET_WITH_LXC ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/ubifs/sysfs.ubi"
 SYSTEM_IMAGE_UBIFS_TARGET ?= "${@bb.utils.contains('IMAGE_FEATURES', 'gluebi', bb.utils.contains('DISTRO_FEATURES', 'dm-verity', '${IMGDEPLOYDIR}/${IMAGE_BASENAME}/verity/${SYSTEMIMAGE_GLUEBI_TARGET}/${SYSTEMIMAGE_GLUEBI_TARGET}', '${SYSTEMIMAGE_GLUEBI_TARGET}', d), '${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs/sysfs.ubifs', d)}"
 SYSTEMRW_UBIFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/systemrw.ubifs"
 SYSTEMRW_ROOTFS ?= "${WORKDIR}/systemrw"
@@ -28,18 +30,24 @@ USER_IMAGE_UBIFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/userfs.ub
 USER_IMAGE_ROOTFS ?= "${WORKDIR}/usrfs-data"
 MODEM_UBIFS_IMAGE = "${WORKSPACE}/NON-HLOS.ubifs"
 
+LXCRFSIMAGE_UBIFS_TARGET ?= "${DEPLOY_DIR_IMAGE}/lxcrootfs.ubifs"
+LXCRFSIMAGE_SQUASHFS_TARGET ?= "${DEPLOY_DIR_IMAGE}/lxcrootfs.squash"
+
 VM_IMAGE_UBI_TARGET ?= "vm-bootsys.ubi"
 VM_IMAGE_SQUASHFS_TARGET ?= "vm-bootsys.squash"
 VM_IMAGE_ROOTFS ?= "${DEPLOY_DIR_IMAGE}/vm-images/"
 VM_BOOTSYS_SQUASHFS_VOLUME_SIZE ??= "80MiB"
 
 UBINIZE_SYSTEM_CFG ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs/ubifs_ubinize_ab.cfg"
+UBINIZE_SYSTEM_CFG_WITH_LXC ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/ubifs/ubifs_ubinize_ab.cfg"
 SQUASHFS_UBINIZE_VM_CFG ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/squashfs_ubinize_vm.cfg"
 
 #squashfs files
 SYSTEMIMAGE_SQUASHFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/sysfs.squash"
 SYSTEMIMAGE_SQUASHFS_UBI_AB_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/sysfs-squashfs_ab.ubi"
+SYSTEMIMAGE_SQUASHFS_UBI_AB_TARGET_WITH_LXC ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs/sysfs-squashfs_ab.ubi"
 SQUASHFS_UBINIZE_CFG_AB ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/squashfs_ubinize_ab.cfg"
+SQUASHFS_UBINIZE_CFG_AB_WITH_LXC ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs/squashfs_ubinize_ab.cfg"
 MODEM_IMAGE_DIR = "${WORKSPACE}/modem_image"
 SELINUX_CONTEXT_MODEM = "${WORKSPACE}/fctx1"
 MODEM_SQUASHFS_IMAGE = "${WORKSPACE}/NON-HLOS.squash"
@@ -100,7 +108,7 @@ create_symlink_systemd_ubi_mount_tele_rootfs() {
     # Symlink ubi mount files to systemd targets
     for entry in ${MACHINE_MNT_POINTS}; do
         mountname="${entry:1}"
-        if [[ "$mountname" == "firmware" || "$mountname" == "bt_firmware" || "$mountname" == "dsp" || "$mountname" == "vm-bootsys" ]] ; then
+        if [[ "$mountname" == "firmware" || "$mountname" == "bt_firmware" || "$mountname" == "dsp" || "$mountname" == "vm-bootsys" || "$mountname" == "lxcrootfs" ]] ; then
             cp -f ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/${mountname}-mount-ubi.service ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/${mountname}-mount.service
             ln -sf ${systemd_unitdir}/system/${mountname}-mount.service ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/local-fs.target.requires/${mountname}-mount.service
             if [ -e ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/non-hlos-squash.sh ]; then
@@ -163,6 +171,8 @@ create_symlink_systemd_ubi_mount_tele_rootfs() {
 # Need to copy ubinize.cfg file in the deploy directory
 do_create_ubinize_tele_config[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs"
 do_create_squash_ubinize_config_ab[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
+do_create_ubinize_tele_config_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/ubifs"
+do_create_squash_ubinize_config_ab_with_lxc[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
 
 do_create_ubinize_tele_config() {
 vol_id=0
@@ -280,9 +290,145 @@ EOF
     fi
 }
 
+do_create_ubinize_tele_config_with_lxc() {
+vol_id=0
+cat << EOF > ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[sysfs_a_volume]
+mode=ubi
+image="${IMGDEPLOYDIR}/${IMAGE_BASENAME}/${SYSTEMIMAGE_UBIFS_TARGET}"
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=rootfs_a
+vol_size="${ROOTFS_VOLUME_SIZE}"
+
+[sysfs_b_volume]
+mode=ubi
+image="${IMGDEPLOYDIR}/${IMAGE_BASENAME}/${SYSTEMIMAGE_UBIFS_TARGET}"
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=rootfs_b
+vol_size="${ROOTFS_VOLUME_SIZE}"
+
+[usrfs_volume]
+mode=ubi
+image="${USERIMAGE_UBIFS_TARGET}"
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=usrfs
+vol_flags=autoresize
+
+EOF
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "cache-volume"); then
+        cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[cache_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=cachefs
+vol_size="${CACHE_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[systemrw_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=systemrw
+vol_size="${SYSTEMRW_VOLUME_SIZE}"
+
+EOF
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "lxcrootfs-volume"); then
+        cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[lxcrootfs_volume_a]
+mode=ubi
+image="${LXCRFSIMAGE_UBIFS_TARGET}"
+vol_id=$((vol_id++))
+vol_type=dynamic
+vol_name=lxcrootfs_a
+vol_size=${LXCRFS_VOLUME_SIZE}
+
+[lxcrootfs_volume_b]
+mode=ubi
+image="${LXCRFSIMAGE_UBIFS_TARGET}"
+vol_id=$((vol_id++))
+vol_type=dynamic
+vol_name=lxcrootfs_b
+vol_size=${LXCRFS_VOLUME_SIZE}
+EOF
+   fi
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "persist-volume"); then
+        cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[persist_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=persist
+vol_size="${PERSIST_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "modem-volume"); then
+        cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[modem_a_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=firmware_a
+vol_size="${MODEM_VOLUME_SIZE}"
+
+[modem_b_volume]
+mode=ubi
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=firmware_b
+vol_size="${MODEM_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "vm-bootsys-volume"); then
+        cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[vm-bootsys_a_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=vm-bootsys_a
+vol_size="${VM_BOOTSYS_VOLUME_SIZE}"
+
+[vm-bootsys_b_volume]
+mode=ubi
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=vm-bootsys_b
+vol_size="${VM_BOOTSYS_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${UBINIZE_SYSTEM_CFG_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "vm-systemrw-volume"); then
+        cat << EOF >> ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+[vm_systemrw_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=vm_systemrw
+vol_size="${VM_SYSTEMRW_VOLUME_SIZE}"
+
+EOF
+    fi
+}
+
 # Squahshfs cfg
 do_create_squash_ubinize_config_ab[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 do_create_squash_ubinize_config_ab[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
+do_create_squash_ubinize_config_ab_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs/"
+do_create_squash_ubinize_config_ab_with_lxc[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
 
 do_create_squash_ubinize_config_ab() {
 vol_id=0
@@ -460,6 +606,201 @@ EOF
     fi
 }
 
+do_create_squash_ubinize_config_ab_with_lxc() {
+vol_id=0
+    cat << EOF > ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[sysfs_a_volume]
+mode=ubi
+image="${SYSTEMIMAGE_SQUASHFS_TARGET}"
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=rootfs_a
+vol_size="${SYSTEM_SQUASHFS_VOLUME_SIZE}"
+
+[sysfs_b_volume]
+mode=ubi
+image="${SYSTEMIMAGE_SQUASHFS_TARGET}"
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=rootfs_b
+vol_size="${SYSTEM_SQUASHFS_VOLUME_SIZE}"
+
+EOF
+    if $(echo ${IMAGE_FEATURES} | grep -q "modem-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[modem_a_volume]
+mode=ubi
+EOF
+        if [ -f ${MODEM_SQUASHFS_IMAGE} ]; then
+            cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+image="${MODEM_SQUASHFS_IMAGE}"
+EOF
+        fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=firmware_a
+vol_size="${MODEM_SQUASHFS_VOLUME_SIZE}"
+
+[modem_b_volume]
+mode=ubi
+EOF
+        if [ -f ${MODEM_SQUASHFS_IMAGE} ]; then
+            cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+image="${MODEM_SQUASHFS_IMAGE}"
+EOF
+        fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=firmware_b
+vol_size="${MODEM_SQUASHFS_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "telaf-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[telaf_a_volume]
+mode=ubi
+EOF
+        if [ -f ${TELAF_RO_SQUASHFS_TARGET} ]; then
+            cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+image="${TELAF_RO_SQUASHFS_TARGET}"
+EOF
+        fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=telaf_a
+vol_size="${TELAF_SQUASHFS_VOLUME_SIZE}"
+
+[telaf_b_volume]
+mode=ubi
+EOF
+        if [ -f ${TELAF_RO_SQUASHFS_TARGET} ]; then
+            cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+image="${TELAF_RO_SQUASHFS_TARGET}"
+EOF
+        fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=telaf_b
+vol_size="${TELAF_SQUASHFS_VOLUME_SIZE}"
+
+[telaf_app_volume]
+mode=ubi
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=telaf_app
+vol_size="${TELAF_APP_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[usrfs_volume]
+mode=ubi
+image="${USER_IMAGE_UBIFS_TARGET}"
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=usrfs
+vol_flags=autoresize
+
+EOF
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "cache-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[cache_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=cachefs
+vol_size="${CACHE_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[systemrw_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=systemrw
+vol_size="${SYSTEMRW_VOLUME_SIZE}"
+
+EOF
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "lxcrootfs-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[lxcrootfs_volume_a]
+mode=ubi
+image="${LXCRFSIMAGE_SQUASHFS_TARGET}"
+vol_id=$((vol_id++))
+vol_type=dynamic
+vol_name=lxcrootfs_a
+vol_size=${LXCRFS_SQUASHFS_VOLUME_SIZE}
+
+[lxcrootfs_volume_b]
+mode=ubi
+image="${LXCRFSIMAGE_SQUASHFS_TARGET}"
+vol_id=$((vol_id++))
+vol_type=dynamic
+vol_name=lxcrootfs_b
+vol_size=${LXCRFS_SQUASHFS_VOLUME_SIZE}
+EOF
+   fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "persist-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[persist_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=persist
+vol_size="${PERSIST_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "vm-bootsys-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[vm-bootsys_a_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=vm-bootsys_a
+vol_size="${VM_BOOTSYS_SQUASHFS_VOLUME_SIZE}"
+
+[vm-bootsys_b_volume]
+mode=ubi
+vol_id=$((++vol_id))
+vol_type=dynamic
+vol_name=vm-bootsys_b
+vol_size="${VM_BOOTSYS_SQUASHFS_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "vm-systemrw-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+[vm_systemrw_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=vm_systemrw
+vol_size="${VM_SYSTEMRW_VOLUME_SIZE}"
+
+EOF
+    fi
+}
+
+
 create_rootfs_tele_ubi[cleandirs] = "${IMAGE_ROOTFS_SQUASHFS_UBI}"
 python create_rootfs_tele_ubi () {
     src_dir = d.getVar("IMAGE_ROOTFS")
@@ -489,6 +830,10 @@ do_makesystem_tele_ubi[prefuncs] += "create_tele_systemrw"
 do_makesystem_tele_ubi[postfuncs] += "${@bb.utils.contains('INHERIT', 'uninative', 'do_patch_ubi_tools', '', d)}"
 do_makesystem_tele_ubi[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}"
 do_makesystem_tele_ubi[dirs] += "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs ${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
+
+do_makesystem_tele_ubi_with_lxc[prefuncs] += "do_create_ubinize_tele_config_with_lxc"
+do_makesystem_tele_ubi_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc"
+do_makesystem_tele_ubi_with_lxc[depends] = "qti-lxcrootfs-image:do_image_complete"
 
 fakeroot do_makesystem_tele_ubi() {
    mkdir ${USER_IMAGE_ROOTFS}/cache
@@ -528,6 +873,10 @@ fakeroot do_makesystem_tele_ubi() {
 
 do_makesystem_squashfs[prefuncs] += "do_create_squash_ubinize_config_ab"
 do_makesystem_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
+do_makesystem_squashfs_ubi_with_lxc[prefuncs] += "do_create_squash_ubinize_config_ab_with_lxc"
+do_makesystem_squashfs_ubi_with_lxc[prefuncs] += "do_sign_lxc_squashfs"
+do_makesystem_squashfs_ubi_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs"
+do_makesystem_squashfs_ubi_with_lxc[depends] = "qti-lxcrootfs-image:do_image_complete"
 
 fakeroot do_makesystem_squashfs() {
     if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
@@ -544,6 +893,15 @@ fakeroot do_makesystem_squashfs() {
 do_makesystem_squashfs_ubi () {
     ubinize -o ${SYSTEMIMAGE_SQUASHFS_UBI_AB_TARGET} ${UBINIZE_ARGS} ${SQUASHFS_UBINIZE_CFG_AB}
 }
+
+do_makesystem_squashfs_ubi_with_lxc () {
+    ubinize -o ${SYSTEMIMAGE_SQUASHFS_UBI_AB_TARGET_WITH_LXC} ${UBINIZE_ARGS} ${SQUASHFS_UBINIZE_CFG_AB_WITH_LXC}
+}
+
+fakeroot do_makesystem_tele_ubi_with_lxc() {
+   ubinize -o ${SYSTEM_IMAGE_UBI_TARGET_WITH_LXC} ${UBINIZE_ARGS} ${UBINIZE_SYSTEM_CFG_WITH_LXC}
+}
+
 
 do_maketelaf_squashfs[depends] += "${@bb.utils.contains('IMAGE_FEATURES', 'telaf-volume', '${MLIBPREFIX}telaf-image:do_deploy', '', d)}"
 do_maketelaf_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
@@ -601,16 +959,22 @@ python () {
         bb.build.addtask('do_makesystem_gluebi', 'do_image_complete', 'do_image', d)
     else:
         bb.build.addtask('do_makesystem_tele_ubi', 'do_image_complete', 'do_makesystem_ubi', d)
+        if bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', True, False, d):
+           bb.build.addtask('do_makesystem_tele_ubi_with_lxc', 'do_image_complete', 'do_makesystem_tele_ubi', d)
         bb.build.addtask('do_makesystem_squashfs', 'do_image_complete', 'do_makesystem_tele_ubi', d)
         if bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', True, False, d):
             bb.build.addtask('do_maketelaf_squashfs', 'do_image_complete', 'do_makesystem_ubi', d)
         if bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', True, False, d):
             bb.build.addtask('do_sign_system_squashfs', 'do_image_complete', 'do_makesystem_squashfs', d)
             bb.build.addtask('do_makesystem_squashfs_ubi', 'do_image_complete', 'do_sign_system_squashfs', d)
+            if bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', True, False, d):
+               bb.build.addtask('do_makesystem_squashfs_ubi_with_lxc', 'do_image_complete', 'do_makesystem_squashfs_ubi', d)
             if bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', True, False, d):
                 bb.build.addtask('do_sign_telaf_squashfs', 'do_image_complete', 'do_maketelaf_squashfs', d)
         else:
             bb.build.addtask('do_makesystem_squashfs_ubi', 'do_image_complete', 'do_makesystem_squashfs', d)
+            if bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', True, False, d):
+               bb.build.addtask('do_makesystem_squashfs_ubi_with_lxc', 'do_image_complete', 'do_makesystem_squashfs_ubi', d)
 }
 
 do_patch_ubi_tools() {
@@ -689,3 +1053,16 @@ do_sign_vmbootsys_squashfs () {
         --do_not_generate_fec --rollback_index 0
 }
 do_sign_vmbootsys_squashfs[depends] += "avbtool-native:do_install"
+
+
+# Sign the lxc squash image
+do_sign_lxc_squashfs () {
+    ${TMPDIR}/work-shared/avbtool/avbtool add_hashtree_footer \
+        --image ${LXCRFSIMAGE_SQUASHFS_TARGET} \
+        --partition_name lxcrootfs \
+        --algorithm SHA256_RSA2048 \
+        --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
+        --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
+        --do_not_generate_fec --rollback_index 0
+}
+do_sign_lxc_squashfs[depends] += "avbtool-native:do_install"

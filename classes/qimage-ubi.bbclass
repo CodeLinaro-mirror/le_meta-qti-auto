@@ -70,7 +70,7 @@ create_symlink_systemd_ubi_mount_rootfs() {
     # Symlink ubi mount files to systemd targets
     for entry in ${MACHINE_MNT_POINTS}; do
         mountname="${entry:1}"
-        if [[ "$mountname" == "firmware" || "$mountname" == "bt_firmware" || "$mountname" == "dsp" || "$mountname" == "vm-bootsys" ]] ; then
+        if [[ "$mountname" == "firmware" || "$mountname" == "bt_firmware" || "$mountname" == "dsp" || "$mountname" == "vm-bootsys" || "$mountname" == "lxcrootfs" ]] ; then
             cp -f ${IMAGE_ROOTFS_UBI}/lib/systemd/system/${mountname}-mount-ubi.service ${IMAGE_ROOTFS_UBI}/lib/systemd/system/${mountname}-mount.service
             ln -sf ${systemd_unitdir}/system/${mountname}-mount.service ${IMAGE_ROOTFS_UBI}/lib/systemd/system/local-fs.target.requires/${mountname}-mount.service
         else

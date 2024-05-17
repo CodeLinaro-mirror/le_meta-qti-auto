@@ -13,6 +13,7 @@ IMAGE_FEATURES += " \
         read-only-rootfs ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'persist-volume', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'tele-squashfs-ubi', 'modem-volume', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'telaf-volume', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'lxcrootfs-volume', '', d)} \
 "
 
 python () {
