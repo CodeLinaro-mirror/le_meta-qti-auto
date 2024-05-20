@@ -44,7 +44,7 @@ do_install_append() {
       ${D}${sysconfdir}/lxc/
 
 
-   install -m 0740 ${WORKDIR}/lxc_launch.sh ${D}${sysconfdir}/initscripts/lxc_launch.sh
+   install -m 0555 ${WORKDIR}/lxc_launch.sh ${D}${sysconfdir}/initscripts/lxc_launch.sh
    install -m 0744 ${WORKDIR}/lxc_system.conf ${D}${sysconfdir}/lxc/lxc.conf
 
 }
