@@ -44,7 +44,9 @@ Bawk="busybox awk"
 Bcut="busybox cut"
 Bseq="busybox seq"
 Bdd="busybox dd"
+Bdf="busybox df"
 Btr="busybox tr"
+Bfree="busybox free"
 Bhexdump="busybox hexdump"
 
 UBIFS_VOL_HEADER="1831 0610"
@@ -75,6 +77,9 @@ RECOVERYFS_DEV="recoveryfs"
 
 # verity feature status
 VERITY_ENV="/etc/verity.env"
+
+# fde enable status
+FDE_ENV="/etc/fde.env"
 
 #------------------------------------------------------------
 
@@ -134,7 +139,6 @@ SetArgs() {
     return ${STATUS_OK}
 }
 
-
 UmountModem () {
     if ${Bgrep} "${FW_DIR}" /proc/mounts -w > /dev/null; then
         busybox killall qseecomd
@@ -147,7 +151,6 @@ UmountModem () {
 gracefullReboot () {
     local mode=$1
     local abctl_cmd="/usr/bin/nad-abctl"
-    UmountModem
 
     if [ ! -e ${abctl_cmd} ]; then
         LOGD "${abctl_cmd} not found."
@@ -353,17 +356,17 @@ CheckTmpDirectorySizeForFde () {
     local ubi_vol_size=`${Bcat} /sys/class/ubi/ubi${ubi_dev_num}_${ubi_vol_num}/data_bytes`
 
     # Reserved 10MiB space for FDE encryption should be safe enough.
-    busybox let ubi_vol_size=ubi_vol_size/1024/1024+10
+    let ubi_vol_size=ubi_vol_size/1024/1024+10
     if [ ${ubi_vol_size} -gt ${tmp_directory_size} ]; then
 
         # If the reserved space is bigger than 5MiB and smaller than 10MiB,
         # the encryption will be in a high risk, need to export warning info.
-        busybox let ubi_vol_size=ubi_vol_size-5
+        let ubi_vol_size=ubi_vol_size-5
         if [ ${ubi_vol_size} -gt ${tmp_directory_size} ]; then
-            LOGD "Err: Not enough RAM size for FDE."
+            LOGD "Err: Not enough tmp size for FDE."
             return ${STATUS_ERR}
         else
-            LOGD "Warning: The RAM size is insufficient for FDE."
+            LOGD "Warning: The tmp size is insufficient for FDE."
         fi
     fi
     return ${STATUS_OK}
@@ -371,15 +374,25 @@ CheckTmpDirectorySizeForFde () {
 
 FdeInitialize ()
 {
-    MountModemVol
-    if [ $? -ne ${STATUS_OK} ]; then
-        LOGD "Error: Mount modem UBI volume failed."
+    busybox insmod /lib/modules/smcinvoke.ko
+    busybox insmod /lib/modules/dm-crypt.ko
+
+    if ! ${Bgrep} -wq "smcinvoke_dlkm" /proc/modules; then
+        LOGD "Error: Failed to load smcinvoke module"
         return ${STATUS_ERR}
     fi
 
-    chmod 664 /dev/qseecom
-    chmod 664 /dev/ion
+    if ! ${Bgrep} -wq "dm_crypt" /proc/modules; then
+        LOGD "Error: Failed to load dmcrypt module"
+        return ${STATUS_ERR}
+    fi
+
+    busybox chmod -R 0660 /dev/dma_heap/qcom,qseecom-ta
+    busybox chmod -R 0660 /dev/dma_heap/qcom,qseecom
+    busybox chmod o+rw /dev/smcinvoke
+
     /usr/bin/qseecomd > /dev/kmsg &
+
     return ${STATUS_OK}
 }
 
@@ -439,7 +452,7 @@ EncryptUbiPartition () {
     # 0 -- Run encryption and/or decryption successful
     # 1 -- Fuse not blown, continue as normal boot
     # 2 -- Failed
-    nad-fde-app -c ${char_device} -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} \
+    nad-fde-app -c ${char_device} -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} -s \
                 -V "${for_vb_parameter}"
     nad_fde_result=$?
     case "${nad_fde_result}" in
@@ -451,6 +464,12 @@ EncryptUbiPartition () {
         ;;
         1)
             LOGD "FDE fuse bit not blown."
+            FDE_MOUNT_NODE=${block_device}
+            busybox rm -rf ${encryption_path}
+            return ${STATUS_OK}
+        ;;
+        2)
+            LOGD "FDE Failed"
             FDE_MOUNT_NODE=${block_device}
             busybox rm -rf ${encryption_path}
             return ${STATUS_OK}
@@ -580,11 +599,12 @@ MountSystem () {
 
         # UBIFS don't support signing, so won't work with FDE
         if [ "${image_type}" != "ubifs" ]; then
-            if ${Bgrep} 'nad_fde=1' ${VERITY_ENV} > /dev/null; then
+            if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
 
-                # 4+4 device has not enough ram size for FDE encryption
-                # So, skip encryption if the memory is smaller than ${RAM_SIZE_LIMIT_VOL}
-                supported_mem_size=`free -m | ${Bgrep} Mem | ${Bawk} '{print $2}'`
+                # Check if device has enough ram size for FDE encryption
+                # Skip encryption if the memory is smaller than ${RAM_SIZE_LIMIT_VOL}
+                supported_mem_size=`${Bfree} -m | ${Bgrep} Mem | ${Bawk} '{print $2}'`
+
                 if [ ${supported_mem_size} -gt ${RAM_SIZE_LIMIT_VOL} ]; then
 
                     nad_fde_status="enabled"
@@ -614,9 +634,6 @@ MountSystem () {
 
             # For system and/or other partitions FDE enabling
             if [ "${nad_fde_status}" == "enabled" ]; then
-
-                sys_key_index=`${Bcat} /proc/cmdline | ${Bsed} 's/ /\n/g' |\
-                                    ${Bgrep} -E 'fde\.system' | ${Bawk} -F '.' '{print $3}'`
 
                 EncryptUbiPartition ${DM_SYST_NAME} \
                                     ${SYS_UBI_DEV_NUM} \
