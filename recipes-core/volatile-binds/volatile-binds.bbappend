@@ -15,6 +15,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/enable /etc/cv2x/enable\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
+/systemrw/sensors.conf /etc/sensors.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
