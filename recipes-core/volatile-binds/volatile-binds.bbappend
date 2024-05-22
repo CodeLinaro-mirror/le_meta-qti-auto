@@ -16,6 +16,10 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
+/systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
+/systemrw/commonapi4someip.ini /etc/commonapi4someip.ini\n\
+/systemrw/vsomeip-location.json /etc/vsomeip-location.json\n\
+/systemrw/sensors.conf /etc/sensors.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
