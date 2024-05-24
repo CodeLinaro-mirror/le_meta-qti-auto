@@ -42,7 +42,7 @@ for files in `ls /dev/input/event*`
 do
        /etc/udev/scripts/sensors.sh $files
        chown -R root:plugdev $files
-       chmod -R 0664 $files
+       chmod -R 0660 $files
 done
 
 /bin/chmod 0664 /dev/pps*
