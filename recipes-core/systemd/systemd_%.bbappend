@@ -40,7 +40,7 @@ do_install_append() {
         install -d ${D}${systemd_unitdir}/system/basic.target.wants/
 
         if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'false', 'true', d)}; then
-            install -m 0755 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
+            install -m 0555 ${WORKDIR}/postmss ${D}${sysconfdir}/initscripts/postmss
             install -m 0644 ${WORKDIR}/postmss.service ${D}${systemd_unitdir}/system/postmss.service
             ln -sf ${systemd_unitdir}/system/postmss.service \
                     ${D}${systemd_unitdir}/system/basic.target.wants/postmss.service

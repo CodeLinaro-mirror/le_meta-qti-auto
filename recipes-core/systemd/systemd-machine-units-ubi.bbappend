@@ -6,7 +6,7 @@ do_install_append () {
                     # Remove non-hlos-squash.sh script
                     rm -f ${D}${sysconfdir}/initscripts/firmware-ubi-mount.sh
                 fi
-                install -m 0744 ${WORKDIR}/firmware-ubi-mount.sh ${D}${sysconfdir}/initscripts/firmware-ubi-mount.sh
+                install -m 0555 ${WORKDIR}/firmware-ubi-mount.sh ${D}${sysconfdir}/initscripts/firmware-ubi-mount.sh
            fi
        fi
    fi
