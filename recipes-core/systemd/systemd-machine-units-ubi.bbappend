@@ -10,4 +10,5 @@ do_install_append () {
            fi
        fi
    fi
+   chmod 555 ${D}${sysconfdir}/initscripts/lxcrootfs-ubi-mount.sh
 }
