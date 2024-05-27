@@ -10,6 +10,12 @@ SRC_URI += "\
             file://load_set_font.cfg \
             file://debian_utils_opts.cfg \
             file://fs_opts.cfg \
+	    file://find_utils_opts.cfg \
+            file://linux_system_utils_opts.cfg \
+            file://misc_util_opts.cfg \
+            file://network_util_opts.cfg \
+            file://shell_opts.cfg \
+            file://process_util_opts.cfg \
 "
 
 do_install_append() {
