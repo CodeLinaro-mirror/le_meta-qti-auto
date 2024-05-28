@@ -27,4 +27,5 @@ GROUPADD_PARAM:${PN} ?=	" \
 			-g 3013 qwes; \
 			-g 3018 gpio; \
 			-g 3017 cpu; \
+			-r netdev; \
 			"
