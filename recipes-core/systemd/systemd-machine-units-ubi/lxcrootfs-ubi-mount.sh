@@ -70,6 +70,10 @@ FindAndMountUBIVolume () {
            echo "Failed to wait on ${block_device}, exiting." > /dev/kmsg
            exit 0
         fi
+        restorecon ${block_device}
+        if [ $? -ne 0 ] ; then
+            echo "Failed restorecon on ${block_device}." > /dev/kmsg
+        fi
         if [ ! -e "${VERITY_ENV}" ]; then
           VERITY_ENV="/proc/cmdline"
         fi
