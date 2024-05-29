@@ -10,5 +10,7 @@ do_install_append () {
            fi
        fi
    fi
-   chmod 555 ${D}${sysconfdir}/initscripts/lxcrootfs-ubi-mount.sh
+   if [ -f ${D}${sysconfdir}/initscripts/lxcrootfs-ubi-mount.sh ]; then
+     chmod 555 ${D}${sysconfdir}/initscripts/lxcrootfs-ubi-mount.sh
+   fi
 }
