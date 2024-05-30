@@ -81,6 +81,7 @@ do_install_append() {
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
+        rm -f ${D}${systemd_unitdir}/system/systemd-udev-settle.service
     fi
 }
 FILES_${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
