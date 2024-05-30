@@ -3,6 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/busybox:"
 SRC_URI += "\
             file://automountsdcard.sh \
             file://no-shell-history.cfg \
+            file://busybox_utilities.cfg \
 "
 
 SRC_URI:append:sa525m = "file://taskset.cfg"
