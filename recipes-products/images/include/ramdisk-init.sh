@@ -721,8 +721,8 @@ MountSystemdOverlay() {
     busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system
     busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system-work
 
-    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/lib/systemd/system -o lowerdir=${ROOT_MOUNT}/lib/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/lib-systemd-system,workdir=${ROOT_MOUNT}/systemrw/lib-systemd-system-work
-    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/etc/systemd/system -o lowerdir=${ROOT_MOUNT}/etc/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/etc-systemd-system,workdir=${ROOT_MOUNT}/systemrw/etc-systemd-system-work
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/lib/systemd/system -o lowerdir=${ROOT_MOUNT}/lib/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/lib-systemd-system,workdir=${ROOT_MOUNT}/systemrw/lib-systemd-system-work,noexec,nosuid,nodev
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/etc/systemd/system -o lowerdir=${ROOT_MOUNT}/etc/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/etc-systemd-system,workdir=${ROOT_MOUNT}/systemrw/etc-systemd-system-work,noexec,nosuid,nodev
     return ${STATUS_OK}
 }
 
