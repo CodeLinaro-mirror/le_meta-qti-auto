@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause-Clear
 
 UBIFS_VOL_HEADER="1831 0610"
@@ -59,7 +59,7 @@ FindAndMountUBI () {
         if [ -c $device ]
         then
             test -x /sbin/restorecon && /sbin/restorecon $device
-            mount -t ubifs $device $dir -o bulk_read$extra_opts
+            mount -t ubifs $device $dir -o bulk_read$extra_opts,nodev,nosuid,noexec
             break
         else
             sleep 0.010
@@ -231,9 +231,9 @@ FindAndMountUBIVolume () {
           block_device=${dm_verity_device}
         fi
 
-        eval mount -t squashfs $block_device $dir -o ro$extra_opts
+        eval mount -t squashfs $block_device $dir -o ro$extra_opts,nodev,nosuid,noexec
     elif [ "$image_type" == "ubifs" ]; then
-        eval mount -t ubifs ubi$ubi_dev_id:$partition $dir -o bulk_read$extra_opts
+        eval mount -t ubifs ubi$ubi_dev_id:$partition $dir -o bulk_read$extra_opts,nodev,nosuid,noexec
     else
         echo "unknown image type " > /dev/kmsg
         return 1
