@@ -1,0 +1,15 @@
+diff --git a/src/lxc/attach.c b/src/lxc/attach.c
+index 77da7bb45..5e1b96498 100644
+--- a/src/lxc/attach.c
++++ b/src/lxc/attach.c
+@@ -1471,8 +1471,10 @@ int lxc_attach(struct lxc_container *container, lxc_attach_exec_t exec_function,
+ 
+ 	conf = ctx->container->lxc_conf;
+ 
++#ifdef HAVE_SECCOMP
+ 	if (!fetch_seccomp(ctx->container, options))
+ 		WARN("Failed to get seccomp policy");
++#endif
+ 
+ 	if (!no_new_privs(ctx->container, options))
+ 		WARN("Could not determine whether PR_SET_NO_NEW_PRIVS is set");

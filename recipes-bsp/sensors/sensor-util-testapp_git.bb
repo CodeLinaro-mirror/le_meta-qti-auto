@@ -9,7 +9,7 @@ ${LICENSE};md5=3771d4920bd6cdb8cbdf1e8344489ee0"
 
 DEPENDS = "sensor-util-lib"
 FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://hardware/qcom/sensors/sensor-service/utils/test_app"
-S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/utils/test_app"
+SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_utils/test_app"
+S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_utils/test_app"
 
 EXTRA_OECONF += "--with-glib"

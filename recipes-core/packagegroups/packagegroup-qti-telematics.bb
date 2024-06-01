@@ -10,6 +10,9 @@ OPENAVB_sa410m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'Fals
 OPENAVB_sa515m = "True"
 OPENAVB_sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'False', 'True',d)}"
 
+SENSORIDL ?= "False"
+SENSORIDL_sa525m = "True"
+
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
 # Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
 CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
@@ -44,7 +47,9 @@ RDEPENDS_packagegroup-qti-telematics-cv2x-its = "\
 
 RDEPENDS_packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
-    libsensors sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp sensors-test"
+    libsensors sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
+    "
 
 RDEPENDS_packagegroup-qti-telematics-utils = "\
     ${@oe.utils.conditional('CV2X_ITS', 'True', 'udpreplay', '', d)} \

@@ -4,7 +4,9 @@ SRC_URI_append += " \
                     file://qti-lxc-common.conf  \
                     file://lxc_launch.service   \
                     file://lxc_launch.sh  \
-                    file://lxc_system.conf"
+                    file://lxc_system.conf \
+                    file://seccom_attach_unsupported_fix.patch \
+                    "
 
 FILES_${PN}-configs = " \
                     ${S}/lxc_networking.conf \
