@@ -14,6 +14,8 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/enable /etc/cv2x/enable\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
+/systemrw/power_state.conf /etc/power_state.conf\n\
+/systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
@@ -22,9 +24,11 @@ VOLATILE_BINDS:sa525m-televm = "\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
+/systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-fotavm = "\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/tel.conf /etc/tel.conf\n\
+/systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 "
