@@ -79,3 +79,18 @@ do_sign_system_squashfs () {
         --do_not_generate_fec --rollback_index 0
 }
 do_sign_system_squashfs[depends] += "avbtool-native:do_install"
+
+#EXT4 files
+SYSTEMIMAGE_EXT4_TARGET = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/system.img"
+
+# Sign the system image
+do_sign_system_ext4 () {
+     ${TMPDIR}/work-shared/avbtool/avbtool add_hashtree_footer \
+        --image ${SYSTEMIMAGE_EXT4_TARGET} \
+        --partition_name system \
+        --algorithm SHA256_RSA2048 \
+        --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
+        --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
+        --do_not_generate_fec --rollback_index 0
+}
+do_sign_system_ext4[depends] += "avbtool-native:do_install"
