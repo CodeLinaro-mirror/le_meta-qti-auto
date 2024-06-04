@@ -113,7 +113,7 @@ do_recovery_ubi() {
         echo /system   squashfs  /dev/block/bootdevice/by-name/system >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
 
         if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
-            if ${@bb.utils.contains('IMAGE_FEATURES', 'nad-modem-volume', 'true', 'false', d)}; then
+            if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
                 echo /modem squashfs /dev/block/bootdevice/by-name/modem >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
                 if [ -f ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ]; then
                     squashfs2sparse  ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/modem.img
