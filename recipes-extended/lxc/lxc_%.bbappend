@@ -22,7 +22,7 @@ do_install_append() {
 
 
    install -m 0644  -d ${D}${sysconfdir}/initscripts
-   install -m 0744  -d ${D}${sysconfdir}/lxc
+   install -m 0755  -d ${D}${sysconfdir}/lxc
    install -m 0644  -d ${D}${sysconfdir}/default
 
    #shared RW space for lxc container
