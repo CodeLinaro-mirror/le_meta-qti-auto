@@ -1,5 +1,5 @@
 DEPENDS += "releasetools-native zip-native fsconfig-native applypatch-native bc-native bsdiff-native qti-recovery-image"
-DEPENDS += " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'payload-gen-native', '', d)}"
+DEPENDS += " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'payload-gen-native', '', d), '', d)}"
 
 RM_WORK_EXCLUDE_ITEMS += "rootfs rootfs-dbg"
 
@@ -259,8 +259,10 @@ do_gen_otazip_ubi() {
     fi
 
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
-        cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && ./gen_full_stream.sh ${OTA_TARGET_FILES_UBI_AB_PATH}
-        cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'true', 'false', d)}; then
+            cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && ./gen_full_stream.sh ${OTA_TARGET_FILES_UBI_AB_PATH}
+            cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+        fi
     fi
 }
 addtask do_gen_otazip_ubi after do_recovery_ubi before do_build

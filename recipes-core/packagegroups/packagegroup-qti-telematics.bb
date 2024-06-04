@@ -72,6 +72,6 @@ RDEPENDS:packagegroup-qti-telematics-mvm = "\
     "
 
 RDEPENDS:packagegroup-qti-telematics-nad-core = "\
-    stream-update \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'stream-update', '', d)} \
     "
 
