@@ -194,7 +194,14 @@ fakeroot do_ramdisk_create() {
                 chmod 744 csmrd-init
                 ln -s csmrd-init init
             elif ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'true', 'false', d)}; then
-                install -m 744 ${COREBASE}/meta-qti-auto/recipes-products/images/include/ramdisk-init.sh init
+                if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'true', 'false', d)}; then
+                    install -m 744 ${COREBASE}/meta-qti-auto/recipes-products/images/include/ramdisk-init-emmc.sh init
+                else
+                    install -m 744 ${COREBASE}/meta-qti-auto/recipes-products/images/include/ramdisk-init.sh init
+                fi
+
+                # Creating actual rootfs dir mountpoint for initramfs
+                mkdir -p ${RAMDISKDIR}/rootfs
                 cp ${IMAGE_ROOTFS}/usr/sbin/ubi* usr/sbin/
                 cp ${IMAGE_ROOTFS}/usr/bin/nad-abctl usr/bin/nad-abctl
                 cp ${IMAGE_ROOTFS}/usr/lib/libnad_ab_al.so.1 lib/libnad_ab_al.so.1
