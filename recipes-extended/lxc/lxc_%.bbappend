@@ -54,3 +54,4 @@ FILES_${PN} += "${sysconfdir}/lxc/*"
 FILES_${PN} += "${userfsdatadir}/lxc_rw"
 
 SYSTEMD_AUTO_ENABLE_${PN} = "disable"
+RDEPENDS_${PN}_remove += "curl"
