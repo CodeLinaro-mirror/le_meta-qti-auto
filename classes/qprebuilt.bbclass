@@ -132,6 +132,7 @@ fakeroot python do_install_prebuilt() {
 
     licensedir = d.getVar('LICENSE_DIRECTORY')
     arch = d.getVar('PACKAGE_ARCH')
+    flavor = d.getVar('FLAVOR')
     alternate_archs = (d.getVar('MACHINEOVERRIDES') or "").split(":")
     dest = d.getVar('D')
     pn = d.getVar("PN")
@@ -143,13 +144,13 @@ fakeroot python do_install_prebuilt() {
     for prebuiltsrc in (get_prebuilt_paths(d) or "").split():
         ppackages = (d.getVar("PREBUILT_PACKAGES") or "").split()
         for ppackage in ppackages:
-            tbpath = prebuiltsrc + "/" + ppackage + "_" + pv + "_" + arch + ".tar.gz"
+            tbpath = prebuiltsrc + "/" + ppackage + "_" + pv + "_" + arch + "_" + flavor + ".tar.gz"
             if os.path.exists(tbpath):
                     tarball = tbpath
             else:
                 for selected_arch in reversed(alternate_archs):
                     tbpath = prebuiltsrc + "/" + ppackage + "_" + pv + "_" + \
-                              selected_arch.replace('-', '_') + ".tar.gz"
+                              selected_arch.replace('-', '_') + "_" + flavor + ".tar.gz"
                     if os.path.exists(tbpath):
                         tarball = tbpath
                         break
@@ -190,7 +191,7 @@ do_generate_prebuilt[dirs] = "${D}"
 do_generate_prebuilt[cleandirs] = "${PREBUILT_DIR} ${PREBUILT_DATA_DIR}"
 do_generate_prebuilt[sstate-inputdirs] = "${PREBUILT_DATA_DIR}"
 do_generate_prebuilt[sstate-outputdirs] = "${DEPLOY_DIR_PREBUILT}"
-do_generate_prebuilt[stamp-extra-info] = "${MACHINE_ARCH}"
+do_generate_prebuilt[stamp-extra-info] = "${MACHINE_ARCH}_${FLAVOR}"
 do_generate_prebuilt[doc] = "Create a prebuilt package"
 do_generate_prebuilt[vardeps] = "${@gen_prebuiltvar(d)}"
 
@@ -207,6 +208,7 @@ python do_generate_prebuilt() {
     pn = d.getVar('PN')
     pv = d.getVar('PV')
     arch = d.getVar('PACKAGE_ARCH')
+    flavor = d.getVar('FLAVOR')
     prebuiltdir = os.path.join(d.getVar('PREBUILT_DIR'), "non-stripped")
     prebuiltstrippeddir = os.path.join(d.getVar('PREBUILT_DIR'), "stripped")
     prebuiltdatadir = d.getVar('PREBUILT_DATA_DIR')
@@ -229,7 +231,7 @@ python do_generate_prebuilt() {
             files = d.getVar(variant + "_PREBUILT_FILES_" + ppackage)
             stripped = d.getVar("PREBUILT_STRIP_" + ppackage)
             os.mkdir(os.path.join(prebuiltdatadir, variant))
-            tarball = "%s/%s/%s_%s_%s.tar" % (prebuiltdatadir, variant, ppackage, pv, arch)
+            tarball = "%s/%s/%s_%s_%s_%s.tar" % (prebuiltdatadir, variant, ppackage, pv, arch, flavor)
             base = prebuiltdir
 
             # If no file specified quitely quit
@@ -287,6 +289,7 @@ PREBUILT_DISCARDED_TASKS += "\
 
 python () {
     arch = d.getVar('PACKAGE_ARCH')
+    flavor = d.getVar('FLAVOR')
     alternate_archs = (d.getVar('MACHINEOVERRIDES') or "").split(":")
     pn = d.getVar('PN')
     pv = d.getVar('PV')
@@ -296,7 +299,7 @@ python () {
     for prebuiltsrc in (get_prebuilt_paths(d) or "").split():
         ppackages = (d.getVar("PREBUILT_PACKAGES") or "").split()
         for ppackage in ppackages:
-            tarball = ppackage + "_" + pv + "_" + arch + ".tar.gz"
+            tarball = ppackage + "_" + pv + "_" + arch + "_" + flavor + ".tar.gz"
             bb.debug(1, "Looking for: %s" % (prebuiltsrc + "/" + tarball))
             if os.path.exists(prebuiltsrc + "/" + tarball):
                 found = True
@@ -304,7 +307,7 @@ python () {
             else:
                 for selected_arch in reversed(alternate_archs):
                     tarball = ppackage + "_" + pv + "_" + \
-                              selected_arch.replace('-', '_') + ".tar.gz"
+                              selected_arch.replace('-', '_') + "_" + flavor + ".tar.gz"
                     bb.debug(1, "Looking for: %s" % (prebuiltsrc + "/" + tarball))
                     if os.path.exists(prebuiltsrc + "/" + tarball):
                         found = True
