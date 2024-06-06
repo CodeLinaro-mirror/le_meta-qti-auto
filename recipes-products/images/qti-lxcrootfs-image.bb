@@ -11,7 +11,7 @@ PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
 DEPENDS += "squashfs-tools-native \
             ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'mtd-utils-native', '', d)} \
-            refpolicy-mls-generic"
+            refpolicy-mls-auto"
 
 LXCRFSIMAGE_UBIFS ?= "${IMGDEPLOYDIR}/lxcrootfs.ubifs"
 LXCRFSIMAGE_SQUASHFS ?= "${IMGDEPLOYDIR}/lxcrootfs.squash"
