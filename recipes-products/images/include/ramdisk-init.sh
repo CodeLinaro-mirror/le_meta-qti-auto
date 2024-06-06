@@ -711,7 +711,7 @@ MountSystemrw() {
 
     char_device=/dev/ubi${SYS_UBI_DEV_NUM}_${vol}
 
-    busybox.suid mount -t ubifs "${char_device}" ${ROOT_MOUNT}/systemrw -o bulk_read,rw
+    busybox.suid mount -t ubifs "${char_device}" ${ROOT_MOUNT}/systemrw -o bulk_read,rw,noexec,nosuid,nodev
     return ${STATUS_OK}
 }
 
