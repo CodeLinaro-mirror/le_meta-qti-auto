@@ -240,15 +240,22 @@ do_gen_otazip_ubi() {
     fi
 
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
-        ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
-    fi
+        if ${@bb.utils.contains('IMAGE_FEATURES', 'lxcrootfs-volume', 'true', 'false', d)}; then
+            ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
+            if [[ -e update_ubi_ab.zip ]]; then
+               cp update_ubi_ab.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/update_ubi_ab_lxc.zip
+            else
+               bbwarn "update_ubi_ab_lxc.zip failed to create"
+            fi
+            zip -d ${OTA_TARGET_FILES_UBI_AB_PATH} IMAGES/lxcrootfs.img
+        fi
 
-    if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
-      if [[ -e update_ubi_ab.zip ]]; then
-           cp update_ubi_ab.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
-       else
-           bbwarn "update_ubi_ab.zip failed to create"
-       fi
+        ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
+        if [[ -e update_ubi_ab.zip ]]; then
+            cp update_ubi_ab.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+        else
+            bbwarn "update_ubi_ab.zip failed to create"
+        fi
     fi
 
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
