@@ -26,6 +26,11 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
+# Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
+#
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
 UBIFS_VOL_HEADER="1831 0610"
 UBI_SYS_CLASS="/sys/class/ubi/ubi0"
 UBI_DEV_BLOCK="/dev/ubiblock0"
@@ -199,12 +204,12 @@ FindAndMountUBIVol () {
    echo "root fstype is $image_type " > /dev/kmsg
 
    if [ "$image_type" == "squashfs" ]; then
-       mount -t squashfs $block_device $dir -o ro
+       mount -t squashfs $block_device $dir -o ro,noexec,nodev,nosuid
    elif [ "$image_type" == "ubifs" ]; then
        if [ -x /sbin/restorecon ]; then
-           mount -t ubifs $device $dir -o bulk_read,context=system_u:object_r:firmware_t:s0
+           mount -t ubifs $device $dir -o bulk_read,noexec,nodev,nosuid,context=system_u:object_r:firmware_t:s0
        else
-           mount -t ubifs $device $dir -o bulk_read
+           mount -t ubifs $device $dir -o bulk_read,noexec,nodev,nosuid
        fi
    else
        echo "not an ubi partiton" > /dev/kmsg
@@ -250,7 +255,7 @@ FindAndMountUBI () {
     do
         if [ -b $device ]
         then
-            mount $device /firmware
+            mount $device /firmware -o noexec,nodev,nosuid
             break
         else
             sleep 0.010
