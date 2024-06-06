@@ -26,4 +26,7 @@ do_install:append () {
    if [ -f ${D}${sysconfdir}/initscripts/lxcrootfs-ubi-mount.sh ]; then
       chmod 555 ${D}${sysconfdir}/initscripts/lxcrootfs-ubi-mount.sh
    fi
+   if [ -f ${D}${sysconfdir}/initscripts/vm-bootsys-ubi-mount.sh ]; then
+      chmod 555 ${D}${sysconfdir}/initscripts/vm-bootsys-ubi-mount.sh
+   fi
 }
