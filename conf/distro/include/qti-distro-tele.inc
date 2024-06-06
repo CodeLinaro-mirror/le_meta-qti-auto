@@ -47,7 +47,7 @@ DEFAULT_ENFORCING ?= "enforcing"
 
 PREFERRED_VERSION_chrony = "3.5"
 
-packagegroup-qti-debug-tools:remove = " valgrind \
+RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
                                         atrace \
                                         perf \
                                       "
