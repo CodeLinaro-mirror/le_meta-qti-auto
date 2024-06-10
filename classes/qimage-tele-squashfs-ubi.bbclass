@@ -833,7 +833,7 @@ do_makesystem_tele_ubi[dirs] += "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/ubifs ${IMGDE
 
 do_makesystem_tele_ubi_with_lxc[prefuncs] += "do_create_ubinize_tele_config_with_lxc"
 do_makesystem_tele_ubi_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc"
-do_makesystem_tele_ubi_with_lxc[depends] = "qti-lxcrootfs-image:do_image_complete"
+do_makesystem_tele_ubi_with_lxc[depends] = "qti-lxcrootfs-image:do_build"
 
 fakeroot do_makesystem_tele_ubi() {
    mkdir ${USER_IMAGE_ROOTFS}/cache
@@ -874,9 +874,9 @@ fakeroot do_makesystem_tele_ubi() {
 do_makesystem_squashfs[prefuncs] += "do_create_squash_ubinize_config_ab"
 do_makesystem_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 do_makesystem_squashfs_ubi_with_lxc[prefuncs] += "do_create_squash_ubinize_config_ab_with_lxc"
-do_makesystem_squashfs_ubi_with_lxc[prefuncs] += "do_sign_lxc_squashfs"
 do_makesystem_squashfs_ubi_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs"
-do_makesystem_squashfs_ubi_with_lxc[depends] = "qti-lxcrootfs-image:do_image_complete"
+do_makesystem_squashfs_ubi_with_lxc[depends] = "qti-lxcrootfs-image:do_build"
+do_makesystem_squashfs_ubi_with_lxc[prefuncs] += "do_sign_lxc_squashfs"
 
 fakeroot do_makesystem_squashfs() {
     if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
