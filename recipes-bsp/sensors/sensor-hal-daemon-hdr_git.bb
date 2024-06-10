@@ -17,7 +17,7 @@ do_compile[noexec] = "1"
 
 do_install() {
     install -d ${D}${includedir}
-    install -m 644 ${S}/*.h ${D}${includedir}
+    install -m 644 ${S}/src/*.h ${D}${includedir}
 }
 
 PACKAGES = "${PN}"

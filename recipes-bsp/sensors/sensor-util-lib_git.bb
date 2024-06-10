@@ -9,8 +9,8 @@ ${LICENSE};md5=3771d4920bd6cdb8cbdf1e8344489ee0"
 
 DEPENDS = "glib-2.0 libcutils"
 FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://hardware/qcom/sensors/sensor-service/utils/lib"
-S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/utils/lib"
+SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_utils/lib"
+S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_utils/lib"
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-glib"
