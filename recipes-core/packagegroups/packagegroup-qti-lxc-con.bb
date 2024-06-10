@@ -6,7 +6,7 @@ inherit packagegroup
 
 PROVIDES = "${PACKAGES}"
 
-PACKAGES_ARCH ?= "${MACHINE_ARCH}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 PACKAGES = ' \
     packagegroup-qti-lxc-con \
@@ -20,13 +20,7 @@ PACKAGES = ' \
 RDEPENDS:packagegroup-qti-lxc-con = " \
             busybox-init  \
             lxc-con-setup  \
-            libssl \
-            libsepol \
-            libsemanage \
             audit \
-            libbz2 \
             libcap-ng \
-            libstdc++ \
-            libgcc \
             shadow \
 "
