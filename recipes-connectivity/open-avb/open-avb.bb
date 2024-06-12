@@ -15,7 +15,6 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/ \
 		file://gptp-daemon.service \
 		file://gptp-daemon-tmpfilesd.conf \
-		file://qgptp_params \
 		file://qgptp.rules"
 
 S = "${WORKDIR}/external/open-avb/"
@@ -59,7 +58,7 @@ do_install() {
           install -m 0644 ${WORKDIR}/qgptp.rules -D ${D}${sysconfdir}/udev/rules.d/qgptp.rules
           install -d ${D}${sysconfdir}/tmpfiles.d/
           install -m 0644 ${WORKDIR}/gptp-daemon-tmpfilesd.conf ${D}${sysconfdir}/tmpfiles.d/gptp-daemon-tmpfilesd.conf
-	  install -m 0644 ${WORKDIR}/qgptp_params ${D}${sysconfdir}/qgptp_params
+          install -m 0644 ${S}/daemons/gptp/gptp_cfg_le.ini ${D}${sysconfdir}/gptp_cfg.ini
        fi
     fi
 }
@@ -68,5 +67,5 @@ RPROVIDES_${PN} += "open-avb"
 FILES_SOLIBSDEV = ""
 FILES_${PN} += "${bindir}/*"
 FILES_${PN} += "${libdir}/*"
-FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/qgptp_params', d)}"
+FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/gptp_cfg.ini', d)}"
 FILES_${PN} += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', '${sysconfdir}/udev/rules.d/qgptp.rules', d)}"
