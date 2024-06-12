@@ -70,6 +70,6 @@ RDEPENDS_packagegroup-qti-telematics-mvm = "\
     "
 
 RDEPENDS_packagegroup-qti-telematics-nad-core = "\
-    stream-update \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'stream-update', '', d)} \
     "
 
