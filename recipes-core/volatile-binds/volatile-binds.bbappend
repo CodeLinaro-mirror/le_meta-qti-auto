@@ -21,6 +21,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/commonapi4someip.ini /etc/commonapi4someip.ini\n\
 /systemrw/vsomeip-location.json /etc/vsomeip-location.json\n\
 /systemrw/sensors.conf /etc/sensors.conf\n\
+/systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
