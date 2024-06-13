@@ -498,11 +498,6 @@ fakeroot do_makesystem_tele_ubi() {
    rm -rf ${IMAGE_ROOTFS_SQUASHFS_UBI}/cache
    ln -sf /data/cache ${IMAGE_ROOTFS_SQUASHFS_UBI}/cache
 
-   if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
-     rm -rf ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/binderfs.service
-     rm -rf ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/systemd/system/local-fs.target.wants/binderfs.service
-   fi
-
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/telaf.mount.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/telaf.service
    rm -rf ${IMAGE_ROOTFS_UBIFS_UBI}/lib/systemd/system/mrc-daemon.service
