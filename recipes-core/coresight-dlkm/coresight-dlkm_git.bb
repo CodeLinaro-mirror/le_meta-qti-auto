@@ -25,6 +25,6 @@ do_install () {
           -D ${D}${systemd_unitdir}/system/load_coresight-dlkm.service
 
       # Place load_coresight_dlkm script in initscripts dir
-      install -m 0755 ${WORKDIR}/load_coresight_dlkm  \
+      install -m 0555 ${WORKDIR}/load_coresight_dlkm  \
           -D ${D}${sysconfdir}/initscripts/load_coresight_dlkm
 }
