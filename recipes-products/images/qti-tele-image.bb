@@ -36,6 +36,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-security', '${MLIBPREFIX}packagegroup-qti-securemsm', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-audio', '${MLIBPREFIX}packagegroup-qti-audio', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', '${MLIBPREFIX}packagegroup-qti-telematics-cv2x', '', d)} \
+        ${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-cv2x qti-wwan-plus-cv2x', 'packagegroup-qti-cv2x', '', d)} \
         ${MLIBPREFIX}packagegroup-qti-ss-mgr \
         ${MLIBPREFIX}packagegroup-qti-telematics \
         ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', '${MLIBPREFIX}packagegroup-qti-telsdk', '', d)} \
