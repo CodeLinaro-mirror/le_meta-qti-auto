@@ -11,6 +11,10 @@ EVDEVMODULE ?= 'False'
 EVDEVMODULE:sa515m = 'True'
 EVDEVMODULE:sa415m = 'True'
 
+# Install coresight loading module for selected machines
+CORESIGHTDLKM ?= 'False'
+CORESIGHTDLKM:sa525m = 'True'
+
 CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
         ${MLIBPREFIX}glib-2.0 \
@@ -48,6 +52,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-virtualization', '${MLIBPREFIX}packagegroup-qti-virtualization', '', d)} \
         ${@oe.utils.conditional('DEBUG_BUILD', '1', '${MLIBPREFIX}packagegroup-qti-debug-tools', '', d )} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
+        ${@oe.utils.conditional('CORESIGHTDLKM', 'True', 'coresight-dlkm', '', d)} \
 "
 
 # Following packages will be enabled later
