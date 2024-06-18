@@ -1,0 +1,27 @@
+From fdc4639b84f1809ff561bc6229147e3a27e16d9d Mon Sep 17 00:00:00 2001
+From: Andrew Zhao <quic_zhax@quicinc.com>
+Date: Mon, 17 Jun 2024 14:54:07 +0800
+Subject: [PATCH] Suppress notice log messages
+
+---
+ src/lib/dlt_user.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/lib/dlt_user.c b/src/lib/dlt_user.c
+index ec4555f..1745137 100644
+--- a/src/lib/dlt_user.c
++++ b/src/lib/dlt_user.c
+@@ -1092,8 +1092,10 @@ DltReturnValue dlt_free(void)
+                     if (bytes_read >= 0) {
+                         if (!bytes_read)
+                             break;
++#if 0
+                         dlt_vlog(LOG_NOTICE, "[%s] data is still readable... [%zd] bytes read\n",
+                                 __func__, bytes_read);
++#endif
+                     }
+                 }
+             }
+-- 
+2.25.1
+
