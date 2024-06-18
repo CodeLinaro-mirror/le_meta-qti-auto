@@ -382,8 +382,14 @@ python () {
 }
 
 do_patch_ubitools() {
-    ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/mtd-utils-native/usr/sbin/mkfs.ubifs
-    ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/mtd-utils-native/usr/sbin/ubinize
+    filelist="mkfs.ubifs ubinize"
+    for file in $filelist;
+    do
+        interpreter=`${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --print-interpreter ${STAGING_DIR}-components/x86_64/mtd-utils-native/usr/sbin/$file`
+        if [ "$interpreter" != "/lib64/ld-linux-x86-64.so.2" ]; then
+            ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/mtd-utils-native/usr/sbin/$file
+        fi
+    done
 }
 
 # Default Image names
