@@ -22,6 +22,7 @@ PREFERRED_VERSION_dtc-android-build-native = "5.15"
 PREFERRED_VERSION_mkdtimg-gki-native = "5.15"
 PREFERRED_VERSION_qcrosvm = "1.1"
 PREFERRED_VERSION_securemsmdlkm = "1.1"
+PREFERRED_VERSION_cta = "1.1"
 SERIAL_CONSOLES = "115200;ttyMSM0"
 KERNEL_IMAGETYPE = "Image"
 KERNEL_BASE = "0xa8000000"
@@ -67,7 +68,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa525-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-mvm qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qti-wwan-plus-cv2x qwesd qti-wlan ssgtzd android-binder qti-dynamic-tsensreset qti-softsku qti-recovery qti-nad-mrc qti-bluetooth"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-mvm qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qti-wwan-plus-cv2x qwesd qti-wlan ssgtzd android-binder qti-c2c qti-cv2x-compensator qti-dynamic-tsensreset qti-softsku qti-recovery qti-nad-mrc qti-bluetooth"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
