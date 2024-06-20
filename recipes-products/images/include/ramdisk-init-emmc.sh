@@ -36,6 +36,9 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 #------------------------------------------------------------
+Bgrep="busybox grep"
+Becho="busybox echo"
+#------------------------------------------------------------
 # Temporary rootfs mount node
 ROOT_MOUNT="/rootfs"
 EXT4_PART_NAME="system"
@@ -51,6 +54,12 @@ MAX_RETRY=150
 
 KPI_FILE_PATH="/sys/kernel/boot_kpi/kpi_values"
 
+# verity feature status
+VERITY_ENV="/etc/verity.env"
+
+# root certificate key path
+CERT_CA_PATH="/etc/keys/x509_root.der"
+
 LOGD() {
   busybox echo "$1"
 }
@@ -60,7 +69,7 @@ WaitDevReady()
     local maxTrials=300
 
     while [ ! "$1" "$2" ]; do
-        usleep 100000
+        busybox usleep 100000
         maxTrials=$( echo $(( ${maxTrials} - 1 )) )
         if [ ${maxTrials} -eq 0 ]; then
            LOGD "Error: WaitDevReady Timed Out $maxTrails"
@@ -130,6 +139,8 @@ SwitchToSystem() {
 #
 MountSystem () {
 
+    local vb_option=
+
    EmmcGetPartitionID ${EXT4_PART_NAME}
    if [ "${DEV_NUM}" == "-1" ]; then
       LOGD "Cannot get ${EXT4_PART_NAME} partition."
@@ -137,6 +148,28 @@ MountSystem () {
    fi
 
    block_device="/dev/mmcblk0p"$DEV_NUM
+
+    # For root file system Verified boot enabling
+    if  ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
+        dm_verity_device=/dev/mapper/${EXT4_PART_NAME}
+        if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+            vb_option="-s"
+        fi
+        verified-boot -n ${EXT4_PART_NAME} -d ${block_device} -k ${CERT_CA_PATH} ${vb_option}
+
+        if [ $? -ne ${STATUS_OK} ] ; then
+            LOGD "Created dm-verity device ${dm_verity_device} failed."
+            return ${STATUS_ERR}
+        fi
+
+        WaitDevReady "-b" "${dm_verity_device}"
+        if [ $? -ne ${STATUS_OK} ]; then
+            LOGD "Failed to wait on ${dm_verity_device}, exiting."
+            return ${STATUS_ERR}
+        else
+            block_device=${dm_verity_device}
+        fi
+    fi
 
    busybox.suid mount $block_device ${ROOT_MOUNT} -oro
    if [ $? -ne ${STATUS_OK} ]; then
