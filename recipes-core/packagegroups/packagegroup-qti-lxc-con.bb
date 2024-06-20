@@ -11,16 +11,18 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = ' \
     packagegroup-qti-lxc-con \
     '
-
-# These libs has issue, will merge later
-#            vsomeip \     #not present in kirk yet
-#            boost \       #very large including other packages
-#
-
 RDEPENDS:packagegroup-qti-lxc-con = " \
             busybox-init  \
             lxc-con-setup  \
             audit \
             libcap-ng \
             shadow \
+            libssl   \
+            libsepol \
+            libsemanage \
+            libbz2 \
+            vsomeip \
+            boost \
+            libstdc++ \
+            libgcc \
 "
