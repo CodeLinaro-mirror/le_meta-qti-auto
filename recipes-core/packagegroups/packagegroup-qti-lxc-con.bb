@@ -2,11 +2,11 @@ SUMMARY = "Grouping of programs for lxc rootfs file system on Embedded Linux Sys
 DESCRIPTION = "Package group to bring in packages for lxc rootfs file system"
 LICENSE = "BSD-3-Clause"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 PROVIDES = "${PACKAGES}"
-
-PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 PACKAGES = ' \
     packagegroup-qti-lxc-con \
