@@ -48,6 +48,8 @@ DEFAULT_ENFORCING ?= "enforcing"
 PREFERRED_VERSION_chrony = "3.5"
 
 RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
-                                        atrace \
-                                        perf \
-                                      "
+                                                 atrace \
+                                                 perf \
+                                               "
+
+SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
