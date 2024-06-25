@@ -226,3 +226,7 @@ do_makesystem() {
 }
 addtask do_makesystem after do_image before do_image_complete
 
+python() {
+    if bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', True, False, d):
+        bb.build.addtask('do_sign_system_ext4', 'do_image_complete', 'do_makesystem', d)
+}
