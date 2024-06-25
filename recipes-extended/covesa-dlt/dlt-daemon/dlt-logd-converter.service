@@ -39,6 +39,7 @@ Type=simple
 ExecStart=/usr/bin/dlt-logd-converter
 Restart=on-failure
 NotifyAccess=main
+SupplementaryGroups=logd
 LimitCORE=infinity
 
 [Install]
