@@ -1,0 +1,29 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# Function to get machine type based on machine features enabled
+def get_machine_type(d):
+    machine_features = set(d.getVar("MACHINE_FEATURES").split())
+    if "qti-vm-guest" in machine_features:
+        return "VM"
+    if "qti-eap" in machine_features:
+        return "EAP"
+    if "external-eap" in machine_features:
+        return "EAP"
+    return "MDM"
+
+# Function to get machine name based on machine features enabled
+def get_machine_name(d):
+    machine_features = set(d.getVar("MACHINE_FEATURES").split())
+    if "qti-vm-fota" in machine_features:
+        return "qcom,fotavm"
+    if "qti-vm-tele" in machine_features:
+        return "qcom,televm"
+    if "qti-vm-guest" in machine_features:
+        return "qcom,guestvm"
+    if "qti-eap" in machine_features:
+        return "qcom,eap"
+    if "external-eap" in machine_features:
+        return "nonqcom,eap"
+    return "SA525M"
+#Fixme : Change this to qcom,mdm once dependent team changes are done
