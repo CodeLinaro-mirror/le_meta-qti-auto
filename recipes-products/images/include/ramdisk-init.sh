@@ -607,7 +607,11 @@ MountSystem () {
 
                 if [ ${supported_mem_size} -gt ${RAM_SIZE_LIMIT_VOL} ]; then
 
-                    nad_fde_status="enabled"
+                    nad-fde-app -e -k ${sys_key_index}
+                    if [ $? -eq ${STATUS_OK} ]; then
+                        nad_fde_status="enabled"
+                        LOGD "fde: enabled"
+                    fi
 
                     # Currently, only squashfs image is supported for FDE. If the image magic
                     # isn't squashfs type "hsqs", then suppose this partition was encrypted.
