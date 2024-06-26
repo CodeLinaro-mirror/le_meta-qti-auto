@@ -5,7 +5,6 @@ MACHINE_MNT_POINTS = " \
     /systemrw \
     /persist \
     /data \
-    /cache \
     /vm-bootsys \
     /vm_systemrw \
 "
