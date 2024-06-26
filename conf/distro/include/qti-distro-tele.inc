@@ -47,4 +47,5 @@ DEFAULT_ENFORCING ?= "enforcing"
 
 PREFERRED_VERSION_chrony = "4.2"
 
-
+RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'
+RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
