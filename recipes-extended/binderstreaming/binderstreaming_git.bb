@@ -13,6 +13,8 @@ PR = "r0"
 FILESPATH =+ "${WORKSPACE}/OTA/streaming/frameworks/:"
 
 SRC_URI  = "file://native"
+SRC_URL += "file://CVE-2020-27044.patch \
+"
 
 S = "${WORKDIR}/native"
 
