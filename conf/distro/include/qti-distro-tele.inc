@@ -45,7 +45,7 @@ DISTRO_FEATURES_NATIVE:append  = " ${@bb.utils.contains_any('MACHINE', 'sa515m',
 # Set selinux in enforcing state by default
 DEFAULT_ENFORCING ?= "enforcing"
 
-PREFERRED_VERSION_chrony = "3.5"
+PREFERRED_VERSION_chrony = "4.2"
 
 RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
                                                  atrace \
