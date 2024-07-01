@@ -58,6 +58,7 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
     ${@oe.utils.conditional('CV2X_ITS', 'True', 'udpreplay', '', d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-vnw = "\
