@@ -14,6 +14,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/tm.conf /etc/tm.conf\n\
 /systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
 /systemrw/enable /etc/cv2x/enable\n\
+/systemrw/chrony.conf /etc/chrony.conf\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
@@ -31,6 +32,7 @@ VOLATILE_BINDS:sa525m = "\
 
 VOLATILE_BINDS:sa525m-televm = "\
 /systemrw/enable /etc/cv2x/enable\n\
+/systemrw/chrony.conf /etc/chrony.conf\n\
 /systemrw/data /etc/data/\n\
 /systemrw/tm.conf /etc/tm.conf\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
