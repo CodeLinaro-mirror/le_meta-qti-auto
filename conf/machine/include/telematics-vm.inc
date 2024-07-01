@@ -3,7 +3,14 @@ require conf/machine/include/basemachine.inc
 DEFAULTTUNE ?= "aarch64"
 include conf/machine/include/arm/arch-armv8a.inc
 
-MLIBPREFIX = ""
+# Multilib configuration
+MULTILIB_ENABLED ?= "True"
+require ${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'conf/multilib.conf', d)}
+MULTILIBS = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'multilib:lib32', d)}"
+DEFAULTTUNE:virtclass-multilib-lib32 = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'armv7athf-neon', d)}"
+MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)}"
+
+NON_MULTILIB_RECIPES += "iproute2 qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm ptp-devicetree"
 
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native ?= "mkbootimg-gki-native"
