@@ -31,6 +31,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}coreutils \
         ${MLIBPREFIX}packagegroup-android-utils \
         ${MLIBPREFIX}packagegroup-qti-core \
+        ${MLIBPREFIX}packagegroup-qti-ppat \
         ${@bb.utils.contains('MACHINE_FEATURES', 'android-binder', '${MLIBPREFIX}binder', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-data-modem', '${MLIBPREFIX}packagegroup-qti-data', '', d)} \
         ${@bb.utils.contains_any('COMBINED_FEATURES', 'qti-adsp qti-cdsp qti-modem qti-slpi', '${MLIBPREFIX}packagegroup-qti-dsp', '', d)} \
