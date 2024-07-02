@@ -81,6 +81,7 @@ MACHINE_MNT_POINTS = " \
     /persist \
     /data \
     ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', '/lxcrootfs', '', d), '', d)} \
+    ${@bb.utils.contains('IMAGE_FSTYPES', 'ext4', '/cache', '', d)} \
 "
 
 PAGE_SIZE ?= '4096'
