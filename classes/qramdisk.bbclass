@@ -14,6 +14,8 @@ PACKAGE_INSTALL += "${@oe.utils.conditional('TOYBOX_RAMDISK', 'True', 'toybox mk
 PACKAGE_INSTALL += "${@oe.utils.conditional('FLASHLESS_MCU', 'True', 'nbd-client techpack-ecpri', '', d)}"
 DEPENDS += "${@oe.utils.conditional('FLASHLESS_MCU', 'True', 'binutils-cross-${TARGET_ARCH}', '', d)}"
 
+KERNEL_VERSION = "${@oe.utils.read_file('${STAGING_KERNEL_BUILDDIR}/kernel-abiversion')}"
+
 # Adding mtd-utils to support dm-verity v4 for NAND
 PACKAGE_INSTALL += "${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', '${MLIBPREFIX}mtd-utils ${MLIBPREFIX}avbtool ${MLIBPREFIX}cryptsetup ${MLIBPREFIX}nad-abctl ${MLIBPREFIX}util-linux-libuuid ${MLIBPREFIX}json-c', '', d)}"
 
@@ -256,9 +258,7 @@ fakeroot do_ramdisk_create() {
                     cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
                     cp ${IMAGE_ROOTFS}/etc/gpfspath_le_oem_config.xml etc/
                     cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
-                    cp ${IMAGE_ROOTFS}/lib/modules/*/dm-crypt.ko lib/modules/
-                    do_strip_and_sign_dlkm lib/modules/smcinvoke.ko
-                    do_strip_and_sign_dlkm lib/modules/dm-crypt.ko
+                    cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
                 fi
 
             else
