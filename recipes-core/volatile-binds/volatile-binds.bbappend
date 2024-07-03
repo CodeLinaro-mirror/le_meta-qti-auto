@@ -31,6 +31,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/eCall.conf /etc/eCall.conf\n\
 /systemrw/telux_chrony-sock.conf /etc/telux_chrony-sock.conf\n\
 /systemrw/telux_power_refd.conf /etc/telux_power_refd.conf\n\
+/systemrw/vsomeip-sensor_service.json /usr/etc/vsomeip/SensorInterface/vsomeip-sensor_service.json\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
