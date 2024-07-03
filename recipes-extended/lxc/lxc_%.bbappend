@@ -18,8 +18,9 @@ FILES:${PN}-service = " \
 FILES:${PN}-initscript = " \
                     ${S}/lxc_launch.sh"
 
-do_install:append() {
+EXTRA_OEMAKE += "CFLAGS+="-flto""
 
+do_install:append() {
 
    install -m 0644  -d ${D}${sysconfdir}/initscripts
    install -m 0655  -d ${D}${sysconfdir}/lxc
@@ -48,6 +49,7 @@ do_install:append() {
    install -m 0744 ${WORKDIR}/lxc_system.conf ${D}${sysconfdir}/lxc/lxc.conf
 
 }
+
 FILES:${PN} += "${systemd_unitdir}/system/*"
 FILES:${PN} += "${sysconfdir}/initscripts/*"
 FILES:${PN} += "${sysconfdir}/lxc/*"
