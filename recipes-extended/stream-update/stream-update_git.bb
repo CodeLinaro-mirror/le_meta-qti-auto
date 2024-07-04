@@ -37,7 +37,7 @@ do_install:append:class-target() {
    install -d ${D}${userfsdatadir}
    install -m 0755 ${S}/update_engine_sideload -D ${D}/usr/bin/update_engine_sideload
    install -d ${D}${sysconfdir}/initscripts/
-   install -m 0755 ${S}/start_update_engine -D ${D}${sysconfdir}/initscripts/start_update_engine
+   install -m 0555 ${S}/start_update_engine -D ${D}${sysconfdir}/initscripts/start_update_engine
    install -d ${D}${systemd_unitdir}/system/
    install -m 0644 ${WORKDIR}/stream-update.service -D ${D}${systemd_unitdir}/system/stream-update.service
    install -m 0755 -o system -g system -d ${D}${userfsdatadir}/stream_update/
