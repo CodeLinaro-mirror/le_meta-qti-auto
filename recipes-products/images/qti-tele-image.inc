@@ -1,4 +1,4 @@
-inherit qimage qimage-tele-squashfs-ubi populate_sdk_qti dm-verity-initramfs-v4 ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'qramdisk', '', d)}
+inherit qimage ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot','qimage-tele-squashfs-ubi', '',d)} populate_sdk_qti ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'dm-verity-initramfs-v4 qramdisk', '', d)}
 
 MLIBPREFIX ?= ""
 
