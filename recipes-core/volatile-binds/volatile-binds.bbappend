@@ -26,6 +26,9 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/gps.conf /etc/gps.conf\n\
 /systemrw/sap.conf /etc/sap.conf\n\
 /systemrw/apdr.conf /etc/apdr.conf\n\
+/systemrw/eCall.conf /etc/eCall.conf\n\
+/systemrw/telux_chrony-sock.conf /etc/telux_chrony-sock.conf\n\
+/systemrw/telux_power_refd.conf /etc/telux_power_refd.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
@@ -37,6 +40,7 @@ VOLATILE_BINDS:sa525m-televm = "\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 /systemrw/gps.conf /etc/gps.conf\n\
+/systemrw/eCall.conf /etc/eCall.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-fotavm = "\
