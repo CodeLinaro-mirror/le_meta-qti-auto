@@ -3,7 +3,6 @@ SRC_URI:append += " \
                     file://lxc_networking.conf  \
                     file://qti-lxc-common.conf  \
                     file://lxc_launch.service   \
-                    file://lxc_launch.sh  \
                     file://lxc_system.conf \
                     file://seccom_attach_unsupported_fix.patch \
                     "
@@ -15,14 +14,11 @@ FILES:${PN}-configs = " \
 FILES:${PN}-service = " \
                     ${S}/lxc_launch.service"
 
-FILES:${PN}-initscript = " \
-                    ${S}/lxc_launch.sh"
 
 EXTRA_OEMAKE += "CFLAGS+="-flto""
 
 do_install:append() {
 
-   install -m 0644  -d ${D}${sysconfdir}/initscripts
    install -m 0655  -d ${D}${sysconfdir}/lxc
    install -m 0644  -d ${D}${sysconfdir}/default
 
@@ -44,14 +40,11 @@ do_install:append() {
    install -m 0444 ${WORKDIR}/lxc_networking.conf \
       ${D}${sysconfdir}/lxc/
 
-
-   install -m 0555 ${WORKDIR}/lxc_launch.sh ${D}${sysconfdir}/initscripts/lxc_launch.sh
    install -m 0744 ${WORKDIR}/lxc_system.conf ${D}${sysconfdir}/lxc/lxc.conf
 
 }
 
 FILES:${PN} += "${systemd_unitdir}/system/*"
-FILES:${PN} += "${sysconfdir}/initscripts/*"
 FILES:${PN} += "${sysconfdir}/lxc/*"
 FILES:${PN} += "${userfsdatadir}/lxc_rw"
 
