@@ -4,6 +4,7 @@ SRC_URI += " file://vm-bootsys.mount"
 SRC_URI += " file://vm-bootsys-mount.service"
 SRC_URI += " file://systemrw-gvm.conf"
 SRC_URI += " file://firmware-ext4-mount.sh"
+SRC_URI += " file://vm_systemrw.mount"
 
 do_install:append () {
     if ${@bb.utils.contains('MACHINE_MNT_POINTS','/systemrw','true','false',d)}; then

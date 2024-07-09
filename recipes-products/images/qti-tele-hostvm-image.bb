@@ -4,7 +4,9 @@
 
 require qti-tele-image.inc
 
-IMAGE_FEATURES += "vm-bootsys-volume vm-systemrw-volume"
+# Set IMAGE_FEATURES based on 'emmc-boot' presence
+
+IMAGE_FEATURES:append = "${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', '', 'vm-bootsys-volume vm-systemrw-volume',d)}"
 
 # Install km-loader for selected machines
 EVDEVMODULE ?= 'False'
