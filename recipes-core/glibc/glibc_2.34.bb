@@ -68,6 +68,7 @@ SRC_URI =  "${GLIBC_GIT_URI};branch=${SRCBRANCH};name=glibc \
          https://git.codelinaro.org/clo/ype/external/yoctoproject.org/poky/-/raw/yocto/honister/meta/recipes-core/glibc/glibc/0001-CVE-2021-3999.patch;md5sum=c41eec8e658c254f8dfc02e3a34c4e30;sha256sum=b563ccdcced70186be5dcc1a8cf3385bf1d8f7d7c35ed09f0d6f9d0247ee353d \
          https://git.codelinaro.org/clo/ype/external/yoctoproject.org/poky/-/raw/yocto/honister/meta/recipes-core/glibc/glibc/0002-CVE-2021-3999.patch;md5sum=b4d6f18669fffba074c9a2ecca74d911;sha256sum=047cc8f1d45ae9a764e82743527358158e595845b0ba0c7e14bb44f1275dc931 \
          file://glibc-upstream-2.34-fix_for_fcntl_ioctl_prctl_redirects.patch \
+         file://y2038-syslog.patch \
            "
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
