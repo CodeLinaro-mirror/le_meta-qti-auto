@@ -38,12 +38,24 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 #------------------------------------------------------------
 Bgrep="busybox grep"
 Becho="busybox echo"
+Bdf="busybox df"
+Btr="busybox tr"
+Bawk="busybox awk"
+Bchmod="busybox chmod"
+Binsmod="busybox insmod"
+
 #------------------------------------------------------------
 # Temporary rootfs mount node
 ROOT_MOUNT="/rootfs"
 EXT4_PART_NAME="system"
 RECINFO_PART_NAME="recoveryinfo"
 SYSTEMRW_PART_NAME="systemrw"
+
+# FDE Encryption path
+FDE_ENCRYPTION_PATH="/tmp/test.img"
+
+# fde enable status
+FDE_ENV="/etc/fde.env"
 
 # Function return status
 STATUS_OK=0
@@ -128,6 +140,9 @@ EarlySetup() {
     busybox.suid mount -t proc proc /proc
     busybox.suid mount -t sysfs sysfs /sys
     busybox.suid mount -t devtmpfs none /dev
+
+    busybox mkdir -p /tmp
+    busybox.suid mount -t tmpfs tmpfs /tmp
 
     if [ -f "$KPI_FILE_PATH" ]; then
         echo -n 'M - Ramdisk-init Start' >> $KPI_FILE_PATH
@@ -252,10 +267,94 @@ SwitchToSystem() {
     LOGD "switch_root failure: We are not expected to reach here..."
 }
 
+FdeInitialize ()
+{
+    ${Binsmod} /lib/modules/smcinvoke.ko
+    ${Binsmod} /lib/modules/dm-crypt.ko
+
+    if ! ${Bgrep} -wq "smcinvoke_dlkm" /proc/modules; then
+        LOGD "Error: Failed to load smcinvoke module"
+        return ${STATUS_ERR}
+    fi
+
+    if ! ${Bgrep} -wq "dm_crypt" /proc/modules; then
+        LOGD "Error: Failed to load dmcrypt module"
+        return ${STATUS_ERR}
+    fi
+
+    ${Bchmod} -R 0660 /dev/dma_heap/qcom,qseecom-ta
+    ${Bchmod} -R 0660 /dev/dma_heap/qcom,qseecom
+    ${Bchmod} o+rw /dev/smcinvoke
+
+    /usr/bin/qseecomd > /dev/kmsg &
+
+    return ${STATUS_OK}
+}
+
+# device_name - The name of the partition
+# dev_num - ext4 device number
+# key_index - The key use for partition encryption
+# for_vb_parameter - These parameters need to transmit to verified-boot utility
+
+EncryptPartition () {
+    local device_name=${1} #system
+    local key_index=${2}
+    local dev_num=${3}
+    local for_vb_parameter="${4}"
+    local encryption_path=${FDE_ENCRYPTION_PATH}
+
+    block_device="/dev/mmcblk0p"${dev_num}
+
+    if [ "${FDE_INIT_STATUS}" != "DONE" ]; then
+        FdeInitialize
+        if [ $? -ne ${STATUS_OK} ]; then
+            LOGD "Error: FDE initialization failed."
+            return ${STATUS_ERR}
+        fi
+        FDE_INIT_STATUS="DONE"
+    fi
+
+# nad-fde-app return:
+    # 0 -- Run encryption and/or decryption successful
+    # 1 -- Fuse not blown, continue as normal boot
+    # 2 -- Failed
+    nad-fde-app  -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} -s \
+                -V "${for_vb_parameter}"
+    nad_fde_result=$?
+    case "${nad_fde_result}" in
+        0)
+            LOGD "FDE enabled for ${device_name}."
+            FDE_MOUNT_NODE="/dev/mapper/${device_name}"
+            busybox rm -rf ${encryption_path}
+            return ${STATUS_OK}
+        ;;
+        1)
+            LOGD "FDE fuse bit not blown."
+            FDE_MOUNT_NODE=${block_device}
+            busybox rm -rf ${encryption_path}
+            return ${STATUS_OK}
+        ;;
+        2)
+            LOGD "FDE Failed"
+            FDE_MOUNT_NODE=${block_device}
+            busybox rm -rf ${encryption_path}
+            return ${STATUS_OK}
+        ;;
+        *)
+            LOGD "FDE encryption failed ${nad_fde_result}."
+            FDE_MOUNT_NODE=""
+            busybox rm -rf ${encryption_path}
+            return ${STATUS_ERR}
+        ;;
+    esac
+}
+
 #
 # Mount system partition
 #
 MountSystem () {
+    local sys_key_index="0"
+    local vb_parameter="-k /etc/keys/x509_root.der"
     local vb_option=""
 
     GetSlotSuffix
@@ -270,7 +369,23 @@ MountSystem () {
     fi
     block_device="/dev/mmcblk0p"$DEV_NUM
 
-    # For root file system Verified boot enabling
+    # Encrypt 'System' partition
+    if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
+
+        EncryptPartition ${EXT4_PART_NAME}"_encrypted" \
+                        ${sys_key_index} \
+                        ${DEV_NUM} \
+                        "${vb_parameter}"
+
+        if [ $? -ne ${STATUS_OK} ] ; then
+            LOGD "Encrypt partition ${EXT4_PART_NAME} failed."
+            return ${STATUS_ERR}
+        fi
+        block_device=${FDE_MOUNT_NODE}
+        LOGD "fde: block_device=${block_device}"
+    fi
+
+# For root file system Verified boot enabling
     if  ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
         dm_verity_device=/dev/mapper/${EXT4_PART_NAME}
         if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
