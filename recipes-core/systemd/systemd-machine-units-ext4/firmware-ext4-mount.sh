@@ -172,7 +172,7 @@ FindAndMountFW () {
    fi
 
    block_device="/dev/mmcblk0p"$DEV_NUM
-   mount -o noexec,nodev,ro,context=system_u:object_r:firmware_t:s0 -t vfat $block_device ${FIRMWARE_MOUNT}
+   mount -o noexec,nodev,nosuid,ro,context=system_u:object_r:firmware_t:s0 -t vfat $block_device ${FIRMWARE_MOUNT}
    if [ $? -ne ${STATUS_OK} ]; then
       echo "Unable to mount firmware partition" > /dev/kmsg
       IsGPIOEnabled
