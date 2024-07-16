@@ -52,5 +52,8 @@ do_install() {
     ln -sf -T ../.."${datadir_native}/${LAUNCHER_BASE}/${LAUNCHER}" ${D}${bindir}/${LAUNCHER_LINK}
 }
 
-FILES:${PN}:append:class-nativesdk += "${datadir}/${LAUNCHER_BASE}"
+FILES:${PN}:append:class-nativesdk =  "\
+    ${datadir}/${LAUNCHER_BASE} \
+    ${bindir}/${LAUNCHER_LINK} \
+"
 BBCLASSEXTEND += "native nativesdk"
