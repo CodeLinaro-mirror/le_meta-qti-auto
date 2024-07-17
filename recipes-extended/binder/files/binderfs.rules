@@ -1,0 +1,1 @@
+RUN+="/etc/udev/scripts/binderfs_udev.sh binderfs"
