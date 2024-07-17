@@ -41,7 +41,7 @@ do_copy_abl() {
     fi
 }
 
-#TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
+TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
 
 # Remove unsupported SDK packages
 TOOLCHAIN_TARGET_TASK:remove = "ath6kl-utils-staticdev"
