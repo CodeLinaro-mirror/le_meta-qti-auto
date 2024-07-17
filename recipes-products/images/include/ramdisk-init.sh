@@ -639,7 +639,7 @@ MountSystem () {
             # For system and/or other partitions FDE enabling
             if [ "${nad_fde_status}" == "enabled" ]; then
 
-                EncryptUbiPartition ${DM_SYST_NAME} \
+                EncryptUbiPartition ${DM_SYST_NAME}"_encrypted" \
                                     ${SYS_UBI_DEV_NUM} \
                                     ${SYS_IMAGE_VOL} \
                                     ${sys_key_index} \
@@ -661,9 +661,10 @@ MountSystem () {
                     LOGD "Error: MountSystem no device: ${block_device} found"
                     return ${STATUS_ERR}
                 fi
+            fi
 
             # For root file system Verified boot enabling
-            elif ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
+            if ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
                 dm_verity_device=/dev/mapper/${DM_SYST_NAME}
                 if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
                     vb_option="-s"
