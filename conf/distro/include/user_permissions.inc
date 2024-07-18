@@ -6,7 +6,6 @@ USERADD_PARAM:${PN} ?= 	" \
 			-u 1001 -U radio; \
 			-u 1004 -g input input; \
 			-G diag,system -u 1005 -g audio audio; \
-			-u 1010 -U wifi; \
 			-u 1036 -U logd; \
 			-u 2000 -U adb; \
 			-G diag,inet,system,leprop -u 3011 -U sensors; \

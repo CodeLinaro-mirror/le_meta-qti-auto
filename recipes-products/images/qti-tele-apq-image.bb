@@ -15,36 +15,37 @@ EVDEVMODULE:sa415m = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
-        glib-2.0 \
-        i2c-tools \
-        kernel-modules \
+        ${MLIBPREFIX}glib-2.0 \
+        ${MLIBPREFIX}i2c-tools \
+        ${MLIBPREFIX}kernel-modules \
         ${@oe.utils.conditional('EVDEVMODULE', 'True', 'km-loader', '', d)} \
-        net-tools \
-        pps-tools \
-        libgpiod libgpiod-tools \
-        spitools \
-        coreutils \
-        packagegroup-android-utils \
-        packagegroup-qti-core \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'android-binder', 'binder', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-data-modem', 'packagegroup-qti-data', '', d)} \
-        ${@bb.utils.contains_any('COMBINED_FEATURES', 'qti-adsp qti-cdsp qti-modem qti-slpi', 'packagegroup-qti-dsp', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-location', 'packagegroup-qti-location packagegroup-qti-location-auto', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-bluetooth', 'packagegroup-qti-bt', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-wlan', 'packagegroup-qti-wlan', '', d)} \
-        ${@bb.utils.contains('COMBINED_FEATURES', 'qti-security', 'packagegroup-qti-securemsm', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', 'packagegroup-qti-telematics-cv2x', '', d)} \
-        packagegroup-qti-telematics \
-        ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', 'packagegroup-qti-telsdk', '', d)} \
-        ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'packagegroup-selinux-minimal', '', d)} \
-        packagegroup-startup-scripts \
-        packagegroup-support-utils \
-        subsystem-ramdump \
-        systemd-machine-units \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'mtd-utils-ubifs', '', d)} \
-        qmi-shutdown-modem \
-        modem-shutdown \
-        ${@oe.utils.conditional('DEBUG_BUILD', '1', 'packagegroup-qti-debug-tools', '', d )} \
+        ${MLIBPREFIX}net-tools \
+        ${MLIBPREFIX}pps-tools \
+        ${MLIBPREFIX}libgpiod ${MLIBPREFIX}libgpiod-tools \
+        ${MLIBPREFIX}spitools \
+        ${MLIBPREFIX}coreutils \
+        ${MLIBPREFIX}packagegroup-android-utils \
+        ${MLIBPREFIX}packagegroup-qti-core \
+        ${MLIBPREFIX}packagegroup-qti-ppat \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'android-binder', '${MLIBPREFIX}binder', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-data-modem', '${MLIBPREFIX}packagegroup-qti-data', '', d)} \
+        ${@bb.utils.contains_any('COMBINED_FEATURES', 'qti-adsp qti-cdsp qti-modem qti-slpi', '${MLIBPREFIX}packagegroup-qti-dsp', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-location', '${MLIBPREFIX}packagegroup-qti-location ${MLIBPREFIX}packagegroup-qti-location-auto', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-bluetooth', '${MLIBPREFIX}packagegroup-qti-bt', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-wlan', '${MLIBPREFIX}packagegroup-qti-wlan', '', d)} \
+        ${@bb.utils.contains('COMBINED_FEATURES', 'qti-security', '${MLIBPREFIX}packagegroup-qti-securemsm', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', '${MLIBPREFIX}packagegroup-qti-telematics-cv2x', '', d)} \
+        ${MLIBPREFIX}packagegroup-qti-telematics \
+        ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', '${MLIBPREFIX}packagegroup-qti-telsdk', '', d)} \
+        ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '${MLIBPREFIX}packagegroup-selinux-minimal', '', d)} \
+        ${MLIBPREFIX}packagegroup-startup-scripts \
+        ${MLIBPREFIX}packagegroup-support-utils \
+        ${MLIBPREFIX}subsystem-ramdump \
+        ${MLIBPREFIX}systemd-machine-units \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', '${MLIBPREFIX}mtd-utils-ubifs', '', d)} \
+        ${MLIBPREFIX}qmi-shutdown-modem \
+        ${MLIBPREFIX}modem-shutdown \
+        ${@oe.utils.conditional('DEBUG_BUILD', '1', '${MLIBPREFIX}packagegroup-qti-debug-tools', '', d )} \
 "
 
 # Following packages will be enabled later

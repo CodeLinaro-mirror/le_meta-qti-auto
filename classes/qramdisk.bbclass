@@ -14,6 +14,8 @@ PACKAGE_INSTALL += "${@oe.utils.conditional('TOYBOX_RAMDISK', 'True', 'toybox mk
 PACKAGE_INSTALL += "${@oe.utils.conditional('FLASHLESS_MCU', 'True', 'nbd-client techpack-ecpri', '', d)}"
 DEPENDS += "${@oe.utils.conditional('FLASHLESS_MCU', 'True', 'binutils-cross-${TARGET_ARCH}', '', d)}"
 
+KERNEL_VERSION = "${@oe.utils.read_file('${STAGING_KERNEL_BUILDDIR}/kernel-abiversion')}"
+
 # Adding mtd-utils to support dm-verity v4 for NAND
 PACKAGE_INSTALL += "${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', '${MLIBPREFIX}mtd-utils ${MLIBPREFIX}avbtool ${MLIBPREFIX}cryptsetup ${MLIBPREFIX}nad-abctl ${MLIBPREFIX}util-linux-libuuid ${MLIBPREFIX}json-c', '', d)}"
 
@@ -218,6 +220,47 @@ fakeroot do_ramdisk_create() {
                     cp ${IMAGE_ROOTFS}/etc/verity.env  etc/
                     cp ${IMAGE_ROOTFS}/etc/keys/x509_root.der etc/keys/x509_root.der
                 fi
+
+                # Copies dependencies for nad full disk encryption
+                if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+
+                    echo "nad_fde=1" >> etc/fde.env
+                    cp ${IMAGE_ROOTFS}/usr/bin/nad-fde-app usr/bin/
+                    cp ${IMAGE_ROOTFS}/usr/bin/qseecomd usr/bin/
+                    cp ${IMAGE_ROOTFS}/usr/sbin/cryptsetup usr/sbin/
+                    cp ${IMAGE_ROOTFS}/lib/libgcc_s.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-km.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-keystore-rw.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libnad_mtd_al.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libKeyMaster.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libqcbor.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libcbor.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libcutils.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libutils.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/liblog.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libminkdescriptor.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libstdc++.so.6 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libcryptsetup.so.12 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libdmabufheap.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libbase.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libion.so.0 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/librpmb.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libdrmfs.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libxml2.so.2 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel_svc.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libdrmtime.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
+                    cp ${IMAGE_ROOTFS}/etc/gpfspath_le_oem_config.xml etc/
+                    cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
+                    cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
+                fi
+
             else
                 ln -s bin/busybox init
             fi

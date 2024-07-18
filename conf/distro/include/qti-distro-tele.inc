@@ -45,11 +45,16 @@ DISTRO_FEATURES_NATIVE:append  = " ${@bb.utils.contains_any('MACHINE', 'sa515m',
 # Set selinux in enforcing state by default
 DEFAULT_ENFORCING ?= "enforcing"
 
-PREFERRED_VERSION_chrony = "3.5"
+PREFERRED_VERSION_chrony = "4.2"
+
+SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
 
 RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
                                                  atrace \
                                                  perf \
                                                "
 
-SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
+RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'
+RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
+
+IMAGE_FEATURES:remove += " package-management"

@@ -31,7 +31,7 @@ KERNEL_CONFIG ?= "vendor/sa525_defconfig"
 KERNEL_CONFIG:qti-distro-debug ?= "vendor/sa525-debug_defconfig"
 CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 no_console_suspend=1"
 CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1 loglevel=0 systemd.log_level=0 systemd.show_status=0"
-KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0"
+KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0"
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
@@ -81,6 +81,7 @@ MACHINE_MNT_POINTS = " \
     /persist \
     /data \
     ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', '/lxcrootfs', '', d), '', d)} \
+    ${@bb.utils.contains('IMAGE_FSTYPES', 'ext4', '/cache', '', d)} \
 "
 
 PAGE_SIZE ?= '4096'
@@ -106,3 +107,6 @@ PREFERRED_VERSION_android-tools = "5.1.1.r37"
 
 # Fixes for boot image dtb appending
 BOOT_HEADER_VERSION = "2"
+
+# Enable debug configuration for post-boot recipe
+PACKAGECONFIG:append:pn-post-boot = "debug"

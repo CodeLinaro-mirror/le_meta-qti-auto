@@ -24,6 +24,7 @@ VMSYSTEMRW_PACKIMAGE_ROOTFS ?= "${VMBOOTSYS_DEPLOY_DIR}/vm-systemrw/"
 
 # Size of the combined EXT4 image
 VM_COMBINED_SIZE_EXT4 ?= "314572800"
+VM_SYSTEMRW_SIZE_EXT4 ?= "41943040"
 
 do_copy_vmimages[dirs] = "${VMBOOTSYS_DEPLOY_DIR} ${VMBOOTSYS_DEPLOY_DIR}/vm-images/ ${VMBOOTSYS_DEPLOY_DIR}/vm-systemrw/"
 do_copy_vmimages() {
@@ -90,6 +91,12 @@ do_pack_vm_images() {
                    -S ${VMBOOTSYS_DEPLOY_DIR}/vmimage.fc \
                    ${VMBOOTSYS_DEPLOY_DIR}/${VMIMAGE_TARGET} \
                    ${VMBOOTSYS_DEPLOY_DIR}/vm-images/
+    fi
+
+    if ${@bb.utils.contains('IMAGE_FSTYPES','ext4', 'true', 'false', d)}; then
+       make_ext4fs -s -a / -b 4096 -l ${VM_SYSTEMRW_SIZE_EXT4} \
+                   ${VMBOOTSYS_DEPLOY_DIR}/${VMSYSTEMRW_TARGET} \
+                   ${VMBOOTSYS_DEPLOY_DIR}/vm-systemrw/
     fi
 
     if ${@bb.utils.contains('IMAGE_FSTYPES','ubi', 'true', 'false', d)}; then

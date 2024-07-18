@@ -77,8 +77,11 @@ FILES:${PN}-doc += "${datadir}/dlt-filetransfer"
 
 do_install:append() {
     rm -f ${D}${bindir}/dlt-test-*
-    install -m 0744 ${WORKDIR}/dlt-system.conf ${D}${sysconfdir}/dlt-system.conf
+    install -m 0400 ${WORKDIR}/dlt-system.conf ${D}${sysconfdir}/dlt-system.conf
     install -m 0644 ${WORKDIR}/dlt-logd-converter.service ${D}${systemd_unitdir}/system/dlt-logd-converter.service
+    chmod 400 ${D}${sysconfdir}/dlt.conf
+    chmod 400 ${D}${sysconfdir}/dlt_gateway.conf
+    chmod 400 ${D}${sysconfdir}/dlt-logd-converter.conf
 }
 
 BBCLASSEXTEND = "nativesdk"
