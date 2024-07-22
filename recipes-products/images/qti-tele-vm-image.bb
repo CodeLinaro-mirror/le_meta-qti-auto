@@ -27,6 +27,7 @@ CORE_IMAGE_EXTRA_INSTALL += " \
     ${MLIBPREFIX}packagegroup-qti-data-vm \
     ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', '${MLIBPREFIX}packagegroup-qti-telsdk', '', d)} \
     ${MLIBPREFIX}packagegroup-support-utils \
+    ${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-cv2x qti-wwan-plus-cv2x', '${MLIBPREFIX}packagegroup-qti-cv2x', '', d)} \
 "
 
 TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"

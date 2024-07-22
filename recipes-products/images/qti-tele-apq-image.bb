@@ -34,7 +34,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-bluetooth', '${MLIBPREFIX}packagegroup-qti-bt', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-wlan', '${MLIBPREFIX}packagegroup-qti-wlan', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-security', '${MLIBPREFIX}packagegroup-qti-securemsm', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', '${MLIBPREFIX}packagegroup-qti-telematics-cv2x', '', d)} \
+        ${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-cv2x qti-wwan-plus-cv2x qti-cv2x-compensator', '${MLIBPREFIX}packagegroup-qti-cv2x', '', d)} \
         ${MLIBPREFIX}packagegroup-qti-telematics \
         ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', '${MLIBPREFIX}packagegroup-qti-telsdk', '', d)} \
         ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', '${MLIBPREFIX}packagegroup-selinux-minimal', '', d)} \
