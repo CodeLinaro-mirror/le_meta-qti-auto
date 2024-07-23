@@ -1,0 +1,29 @@
+From 88776cd57c283182949cc604cefb3e68eb18eb7d Mon Sep 17 00:00:00 2001
+From: shanth kumar j p <quic_sjp@quicinc.com>
+Date: Wed, 17 Jul 2024 20:47:04 +0530
+Subject: [PATCH] change dlt socket permissions to 660
+
+Signed-off-by: Shanth Kumar J P <quic_sjp@quicinc.com>
+
+---
+ src/daemon/dlt-daemon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/daemon/dlt-daemon.c b/src/daemon/dlt-daemon.c
+index e0dce59..e97b8c1 100644
+--- a/src/daemon/dlt-daemon.c
++++ b/src/daemon/dlt-daemon.c
+@@ -1690,8 +1690,8 @@ static int dlt_daemon_init_vsock(DltDaemonLocal *daemon_local)
+ #ifdef DLT_DAEMON_USE_UNIX_SOCKET_IPC
+ static DltReturnValue dlt_daemon_init_app_socket(DltDaemonLocal *daemon_local)
+ {
+-    /* socket access permission set to srw-rw-rw- (666) */
+-    int mask = S_IXUSR | S_IXGRP | S_IXOTH;
++    /* socket access permission set to srw-rw-- (660) */
++    int mask = S_IXUSR | S_IXGRP | S_IXOTH | S_IWOTH | S_IROTH;
+     DltReturnValue ret = DLT_RETURN_OK;
+     int fd = -1;
+ 
+-- 
+2.17.1
+
