@@ -22,6 +22,11 @@ PACKAGECONFIG:remove = " \
     kmod \
 "
 
+do_configure:append() {
+    # Disable autostart of systemd-network-generator.service
+    sed -i -e "s/enable systemd-network-generator.service/disable systemd-network-generator.service/g" ${S}/presets/90-systemd.preset
+}
+
 do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
