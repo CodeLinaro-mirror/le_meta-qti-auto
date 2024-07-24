@@ -8,7 +8,7 @@ def get_machine_type(d):
         return "VM"
     if "qti-eap" in machine_features:
         return "EAP"
-    if "external-eap" in machine_features:
+    if "external-ap" in machine_features:
         return "EAP"
     return "MDM"
 
@@ -23,7 +23,6 @@ def get_machine_name(d):
         return "qcom,guestvm"
     if "qti-eap" in machine_features:
         return "qcom,eap"
-    if "external-eap" in machine_features:
+    if "external-ap" in machine_features:
         return "nonqcom,eap"
-    return "SA525M"
-#Fixme : Change this to qcom,mdm once dependent team changes are done
+    return "qcom,mdm"
