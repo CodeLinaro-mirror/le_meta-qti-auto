@@ -42,14 +42,16 @@ Becho="busybox echo"
 # Temporary rootfs mount node
 ROOT_MOUNT="/rootfs"
 EXT4_PART_NAME="system"
+RECINFO_PART_NAME="recoveryinfo"
 
 # Function return status
 STATUS_OK=0
 STATUS_ERR=1
-
+STATUS_INVAL=-1
 DEV_NUM=-1
 UEVENT_PATH=""
 SYS_MMC_PATH="/sys/class/block"
+RECINFO_PATH="/dev/block/bootdevice/by-name/recoveryinfo"
 MAX_RETRY=150
 
 KPI_FILE_PATH="/sys/kernel/boot_kpi/kpi_values"
@@ -59,6 +61,7 @@ VERITY_ENV="/etc/verity.env"
 
 # root certificate key path
 CERT_CA_PATH="/etc/keys/x509_root.der"
+abctl_cmd="/usr/bin/nad-abctl"
 
 LOGD() {
   busybox echo "$1"
@@ -79,8 +82,10 @@ WaitDevReady()
     return ${STATUS_OK}
 }
 
+#Partition name should be without suffix
 EmmcGetPartitionID() {
    DEV_NUM=-1
+   UEVENT_PATH=""
    local PART_NAME=$1
    local retry_count=0
 
@@ -95,7 +100,6 @@ EmmcGetPartitionID() {
    fi
 
    # Fetch active part uevent then parse dev num from PARTN
-
    while [ -z $UEVENT_PATH ]
    do
       UEVENT_PATH=$(busybox grep -w $PART_NAME$act_slot ${SYS_MMC_PATH}/mmcblk0p*/uevent | busybox cut -d ":" -f 1)
@@ -122,6 +126,135 @@ EarlySetup() {
     return ${STATUS_OK}
 }
 
+gracefullReboot () {
+    local mode=$1
+    if [ ! -e ${abctl_cmd} ]; then
+        LOGD "${abctl_cmd} not found."
+        return ${STATUS_ERR}
+    fi
+
+    LOGD "InitRamFS: Found issue, rebooting ${mode}..."
+    busybox sleep 1
+
+    ${abctl_cmd} --reboot ${mode}
+    if [ "$?" -eq "${STATUS_INVAL}" ]; then
+        LOGD "Error: reboot failed"
+        return ${STATUS_ERR}
+    fi
+}
+
+IsGPIOEnabled () {
+    gpio_enable_status=`busybox cat /proc/cmdline | busybox awk -F'recoveryinfo_gpio=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
+    return ${gpio_enable_status}
+}
+
+SetImageStatus() {
+    arg=$1
+    ${abctl_cmd} --set_image_set_status ${arg}
+    if [ "$?" -eq "${STATUS_INVAL}" ]; then
+        LOGD "Error: image set status failed"
+        return ${STATUS_ERR}
+    fi
+    return ${STATUS_OK}
+}
+
+SetImageOwner() {
+    arg=$1
+    ${abctl_cmd} --set_owner ${arg}
+    if [ "$?" -eq "${STATUS_INVAL}" ]; then
+        LOGD "Error: owner set failed"
+        return ${STATUS_ERR}
+    fi
+    return ${STATUS_OK}
+}
+
+SlotSwitchReboot () {
+    local sys_partn_name=""
+    # Set image_set_status fields in recoveryinfo struct
+    #  'A&B' Usable     :  SET_AB_USABLE(0)
+    #  'A' corrupted     :  DONT_USE_SET_A(1)
+    #  'B' corrupted     :  DONT_USE_SET_B(2)
+    #  'A &B' corrupted  :  DONT_USE_SET_AB(3)
+
+    # Set owner fields in recoveryinfo struct
+    #  OWNER_XBL         :  1
+    #  OWNER_HLOS        :  2
+    local owner_hlos=2
+    local dont_use_set_a=1
+    local dont_use_set_b=2
+    local dont_use_set_ab=3
+    local current_image_set_status=0
+    DEV_NUM=-1
+
+    if [ ! -e ${abctl_cmd} ]; then
+        LOGD "${abctl_cmd} not found."
+        return ${STATUS_ERR}
+    fi
+
+    busybox mkdir -p "/dev/block/bootdevice/by-name/"
+    EmmcGetPartitionID ${RECINFO_PART_NAME}
+    if [ "${DEV_NUM}" == "${STATUS_INVAL}" ]; then
+        LOGD "Cannot get ${RECINFO_PART_NAME} partition."
+        return ${STATUS_ERR}
+    fi
+    busybox ln -s "/dev/mmcblk0p"${DEV_NUM} ${RECINFO_PATH}
+    busybox chmod 777 "/dev/mmcblk0p"${DEV_NUM}
+    # check current slot and image_set_status in recoveryinfo
+    #  'A' corrupted     :  set image_set_status = DONT_USE_SET_A
+    #  'B' corrupted     :  set image_set_status = DONT_USE_SET_B
+    #  'A &B' corrupted  :  set image_set_status = DONT_USE_SET_AB
+
+    curr_slot=`busybox cat /proc/cmdline | busybox awk -F'SLOT_SUFFIX=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
+    if [ "x${curr_slot}" == "x" ]; then
+        # Single system (non AB)
+        LOGD "slot_suffix not present"
+        LOGD "non-AB scenario, reboot to edl"
+        #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
+        gracefullReboot edl
+        return ${STATUS_ERR}
+    else
+        # A/B system case
+        #Get current image set status
+        (${abctl_cmd} --get_image_set_status)
+        current_image_set_status=$?
+        if [ "$current_image_set_status" -eq "${STATUS_INVAL}" ]; then
+            LOGD "Error: incorrect image set status"
+            return ${STATUS_ERR}
+        fi
+
+        if [ "$curr_slot" = "_a" ] && [ "$current_image_set_status" != "$dont_use_set_b" ]; then
+            LOGD "system A partition corrupted "
+            SetImageStatus ${dont_use_set_a}
+            if [ "$?" -eq "${STATUS_ERR}" ]; then
+                return ${STATUS_ERR}
+            fi
+        elif [ "$curr_slot" = "_b" ] && [ "$current_image_set_status" != "$dont_use_set_a" ]; then
+            LOGD "system B partition corrupted "
+            SetImageStatus ${dont_use_set_b}
+            if [ "$?" -eq "${STATUS_ERR}" ]; then
+                return ${STATUS_ERR}
+            fi
+        else
+            LOGD "system A and B both partition is corrupted."
+            SetImageStatus ${dont_use_set_ab}
+            if [ "$?" -eq "${STATUS_ERR}" ]; then
+                return ${STATUS_ERR}
+            fi
+        fi
+    fi
+
+    # Set owner to HLOS & reboot device
+    SetImageOwner ${owner_hlos}
+    if [ "$?" -eq "${STATUS_ERR}" ]; then
+        return ${STATUS_ERR}
+    fi
+
+    LOGD "Reboot device for Slot Switch or EDL"
+    #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
+    gracefullReboot
+    return ${STATUS_ERR}
+}
+
 MoveMountToSystem() {
     busybox.suid mount -n --move /proc ${ROOT_MOUNT}/proc
     busybox.suid mount -n --move /sys ${ROOT_MOUNT}/sys
@@ -135,19 +268,17 @@ SwitchToSystem() {
 }
 
 #
-# Mount the root file system
+# Mount system partition
 #
 MountSystem () {
 
     local vb_option=
-
-   EmmcGetPartitionID ${EXT4_PART_NAME}
-   if [ "${DEV_NUM}" == "-1" ]; then
-      LOGD "Cannot get ${EXT4_PART_NAME} partition."
-      return ${STATUS_ERR}
-   fi
-
-   block_device="/dev/mmcblk0p"$DEV_NUM
+    EmmcGetPartitionID ${EXT4_PART_NAME}
+    if [ "${DEV_NUM}" == "${STATUS_INVAL}" ]; then
+       LOGD "Cannot get ${EXT4_PART_NAME} partition."
+       return ${STATUS_ERR}
+    fi
+    block_device="/dev/mmcblk0p"$DEV_NUM
 
     # For root file system Verified boot enabling
     if  ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
@@ -170,13 +301,11 @@ MountSystem () {
             block_device=${dm_verity_device}
         fi
     fi
-
    busybox.suid mount $block_device ${ROOT_MOUNT} -oro
    if [ $? -ne ${STATUS_OK} ]; then
       LOGD "Error: mount ${block_device} failed"
       return ${STATUS_ERR}
    fi
-
    return ${STATUS_OK}
 }
 
@@ -193,6 +322,14 @@ MainBoot() {
             LOGD "Error: ${task1} failed"
 
             # According to the conditions does system switch or reboot
+	    IsGPIOEnabled
+            if [ $? -eq 1 ]; then
+                #GPIO Enabled keeping behavior similar to Mount failure.
+                LOGD "GPIO Enabled do not switch slots "
+            else
+                LOGD "GPIO disabled switch the slots or boot to EDL "
+                SlotSwitchReboot
+            fi
             return ${STATUS_ERR}
         else
             LOGD "Init: ${task1}"
