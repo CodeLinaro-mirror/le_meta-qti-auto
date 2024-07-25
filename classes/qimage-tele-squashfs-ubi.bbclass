@@ -4,7 +4,8 @@ GENERATE_AB_OTA_PACKAGE ?= "${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-bo
 MLIBPREFIX ?= ""
 QIMGUBICLASSES  = ""
 # To be implemented
-QIMGUBICLASSES += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', 'ota-ubi', '', d)}"
+
+QIMGUBICLASSES += "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-recovery qti-ab-boot', 'ota-ubi', '', d)}"
 
 inherit ${QIMGUBICLASSES}
 

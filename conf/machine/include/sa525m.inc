@@ -68,7 +68,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa525-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-mvm qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qti-wwan-plus-cv2x qwesd qti-wlan ssgtzd android-binder qti-c2c qti-cv2x-compensator qti-dynamic-tsensreset qti-softsku qti-recovery qti-nad-mrc qti-bluetooth qti-nad-telaf"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-mvm qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qti-wwan-plus-cv2x qwesd qti-wlan ssgtzd android-binder qti-c2c qti-cv2x-compensator qti-dynamic-tsensreset qti-softsku qti-nad-mrc qti-bluetooth qti-nad-telaf"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"

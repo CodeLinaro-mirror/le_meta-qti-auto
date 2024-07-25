@@ -1,9 +1,10 @@
-DEPENDS += "releasetools-native zip-native fsconfig-native applypatch-native bc-native bsdiff-native qti-recovery-image"
-DEPENDS += " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'payload-gen-native', '', d), '', d)}"
+DEPENDS += "releasetools-native zip-native fsconfig-native applypatch-native bc-native bsdiff-native"
+DEPENDS += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', 'qti-recovery-image', '', d)}"
+DEPENDS += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'payload-gen-native', '', d), '', d)}"
 
 RM_WORK_EXCLUDE_ITEMS += "rootfs rootfs-dbg"
 
-RECOVERY_IMAGE_ROOTFS = "$(echo ${IMAGE_ROOTFS} | sed 's#/${PN}/#/qti-recovery-image/#')"
+RECOVERY_IMAGE_ROOTFS = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', '$(echo ${IMAGE_ROOTFS} | sed 's#/${PN}/#/qti-recovery-image/#')', '${IMAGE_ROOTFS_UBI}', d)}"
 
 IMAGE_SYSTEM_MOUNT_POINT = "/system"
 OTA_TARGET_IMAGE_ROOTFS_UBI = "${WORKDIR}/ota-target-image-ubi"
@@ -28,7 +29,7 @@ do_recovery_ubi[cleandirs] += "${OTA_TARGET_IMAGE_ROOTFS_UBI}/RADIO"
 do_recovery_ubi[cleandirs] += "${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES"
 do_recovery_ubi[cleandirs] += "${OTA_TARGET_IMAGE_ROOTFS_UBI}/BOOT/RAMDISK"
 
-do_recovery_ubi[depends] += "qti-recovery-image:do_build"
+do_recovery_ubi[depends] += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', 'qti-recovery-image:do_build', '', d)}"
 
 do_recovery_ubi() {
     echo "base image rootfs: ${IMAGE_ROOTFS_UBI}"
