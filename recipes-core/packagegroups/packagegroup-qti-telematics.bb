@@ -17,37 +17,21 @@ PTPVIRT:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-
 SENSORIDL ?= "False"
 SENSORIDL:sa525m = "True"
 
-# Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
-# Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
-CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
-CV2X_ITS:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'True', 'False',d)}"
-
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     ${MLPREFIX}packagegroup-qti-telematics \
     ${MLPREFIX}packagegroup-qti-telematics-utils \
     ${MLPREFIX}packagegroup-qti-telematics-vnw \
-    ${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], '${MLPREFIX}packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', '${MLPREFIX}packagegroup-qti-telematics-sensors', '', d)} \
-    ${@oe.utils.conditional('CV2X_ITS', 'True', '${MLPREFIX}packagegroup-qti-telematics-cv2x-its', '', d)} \
     '
 
 RDEPENDS:packagegroup-qti-telematics = "\
     ${MLPREFIX}packagegroup-qti-telematics-utils \
     ${MLPREFIX}packagegroup-qti-telematics-vnw \
-    ${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], '${MLPREFIX}packagegroup-qti-telematics-cv2x', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', '${MLPREFIX}packagegroup-qti-telematics-sensors', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', '${MLPREFIX}packagegroup-qti-telematics-mvm', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'vbleima', 'keyutils ima-evm-utils attr ima-cert-setup', '',d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'packagegroup-qti-telematics-nad-core', '', d)} \
-    "
-
-RDEPENDS:packagegroup-qti-telematics-cv2x = "\
-    ${@oe.utils.conditional('CV2X_ITS', 'True', '${MLPREFIX}packagegroup-qti-telematics-cv2x-its', '', d)} \
-    "
-
-RDEPENDS:packagegroup-qti-telematics-cv2x-its = "\
-    aerolink-configurations \
     "
 
 RDEPENDS:packagegroup-qti-telematics-sensors = "\
@@ -57,7 +41,6 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
     "
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
-    ${@oe.utils.conditional('CV2X_ITS', 'True', 'udpreplay', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
     "
 
