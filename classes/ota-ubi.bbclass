@@ -4,7 +4,8 @@ DEPENDS += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', bb.utils.c
 
 RM_WORK_EXCLUDE_ITEMS += "rootfs rootfs-dbg"
 
-RECOVERY_IMAGE_ROOTFS = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', '$(echo ${IMAGE_ROOTFS} | sed 's#/${PN}/#/qti-recovery-image/#')', '${IMAGE_ROOTFS_UBI}', d)}"
+RECOVERY_ROOTFS = "$(echo ${IMAGE_ROOTFS} | sed 's#/${PN}/#/qti-recovery-image/#')"
+RECOVERY_IMAGE_ROOTFS = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', RECOVERY_ROOTFS, '${IMAGE_ROOTFS_UBI}', d)}"
 
 IMAGE_SYSTEM_MOUNT_POINT = "/system"
 OTA_TARGET_IMAGE_ROOTFS_UBI = "${WORKDIR}/ota-target-image-ubi"
