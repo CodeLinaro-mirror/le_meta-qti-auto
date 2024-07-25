@@ -24,6 +24,7 @@ SRC_URI = "git://github.com/COVESA/${BPN}.git;protocol=https;branch=master \
            file://0001-Suppress-notice-log-messages.patch \
            file://dlt-system.conf \
            file://dlt-logd-converter.service \
+           file://change-dlt-socket-permissions-to-660.patch \
            "
 SRCREV = "0f2d4cfffada6f8448a2cb27995b38eb4271044f"
 
