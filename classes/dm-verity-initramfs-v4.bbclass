@@ -19,6 +19,9 @@ def get_ramdisk_path(d):
 
 RAMDISK_PATH = "${@get_ramdisk_path(d)}"
 
+RAMDISK_FDE_PATH = "${IMGDEPLOYDIR}/${PN}-initrd-fde.gz"
+BOOTIMAGE_FDE_TARGET = "boot-fde.img"
+
 MKBOOTUTIL = '${@oe.utils.conditional("PREFERRED_PROVIDER_virtual/mkbootimg-native", "mkbootimg-gki-native", "scripts/mkbootimg.py", "mkbootimg", d)}'
 
 python do_makeboot () {
@@ -51,6 +54,20 @@ python do_makeboot () {
         ret = subprocess.check_output(cmd, shell=True)
     except RuntimeError as e:
         bb.error("dm-verity-initramfs-v4 cmd: %s failed with error %s" % (cmd, str(e)))
+
+    # generate boot image with FDE enabled ramdisk
+    if bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', True, False, d):
+        ramdiskfde_path = d.getVar('RAMDISK_FDE_PATH')
+        outputfde = d.getVar('BOOTIMAGE_FDE_TARGET', True)
+        # cmd to make boot-fde.img
+        cmd =  mkboot_bin_path + " --kernel %s --cmdline %s --pagesize %s --base %s --ramdisk %s --ramdisk_offset 0x0 %s --output %s" \
+               % (zimg_path, cmdline, pagesize, base, ramdiskfde_path, xtra_parms, outputfde )
+        bb.debug(1, "dm-verity-initramfs-v4 do_makeboot fde cmd: %s" % (cmd))
+        try:
+            ret = subprocess.check_output(cmd, shell=True)
+        except RuntimeError as e:
+            bb.error("dm-verity-initramfs-v4 fde cmd: %s failed with error %s" % (cmd, str(e)))
+
 }
 do_makeboot[dirs]      = "${BOOTIMGDEPLOYDIR}/${IMAGE_BASENAME}"
 
