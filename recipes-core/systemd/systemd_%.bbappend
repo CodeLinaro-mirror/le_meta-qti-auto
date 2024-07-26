@@ -63,6 +63,11 @@ do_install:append() {
     fi
 }
 
+do_install:append:sa525m(){
+    #Let systemd-tmpfiles-setup.service start earlier
+            sed -i 's/local-fs.target//g' ${D}${systemd_unitdir}/system/systemd-tmpfiles-setup.service
+}
+
 do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         rm -f ${D}${base_libdir}/udev/ata_id
