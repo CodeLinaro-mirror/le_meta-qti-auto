@@ -15,7 +15,7 @@ PTPVIRT ?=  "False"
 PTPVIRT:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-vm-tele', 'True', 'False',d)}"
 
 SENSORIDL ?= "False"
-SENSORIDL:sa525m = "True"
+SENSORIDL:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-tele', 'False', 'True',d)}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
@@ -36,7 +36,8 @@ RDEPENDS:packagegroup-qti-telematics = "\
 
 RDEPENDS:packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
-    libsensors sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', '', 'sensor-hal-daemon', d)}\
+    libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
     ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
     "
 
