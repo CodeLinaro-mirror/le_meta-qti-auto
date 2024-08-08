@@ -5,27 +5,46 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 FIRMWARE_PART_NAME="firmware"
-FIRMWARE_BPART_NAME="firmware_b"
 FIRMWARE_MOUNT="/firmware"
 RECINFO_PART_NAME="recoveryinfo"
 
 # Function return status
 STATUS_OK=0
 STATUS_ERR=1
-
+STATUS_INVAL=-1
 DEV_NUM=-1
 UEVENT_PATH=""
 SYS_MMC_PATH="/sys/class/block"
 MAX_RETRY=150
 
+abctl_cmd="/usr/bin/nad-abctl"
 IsGPIOEnabled () {
     gpio_enable_status=`cat /proc/cmdline | awk -F'recoveryinfo_gpio=' '{print $2}' | awk '{print $1}' | tr -d '"'`
     return ${gpio_enable_status}
 }
 
+SetImageStatus() {
+    arg=$1
+    ${abctl_cmd} --set_image_set_status ${arg}
+    if [ "$?" -eq "${STATUS_INVAL}" ]; then
+        echo "Error: image set status failed" > /dev/kmsg
+        return ${STATUS_ERR}
+    fi
+    return ${STATUS_OK}
+}
+
+SetImageOwner() {
+    arg=$1
+    ${abctl_cmd} --set_owner ${arg}
+    if [ "$?" -eq "${STATUS_INVAL}" ]; then
+        echo "Error: owner set failed" > /dev/kmsg
+        return ${STATUS_ERR}
+    fi
+    return ${STATUS_OK}
+}
+
 SlotSwitchReboot () {
-    local abctl_cmd="/usr/bin/nad-abctl"
-    local fw_partn_name=""
+    DEV_NUM=-1
     # Set image_set_status fields in recoveryinfo struct
     #  'A&B' Usable     :  SET_AB_USABLE(0)
     #  'A' corrupted     :  DONT_USE_SET_A(1)
@@ -43,39 +62,29 @@ SlotSwitchReboot () {
     if [ ! -e ${abctl_cmd} ]; then
         echo "${abctl_cmd} not found." > /dev/kmsg
         /bin/sh -c 'reboot edl'
-	exit 1
+        exit 1
     fi
 
     EmmcGetPartitionID ${RECINFO_PART_NAME}
-    if [ "${DEV_NUM}" == "-1" ]; then
+    if [ "${DEV_NUM}" == "${STATUS_INVAL}" ]; then
         echo "Cannot get ${RECINFO_PART_NAME} partition." > /dev/kmsg
         /bin/sh -c 'reboot edl'
-	exit 1
+        exit 1
     fi
 
-    #Check for _b partition to confirm if it supports A/B
-    UEVENT_PATH=$(grep -w ${FIRMWARE_BPART_NAME} ${SYS_MMC_PATH}/mmcblk0p*/uevent | cut -d ":" -f 1)
-    DEV_NUM=$(grep -w PARTN $UEVENT_PATH | awk -F '=' '{print $2}')
-    if [ "${DEV_NUM}" == "-1" ]; then
-        echo "Cannot get ${FIRMWARE_BPART_NAME} partition." > /dev/kmsg
-        return ${STATUS_ERR}
-    fi
-
-    fw_partn_name=$(grep -w PARTNAME ${SYS_MMC_PATH}/mmcblk0p${DEV_NUM}/uevent | awk -F '=' '{print $2}')
     # check current slot and image_set_status in recoveryinfo
     #  'A' corrupted     :  set image_set_status = DONT_USE_SET_A
     #  'B' corrupted     :  set image_set_status = DONT_USE_SET_B
     #  'A &B' corrupted  :  set image_set_status = DONT_USE_SET_AB
 
-    if [ "$fw_partn_name" == "$firmware_b" ] ; then
+    curr_slot=`cat /proc/cmdline | awk -F'SLOT_SUFFIX=' '{print $2}' | awk '{print $1}' | tr -d '"'`
+    if [ "x${curr_slot}" == "x" ]; then
+        # Single system (non AB)
+        echo "slot_suffix not present or invalid, reboot to edl" > /dev/kmsg
+        /bin/sh -c 'reboot edl'
+        exit 1
+    else
         # A/B system case
-        curr_slot=`cat /proc/cmdline | awk -F'SLOT_SUFFIX=' '{print $2}' | awk '{print $1}' | tr -d '"'`
-        if [ "x${curr_slot}" == "x" ]; then
-            echo "slot_suffix not present or invalid, reboot to edl" > /dev/kmsg
-	    /bin/sh -c 'reboot edl'
-            exit 1
-        fi
-
         #Get current image set status
         (${abctl_cmd} --get_image_set_status)
         current_image_set_status=$?
@@ -87,45 +96,37 @@ SlotSwitchReboot () {
 
         if [ "$curr_slot" = "_a" ] && [ "$current_image_set_status" != "$dont_use_set_b" ]; then
             echo "Firmware A partition corrupted " > /dev/kmsg
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_a}
-            if [ "$?" -eq "-1" ]; then
-                echo "Error: image set status failed" > /dev/kmsg
+            SetImageStatus ${dont_use_set_a}
+            if [ "$?" -eq "${STATUS_ERR}" ]; then
                 /bin/sh -c 'reboot edl'
                 exit 1
             fi
         elif [ "$curr_slot" = "_b" ] && [ "$current_image_set_status" != "$dont_use_set_a" ]; then
             echo "Firmware B partition corrupted " > /dev/kmsg
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_b}
-            if [ "$?" -eq "-1" ]; then
-                echo "Error: image set status failed" > /dev/kmsg
+            SetImageStatus ${dont_use_set_b}
+            if [ "$?" -eq "${STATUS_ERR}" ]; then
                 /bin/sh -c 'reboot edl'
                 exit 1
             fi
         else
             echo "Firmware A and B partition is corrupted." > /dev/kmsg
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_ab}
-            if [ "$?" -eq "-1" ]; then
-                echo "Error: image set status failed" > /dev/kmsg
+            SetImageStatus ${dont_use_set_ab}
+            if [ "$?" -eq "${STATUS_ERR}" ]; then
                 /bin/sh -c 'reboot edl'
                 exit 1
             fi
         fi
-    else
-        # Single system (non AB)
-        echo "non-AB partition layout, reboot to edl" > /dev/kmsg
-        /bin/sh -c 'reboot edl'
-        exit 1
     fi
 
     # Set owner to HLOS & reboot device
-    ${abctl_cmd} --set_owner ${owner_hlos}
-    if [ "$?" -eq "-1" ]; then
-        echo "Error: owner set failed" > /dev/kmsg
+    SetImageOwner ${owner_hlos}
+    if [ "$?" -eq "${STATUS_ERR}" ]; then
         /bin/sh -c 'reboot edl'
         exit 1
     fi
 
     echo "Reboot device for Slot Switch or EDL" > /dev/kmsg
+    #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
     /bin/sh -c 'reboot'
     exit 1
 }
@@ -154,7 +155,7 @@ EmmcGetPartitionID() {
       retry_count=$(( retry_count + 1))
       if [ $retry_count -ge $MAX_RETRY ]; then
          echo "Error: EmmcGetPartitionID timed out $retry_count" > /dev/kmsg
-         break
+         return ${STATUS_ERR}
       fi
    done
 
@@ -168,7 +169,7 @@ FindAndMountFW () {
    EmmcGetPartitionID ${FIRMWARE_PART_NAME}
    if [ "${DEV_NUM}" == "-1" ]; then
       echo "Cannot get ${FIRMWARE_PART_NAME} partition." > /dev/kmsg
-      return ${STATUS_ERR}
+      exit 1
    fi
 
    block_device="/dev/mmcblk0p"$DEV_NUM
