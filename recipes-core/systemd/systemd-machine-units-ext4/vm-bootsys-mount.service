@@ -4,11 +4,7 @@
 [Unit]
 Description=Mount vm-bootsys partition to /vm-bootsys mount point
 ConditionDirectoryNotEmpty=!/vm-bootsys
-
-# Env vars are not reflecting in [Unit] Section for selective wait.
-# Hence wait for both _a & _b dev nodes before attepting to mount
-BindsTo=dev-disk-by\x2dpartlabel-vm\x2dbootsys_a.device dev-disk-by\x2dpartlabel-vm\x2dbootsys_b.device
-After=dev-disk-by\x2dpartlabel-vm\x2dbootsys_a.device dev-disk-by\x2dpartlabel-vm\x2dbootsys_b.device
+SourcePath=/etc/initscripts/vm-bootsys-ext4-mount.sh
 Before=local-fs.target
 DefaultDependencies=no
 
@@ -18,7 +14,7 @@ IgnoreOnIsolate=true
 Type=oneshot
 RemainAfterExit=yes
 PassEnvironment="SLOT_SUFFIX"
-ExecStart=/bin/mount -o noexec,nodev,rw,context=system_u:object_r:vm-bootsys_t:s0 -t ext4 /dev/disk/by-partlabel/vm-bootsys${SLOT_SUFFIX} /vm-bootsys
+ExecStart=/etc/initscripts/vm-bootsys-ext4-mount.sh
 
 [Install]
 WantedBy=local-fs.target
