@@ -48,8 +48,9 @@ RECINFO_PART_NAME="recoveryinfo"
 STATUS_OK=0
 STATUS_ERR=1
 STATUS_INVAL=-1
+
+SLOT_SUFFIX=""
 DEV_NUM=-1
-UEVENT_PATH=""
 SYS_MMC_PATH="/sys/class/block"
 RECINFO_PATH="/dev/block/bootdevice/by-name/recoveryinfo"
 MAX_RETRY=150
@@ -67,8 +68,7 @@ LOGD() {
   busybox echo "$1"
 }
 
-WaitDevReady()
-{
+WaitDevReady() {
     local maxTrials=300
 
     while [ ! "$1" "$2" ]; do
@@ -82,36 +82,43 @@ WaitDevReady()
     return ${STATUS_OK}
 }
 
-#Partition name should be without suffix
+
+GetSlotSuffix() {
+    local boot_slot=""
+    boot_slot=`busybox cat /proc/cmdline | busybox awk -F'SLOT_SUFFIX=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
+    if [ "${boot_slot}" == "_a" ]; then
+        SLOT_SUFFIX=""
+    elif [ "${boot_slot}" == "_b" ]; then
+        SLOT_SUFFIX="_b"
+    else
+        SLOT_SUFFIX=""
+        LOGD "SLOT_SUFFIX not found in cmdline"
+        return ${STATUS_ERR}
+    fi
+    return ${STATUS_OK}
+}
+
+#Partition name should be with suffix
 EmmcGetPartitionID() {
-   DEV_NUM=-1
-   UEVENT_PATH=""
-   local PART_NAME=$1
-   local retry_count=0
+    DEV_NUM=-1
+    local UEVENT_PATH=""
+    local PART_NAME=$1
+    local retry_count=0
 
-   # We will only take "_a" and "_b" as correct active slot
-   # Else all will be ignored and DEV_NUM will set as -1
+    # Fetch active part uevent then parse dev num from PARTN
+    while [ $retry_count -lt $MAX_RETRY ]
+    do
+        UEVENT_PATH=$(busybox grep -wl "PARTNAME="$PART_NAME ${SYS_MMC_PATH}/mmcblk0p*/uevent)
+        if [ -n $UEVENT_PATH ]; then
+            DEV_NUM=$(busybox grep -w PARTN $UEVENT_PATH | busybox awk -F '=' '{print $2}')
+            return ${STATUS_OK}
+        fi
+        busybox usleep 100000
+        retry_count=$(( retry_count + 1))
+    done
 
-   act_slot=`busybox cat /proc/cmdline | busybox awk -F'SLOT_SUFFIX=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
-   if [ "${act_slot}" == "_a" ]; then
-      act_slot=""
-   elif [ "${act_slot}" != "_b" ]; then
-      return
-   fi
-
-   # Fetch active part uevent then parse dev num from PARTN
-   while [ -z $UEVENT_PATH ]
-   do
-      UEVENT_PATH=$(busybox grep -w $PART_NAME$act_slot ${SYS_MMC_PATH}/mmcblk0p*/uevent | busybox cut -d ":" -f 1)
-      busybox usleep 100000
-      retry_count=$(( retry_count + 1))
-      if [ $retry_count -ge $MAX_RETRY ]; then
-         LOGD "Error: EmmcGetPartitionID timed out $retry_count"
-         break
-      fi
-   done
-
-   DEV_NUM=$(busybox grep -w PARTN $UEVENT_PATH | busybox awk -F '=' '{print $2}')
+    LOGD "Error: EmmcGetPartitionID timed out $retry_count"
+    return ${STATUS_ERR}
 }
 
 EarlySetup() {
@@ -119,8 +126,7 @@ EarlySetup() {
     busybox.suid mount -t sysfs sysfs /sys
     busybox.suid mount -t devtmpfs none /dev
 
-    if [ -f "$KPI_FILE_PATH" ]
-    then
+    if [ -f "$KPI_FILE_PATH" ]; then
         echo -n 'M - Ramdisk-init Start' >> $KPI_FILE_PATH
     fi
     return ${STATUS_OK}
@@ -158,28 +164,12 @@ SetImageStatus() {
     return ${STATUS_OK}
 }
 
-SetImageOwner() {
-    arg=$1
-    ${abctl_cmd} --set_owner ${arg}
-    if [ "$?" -eq "${STATUS_INVAL}" ]; then
-        LOGD "Error: owner set failed"
-        return ${STATUS_ERR}
-    fi
-    return ${STATUS_OK}
-}
-
 SlotSwitchReboot () {
-    local sys_partn_name=""
     # Set image_set_status fields in recoveryinfo struct
     #  'A&B' Usable     :  SET_AB_USABLE(0)
     #  'A' corrupted     :  DONT_USE_SET_A(1)
     #  'B' corrupted     :  DONT_USE_SET_B(2)
     #  'A &B' corrupted  :  DONT_USE_SET_AB(3)
-
-    # Set owner fields in recoveryinfo struct
-    #  OWNER_XBL         :  1
-    #  OWNER_HLOS        :  2
-    local owner_hlos=2
     local dont_use_set_a=1
     local dont_use_set_b=2
     local dont_use_set_ab=3
@@ -191,6 +181,7 @@ SlotSwitchReboot () {
         return ${STATUS_ERR}
     fi
 
+    # create symlink for recoveryinfo partition
     busybox mkdir -p "/dev/block/bootdevice/by-name/"
     EmmcGetPartitionID ${RECINFO_PART_NAME}
     if [ "${DEV_NUM}" == "${STATUS_INVAL}" ]; then
@@ -199,17 +190,14 @@ SlotSwitchReboot () {
     fi
     busybox ln -s "/dev/mmcblk0p"${DEV_NUM} ${RECINFO_PATH}
     busybox chmod 777 "/dev/mmcblk0p"${DEV_NUM}
-    # check current slot and image_set_status in recoveryinfo
-    #  'A' corrupted     :  set image_set_status = DONT_USE_SET_A
-    #  'B' corrupted     :  set image_set_status = DONT_USE_SET_B
-    #  'A &B' corrupted  :  set image_set_status = DONT_USE_SET_AB
 
+    # check current slot and image_set_status in recoveryinfo
     curr_slot=`busybox cat /proc/cmdline | busybox awk -F'SLOT_SUFFIX=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
     if [ "x${curr_slot}" == "x" ]; then
         # Single system (non AB)
         LOGD "slot_suffix not present"
         LOGD "non-AB scenario, reboot to edl"
-        #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
+        #XBL or ABL will take care of slot switching after reboot with Trial Boot Enabled.
         gracefullReboot edl
         return ${STATUS_ERR}
     else
@@ -243,14 +231,8 @@ SlotSwitchReboot () {
         fi
     fi
 
-    # Set owner to HLOS & reboot device
-    SetImageOwner ${owner_hlos}
-    if [ "$?" -eq "${STATUS_ERR}" ]; then
-        return ${STATUS_ERR}
-    fi
-
     LOGD "Reboot device for Slot Switch or EDL"
-    #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
+    #XBL or ABL will take care of slot switching after reboot with Trial Boot Enabled.
     gracefullReboot
     return ${STATUS_ERR}
 }
@@ -271,11 +253,16 @@ SwitchToSystem() {
 # Mount system partition
 #
 MountSystem () {
+    local vb_option=""
 
-    local vb_option=
-    EmmcGetPartitionID ${EXT4_PART_NAME}
+    GetSlotSuffix
+    if [ $? -ne ${STATUS_OK} ]; then
+        LOGD "Unable to get slot suffix"
+    fi
+
+    EmmcGetPartitionID ${EXT4_PART_NAME}${SLOT_SUFFIX}
     if [ "${DEV_NUM}" == "${STATUS_INVAL}" ]; then
-       LOGD "Cannot get ${EXT4_PART_NAME} partition."
+       LOGD "Cannot get ${EXT4_PART_NAME}${SLOT_SUFFIX} partition."
        return ${STATUS_ERR}
     fi
     block_device="/dev/mmcblk0p"$DEV_NUM
@@ -301,12 +288,12 @@ MountSystem () {
             block_device=${dm_verity_device}
         fi
     fi
-   busybox.suid mount $block_device ${ROOT_MOUNT} -oro
-   if [ $? -ne ${STATUS_OK} ]; then
-      LOGD "Error: mount ${block_device} failed"
-      return ${STATUS_ERR}
-   fi
-   return ${STATUS_OK}
+    busybox.suid mount $block_device ${ROOT_MOUNT} -oro
+    if [ $? -ne ${STATUS_OK} ]; then
+       LOGD "Error: mount ${block_device} failed"
+       return ${STATUS_ERR}
+    fi
+    return ${STATUS_OK}
 }
 
 MainBoot() {
@@ -315,14 +302,13 @@ MainBoot() {
                     EarlySetup
                     MountSystem
                     "
-
     for task1 in ${tasks_list1}; do
         ${task1}
         if [ $? -ne ${STATUS_OK} ]; then
             LOGD "Error: ${task1} failed"
 
             # According to the conditions does system switch or reboot
-	    IsGPIOEnabled
+            IsGPIOEnabled
             if [ $? -eq 1 ]; then
                 #GPIO Enabled keeping behavior similar to Mount failure.
                 LOGD "GPIO Enabled do not switch slots "
@@ -334,10 +320,10 @@ MainBoot() {
         else
             LOGD "Init: ${task1}"
         fi
-    if [ -f "$KPI_FILE_PATH" ]
-    then
-        echo -n 'M - Ramdisk-init End' >> $KPI_FILE_PATH
-    fi
+
+        if [ -f "$KPI_FILE_PATH" ]; then
+            echo -n 'M - Ramdisk-init End' >> $KPI_FILE_PATH
+        fi
     done
     local tasks_list2="
                     MoveMountToSystem
