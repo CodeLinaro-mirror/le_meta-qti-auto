@@ -16,7 +16,7 @@ DEV_NUM=-1
 UEVENT_PATH=""
 SYS_MMC_PATH="/sys/class/block"
 MAX_RETRY=150
-
+SLOT_SUFFIX=""
 abctl_cmd="/usr/bin/nad-abctl"
 IsGPIOEnabled () {
     gpio_enable_status=`cat /proc/cmdline | awk -F'recoveryinfo_gpio=' '{print $2}' | awk '{print $1}' | tr -d '"'`
@@ -118,76 +118,72 @@ SlotSwitchReboot () {
         fi
     fi
 
-    # Set owner to HLOS & reboot device
-    SetImageOwner ${owner_hlos}
-    if [ "$?" -eq "${STATUS_ERR}" ]; then
-        /bin/sh -c 'reboot edl'
-        exit 1
-    fi
-
+    #Set owner is set by SetImageStatus command internally, perform device reboot.
     echo "Reboot device for Slot Switch or EDL" > /dev/kmsg
     #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
     /bin/sh -c 'reboot'
     exit 1
 }
 
+GetSlotSuffix() {
+    local act_slot=""
+    # We will only take "_a" and "_b" as correct active slot
+    # Else all will be ignored and DEV_NUM will set as -1
+    act_slot=`cat /proc/cmdline | awk -F'SLOT_SUFFIX=' '{print $2}' | awk '{print $1}' | tr -d '"'`
+    if [ "${act_slot}" == "_b" ]; then
+       SLOT_SUFFIX="_b"
+    else
+       SLOT_SUFFIX=""
+    fi
+}
+
 EmmcGetPartitionID() {
-   DEV_NUM=-1
-   local PART_NAME=$1
-   local retry_count=0
-   UEVENT_PATH=""
+    DEV_NUM=-1
+    local PART_NAME=$1
+    local retry_count=0
+    UEVENT_PATH=""
 
-   # We will only take "_a" and "_b" as correct active slot
-   # Else all will be ignored and DEV_NUM will set as -1
-   act_slot=`cat /proc/cmdline | awk -F'SLOT_SUFFIX=' '{print $2}' | awk '{print $1}' | tr -d '"'`
-   if [ "${act_slot}" == "_a" ]; then
-      act_slot=""
-   elif [ "${act_slot}" != "_b" ]; then
-      return
-   fi
-
-   # Fetch active part uevent then parse dev num from PARTN
-
-   while [ -z $UEVENT_PATH ]
-   do
-      UEVENT_PATH=$(grep -w $PART_NAME$act_slot ${SYS_MMC_PATH}/mmcblk0p*/uevent | cut -d ":" -f 1)
-      sleep 0.1
-      retry_count=$(( retry_count + 1))
-      if [ $retry_count -ge $MAX_RETRY ]; then
-         echo "Error: EmmcGetPartitionID timed out $retry_count" > /dev/kmsg
-         return ${STATUS_ERR}
-      fi
-   done
-
-   DEV_NUM=$(grep -w PARTN $UEVENT_PATH | awk -F '=' '{print $2}')
+    # Fetch active part uevent then parse dev num from PARTN
+    while [ -z $UEVENT_PATH ]
+    do
+        UEVENT_PATH=$(grep -w $PART_NAME ${SYS_MMC_PATH}/mmcblk0p*/uevent | cut -d ":" -f 1)
+        sleep 0.1
+        retry_count=$(( retry_count + 1))
+        if [ $retry_count -ge $MAX_RETRY ]; then
+            echo "Error: EmmcGetPartitionID timed out $retry_count" > /dev/kmsg
+            return ${STATUS_ERR}
+        fi
+    done
+    DEV_NUM=$(grep -w PARTN $UEVENT_PATH | awk -F '=' '{print $2}')
 }
 
 #
 # Mount the firmware partition
 #
 FindAndMountFW () {
-   EmmcGetPartitionID ${FIRMWARE_PART_NAME}
-   if [ "${DEV_NUM}" == "-1" ]; then
-      echo "Cannot get ${FIRMWARE_PART_NAME} partition." > /dev/kmsg
-      exit 1
-   fi
+    GetSlotSuffix
+    EmmcGetPartitionID ${FIRMWARE_PART_NAME}${SLOT_SUFFIX}
+    if [ "${DEV_NUM}" == "-1" ]; then
+        echo "Cannot get ${FIRMWARE_PART_NAME}${SLOT_SUFFIX} partition." > /dev/kmsg
+        exit 1
+    fi
 
-   block_device="/dev/mmcblk0p"$DEV_NUM
-   mount -o noexec,nodev,nosuid,ro,context=system_u:object_r:firmware_t:s0 -t vfat $block_device ${FIRMWARE_MOUNT}
-   if [ $? -ne ${STATUS_OK} ]; then
-      echo "Unable to mount firmware partition" > /dev/kmsg
-      IsGPIOEnabled
-      if [ $? -eq 1 ]; then
-          #GPIO Enabled moving device to EDL.
-          echo "GPIO Enabled boot to EDL" > /dev/kmsg
-          /bin/sh -c 'reboot edl'
-      else
-          echo "GPIO disabled switch the slots or boot to EDL." > /dev/kmsg
-          SlotSwitchReboot
-      fi
-      exit 1
-   fi
-   return ${STATUS_OK}
+    block_device="/dev/mmcblk0p"$DEV_NUM
+    mount -o noexec,nodev,nosuid,ro,context=system_u:object_r:firmware_t:s0 -t vfat $block_device ${FIRMWARE_MOUNT}
+    if [ $? -ne ${STATUS_OK} ]; then
+        echo "Unable to mount firmware partition" > /dev/kmsg
+        IsGPIOEnabled
+        if [ $? -eq 1 ]; then
+            #GPIO Enabled moving device to EDL.
+            echo "GPIO Enabled boot to EDL" > /dev/kmsg
+            /bin/sh -c 'reboot edl'
+        else
+            echo "GPIO disabled switch the slots or boot to EDL." > /dev/kmsg
+            SlotSwitchReboot
+        fi
+        exit 1
+    fi
+    return ${STATUS_OK}
 }
 
 eval FindAndMountFW
