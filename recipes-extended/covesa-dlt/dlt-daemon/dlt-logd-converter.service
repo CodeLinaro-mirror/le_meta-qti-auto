@@ -32,6 +32,7 @@
 
 [Unit]
 Description=COVESA DLT system. Application to forward logd messages to DLT
+Requires=logd.service
 Wants=dlt.service
 After=logd.service
 
