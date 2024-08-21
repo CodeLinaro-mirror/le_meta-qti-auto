@@ -25,6 +25,7 @@ EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \
                 --with-gptp \
                 --with-sensor_head_type \
+                --with-sensor_ivss \
 		--with-glib"
 
 SYSTEMD_SERVICE:${PN} = "sensor_hal_daemon.service"
