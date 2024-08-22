@@ -3,6 +3,7 @@
 # This is the "only" list that will control whether
 # OTA upgrade will be supported on a target.
 DEPENDS += "releasetools-native zip-native fsconfig-native applypatch-native bc-native bsdiff-native"
+DEPENDS += " ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'payload-gen-native', '', d), '', d)}"
 
 RM_WORK_EXCLUDE_ITEMS += "rootfs rootfs-dbg"
 
@@ -185,5 +186,12 @@ do_gen_ota_full_zip_ext4() {
     ./full_ota.sh ${OTA_TARGET_FILES_EXT4_PATH} ${IMAGE_ROOTFS} ext4 --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT} ${SIGN_OTA_PACKAGE}
 
     cp update_ext4.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_FULL_UPDATE_EXT4}
+
+    if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'true', 'false', d)}; then
+            cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && ./gen_full_stream.sh ${OTA_TARGET_FILES_EXT4_PATH}
+            cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+        fi
+    fi
 }
 addtask do_gen_ota_full_zip_ext4 after do_recovery_ext4 before do_build
