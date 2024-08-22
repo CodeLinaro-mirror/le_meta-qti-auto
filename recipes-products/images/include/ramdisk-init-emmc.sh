@@ -43,6 +43,7 @@ Becho="busybox echo"
 ROOT_MOUNT="/rootfs"
 EXT4_PART_NAME="system"
 RECINFO_PART_NAME="recoveryinfo"
+SYSTEMRW_PART_NAME="systemrw"
 
 # Function return status
 STATUS_OK=0
@@ -63,6 +64,8 @@ VERITY_ENV="/etc/verity.env"
 # root certificate key path
 CERT_CA_PATH="/etc/keys/x509_root.der"
 abctl_cmd="/usr/bin/nad-abctl"
+
+ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
 
 LOGD() {
   busybox echo "$1"
@@ -296,6 +299,45 @@ MountSystem () {
     return ${STATUS_OK}
 }
 
+MountSystemrw() {
+    EmmcGetPartitionID ${SYSTEMRW_PART_NAME}
+    if [ "${DEV_NUM}" == "-1" ]; then
+        LOGD "Cannot get systemrw partition."
+        return ${STATUS_ERR}
+    fi
+
+    block_device="/dev/mmcblk0p"$DEV_NUM
+
+    busybox.suid mount -t ext4 "${block_device}" ${ROOT_MOUNT}/systemrw -o rw,noexec,nosuid,nodev
+    if [ $? -ne ${STATUS_OK} ]; then
+        LOGD "Error: mount ${block_device} failed"
+        return ${STATUS_ERR}
+    fi
+
+    return ${STATUS_OK}
+}
+
+MountSystemdOverlay() {
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/lib-systemd-system
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/lib-systemd-system-work
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system
+    busybox mkdir -p ${ROOT_MOUNT}/systemrw/etc-systemd-system-work
+
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/lib/systemd/system -o lowerdir=${ROOT_MOUNT}/lib/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/lib-systemd-system,workdir=${ROOT_MOUNT}/systemrw/lib-systemd-system-work,noexec,nosuid,nodev
+    if [ $? -ne ${STATUS_OK} ]; then
+        LOGD "Error: mount overlay ${ROOT_MOUNT}/lib/systemd/system failed"
+        return ${STATUS_ERR}
+    fi
+
+    busybox.suid mount -t overlay overlay ${ROOT_MOUNT}/etc/systemd/system -o lowerdir=${ROOT_MOUNT}/etc/systemd/system,upperdir=${ROOT_MOUNT}/systemrw/etc-systemd-system,workdir=${ROOT_MOUNT}/systemrw/etc-systemd-system-work,noexec,nosuid,nodev
+    if [ $? -ne ${STATUS_OK} ]; then
+        LOGD "Error: mount overlay ${ROOT_MOUNT}/etc/systemd/system failed"
+        return ${STATUS_ERR}
+    fi
+
+    return ${STATUS_OK}
+}
+
 MainBoot() {
 
     local tasks_list1="
@@ -329,6 +371,13 @@ MainBoot() {
                     MoveMountToSystem
                     SwitchToSystem
                     "
+    if [ -e ${ENABLE_SYSTEMD_OVERLAY} ]; then
+        tasks_list2="
+                    MountSystemrw
+                    MountSystemdOverlay
+                    $tasks_list2
+                    "
+    fi
     for task2 in ${tasks_list2}; do
         ${task2}
         if [ $? -ne ${STATUS_OK} ]; then
