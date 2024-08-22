@@ -59,3 +59,10 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 /systemrw/gps.conf /etc/gps.conf\n\
 "
+
+do_install:append:sa525m(){
+    #Remove deprecated StandardOutput=syslog
+    for service in ${SYSTEMD_SERVICE:${PN}}; do
+         sed -i '/StandardOutput=syslog/d' ${D}${systemd_system_unitdir}/$service
+     done
+}
