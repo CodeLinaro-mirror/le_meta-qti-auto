@@ -50,7 +50,6 @@ Bfree="busybox free"
 Bhexdump="busybox hexdump"
 
 UBIFS_VOL_HEADER="1831 0610"
-RAM_SIZE_LIMIT_VOL="512"
 
 #------------------------------------------------------------
 # Below macro can be set by build scripts, if not,
@@ -601,26 +600,18 @@ MountSystem () {
         if [ "${image_type}" != "ubifs" ]; then
             if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
 
-                # Check if device has enough ram size for FDE encryption
-                # Skip encryption if the memory is smaller than ${RAM_SIZE_LIMIT_VOL}
-                supported_mem_size=`${Bfree} -m | ${Bgrep} Mem | ${Bawk} '{print $2}'`
+                # Check if atleast one valid key pair is present in keystore
+                nad-fde-app -e -k ${sys_key_index}
+                if [ $? -eq ${STATUS_OK} ]; then
+                    nad_fde_status="enabled"
+                    LOGD "fde: enabled"
+                fi
 
-                if [ ${supported_mem_size} -gt ${RAM_SIZE_LIMIT_VOL} ]; then
-
-                    nad-fde-app -e -k ${sys_key_index}
-                    if [ $? -eq ${STATUS_OK} ]; then
-                        nad_fde_status="enabled"
-                        LOGD "fde: enabled"
-                    fi
-
-                    # Currently, only squashfs image is supported for FDE. If the image magic
-                    # isn't squashfs type "hsqs", then suppose this partition was encrypted.
-                    # And, after decrypted, it still squashfs type.
-                    if [ "${image_type}" == "unknown" ]; then
-                        image_type="squashfs"
-                    fi
-                else
-                    LOGD "Warning: Memory size ${supported_mem_size} is too small, skip FDE."
+                # Currently, only squashfs image is supported for FDE. If the image magic
+                # isn't squashfs type "hsqs", then suppose this partition was encrypted.
+                # And, after decrypted, it still squashfs type.
+                if [ "${image_type}" == "unknown" ]; then
+                    image_type="squashfs"
                 fi
             fi
         fi
