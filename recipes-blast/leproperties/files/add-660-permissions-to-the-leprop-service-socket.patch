@@ -1,0 +1,17 @@
+From: shanth kumar j p <quic_sjp@quicinc.com>
+Subject: [PATCH] add 660 permissions to leprop service
+
+Signed-off-by: Shanth Kumar J P <quic_sjp@quicinc.com>
+Index: leproperties/property_service.c
+===================================================================
+--- leproperties.orig/property_service.c
++++ leproperties/property_service.c
+@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
+ 
+     listen_fd = create_socket(PROP_SERVICE_NAME,
+                               SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK,
+-                              0666, 0, 0);
++                              0660, 0, 0);
+     if (listen_fd < 0) {
+         LOG("property_service socket creation failed (%s)", strerror(errno));
+         exit(1);
