@@ -15,7 +15,6 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=8184208060df880fe3137b93eb88aeea"
 DEPENDS = "zlib gzip-native json-c logd"
 
 SRC_URI = "git://github.com/COVESA/${BPN}.git;protocol=https;branch=master \
-           file://0002-Don-t-execute-processes-as-a-specific-user.patch \
            file://0004-Modify-systemd-config-directory.patch \
            file://544.patch \
            file://567.patch \
@@ -58,7 +57,7 @@ inherit autotools gettext cmake pkgconfig systemd
 
 # -DWITH_DLT_COREDUMPHANDLER=ON this feature is too experimental, disable for now
 #FILES:${PN} += "${libdir}/sysctl.d"
-EXTRA_OECMAKE += "-DWITH_DLT_LOGSTORAGE_GZIP=ON -DWITH_EXTENDED_FILTERING=ON -DSYSTEMD_UNITDIR=${systemd_system_unitdir} \
+EXTRA_OECMAKE += "-DWITH_DLT_LOGSTORAGE_GZIP=ON -DWITH_EXTENDED_FILTERING=ON -DDLT_USER=dlt -DSYSTEMD_UNITDIR=${systemd_system_unitdir} \
                   -DWITH_DLT_USE_IPv6=OFF -DWITH_DLT_SYSTEM=ON -DWITH_DLT_ADAPTOR=ON -DDLT_IPC='UNIX_SOCKET'"
 
 PACKAGES += "${PN}-systemd"
@@ -79,11 +78,11 @@ FILES:${PN}-doc += "${datadir}/dlt-filetransfer"
 
 do_install:append() {
     rm -f ${D}${bindir}/dlt-test-*
-    install -m 0400 ${WORKDIR}/dlt-system.conf ${D}${sysconfdir}/dlt-system.conf
+    install -m 0444 ${WORKDIR}/dlt-system.conf ${D}${sysconfdir}/dlt-system.conf
     install -m 0644 ${WORKDIR}/dlt-logd-converter.service ${D}${systemd_unitdir}/system/dlt-logd-converter.service
-    chmod 400 ${D}${sysconfdir}/dlt.conf
-    chmod 400 ${D}${sysconfdir}/dlt_gateway.conf
-    chmod 400 ${D}${sysconfdir}/dlt-logd-converter.conf
+    chmod 444 ${D}${sysconfdir}/dlt.conf
+    chmod 444 ${D}${sysconfdir}/dlt_gateway.conf
+    chmod 444 ${D}${sysconfdir}/dlt-logd-converter.conf
 }
 
 BBCLASSEXTEND = "nativesdk"

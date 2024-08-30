@@ -38,6 +38,8 @@ After=logd.service
 
 [Service]
 Type=simple
+User=dlt
+Group=dlt
 ExecStart=/usr/bin/dlt-logd-converter
 Restart=on-failure
 NotifyAccess=main
