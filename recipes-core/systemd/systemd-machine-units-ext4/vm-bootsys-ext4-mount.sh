@@ -8,6 +8,12 @@ VMBOOTSYS_PART_NAME="vm-bootsys"
 VMBOOTSYS_MOUNT="/vm-bootsys"
 RECINFO_PART_NAME="recoveryinfo"
 
+# verity feature status
+VERITY_ENV="/etc/verity.env"
+
+# root certificate key path
+CERT_CA_PATH="/etc/keys/x509_root.der"
+
 # Function return status
 STATUS_OK=0
 STATUS_ERR=1
@@ -18,6 +24,7 @@ SYS_MMC_PATH="/sys/class/block"
 MAX_RETRY=150
 SLOT_SUFFIX=""
 abctl_cmd="/usr/bin/nad-abctl"
+
 IsGPIOEnabled () {
     gpio_enable_status=`cat /proc/cmdline | awk -F'recoveryinfo_gpio=' '{print $2}' | awk '{print $1}' | tr -d '"'`
     return ${gpio_enable_status}
@@ -40,6 +47,21 @@ SetImageOwner() {
         echo "Error: owner set failed" > /dev/kmsg
         return ${STATUS_ERR}
     fi
+    return ${STATUS_OK}
+}
+
+WaitDevReady()
+{
+    local maxTrials=300
+
+    while [ ! "$1" "$2" ]; do
+        usleep 100000
+        maxTrials=$( echo $(( ${maxTrials} - 1 )) )
+        if [ ${maxTrials} -eq 0 ]; then
+           echo "Error: WaitDevReady Timed Out $maxTrails" > /dev/kmsg
+           return ${STATUS_ERR}
+        fi
+    done
     return ${STATUS_OK}
 }
 
@@ -164,6 +186,8 @@ EmmcGetPartitionID() {
 # Mount the firmware partition
 #
 FindAndMountFW () {
+    local vb_option=
+
     GetSlotSuffix
     EmmcGetPartitionID ${VMBOOTSYS_PART_NAME}${SLOT_SUFFIX}
     if [ "${DEV_NUM}" == "-1" ]; then
@@ -172,7 +196,32 @@ FindAndMountFW () {
     fi
 
     block_device="/dev/mmcblk0p"$DEV_NUM
+
+    # For vm-bootsys file system Verified boot enabling
+    if  grep 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
+        dm_verity_device=/dev/mapper/${VMBOOTSYS_PART_NAME}
+        if grep 'secure=1' /proc/cmdline > /dev/null; then
+            vb_option="-s"
+        fi
+
+        verified-boot -n ${VMBOOTSYS_PART_NAME} -d ${block_device} -k ${CERT_CA_PATH} ${vb_option}
+
+        if [ $? -ne ${STATUS_OK} ] ; then
+            echo "Created dm-verity device ${dm_verity_device} failed." > dev/kmsg
+            return ${STATUS_ERR}
+        fi
+
+        WaitDevReady "-b" "${dm_verity_device}"
+        if [ $? -ne ${STATUS_OK} ]; then
+            echo "Failed to wait on ${dm_verity_device}, exiting." > dev/kmsg
+            return ${STATUS_ERR}
+        else
+            block_device=${dm_verity_device}
+        fi
+    fi
+
     mount -o noexec,nodev,nosuid,ro,context=system_u:object_r:vm-bootsys_t:s0 -t ext4 $block_device ${VMBOOTSYS_MOUNT}
+
     if [ $? -ne ${STATUS_OK} ]; then
         echo "Unable to mount vm-bootsys partition" > /dev/kmsg
         IsGPIOEnabled
