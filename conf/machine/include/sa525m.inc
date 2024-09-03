@@ -119,3 +119,10 @@ BOOT_HEADER_VERSION = "2"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
+
+# Y2038: Support for Y2038 safe time on 32 bit systems
+TARGET_CFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+
+TARGET_CFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
