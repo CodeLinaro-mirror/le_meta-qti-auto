@@ -56,5 +56,3 @@ RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
 
 RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'
 RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
-
-IMAGE_FEATURES:remove += " package-management"
