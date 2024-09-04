@@ -1,0 +1,18 @@
+#Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: LGPL-2.1-only
+
+[Unit]
+Description=Service used for TelAF LXC container start/stop
+SourcePath=/etc/initscripts/container_launch.sh
+After=lxcrootfs-mount.service
+ConditionDirectoryNotEmpty=/lxcrootfs
+#arguements of con_launch.sh is taken from telaf lxc launch script
+
+[Service]
+Type=simple
+ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
+ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
