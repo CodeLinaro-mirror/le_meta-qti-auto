@@ -18,7 +18,7 @@ CORESIGHTDLKM ?= 'False'
 CORESIGHTDLKM:sa525m = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
-        ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', '${MLIBPREFIX}e2fsprogs ${MLIBPREFIX}e2fsprogs-e2fsck ${MLIBPREFIX}e2fsprogs-mke2fs', '', d)} \
         ${MLIBPREFIX}glib-2.0 \
         ${MLIBPREFIX}i2c-tools \
         kernel-modules \

@@ -11,7 +11,7 @@ MULTILIBS = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'multilib:lib
 DEFAULTTUNE:virtclass-multilib-lib32 = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'armv7athf-neon', d)}"
 MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)}"
 
-NON_MULTILIB_RECIPES += "iproute2 qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm"
+NON_MULTILIB_RECIPES += "qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm ptp-devicetree"
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native = "mkbootimg-gki-native"

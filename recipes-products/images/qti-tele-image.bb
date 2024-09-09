@@ -19,7 +19,7 @@ POWERAPPMODULE ?= 'False'
 POWERAPPMODULE:mdm9607 = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
-        ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', '${MLIBPREFIX}e2fsprogs ${MLIBPREFIX}e2fsprogs-e2fsck ${MLIBPREFIX}e2fsprogs-mke2fs', '', d)} \
         ${MLIBPREFIX}glib-2.0 \
         ${MLIBPREFIX}i2c-tools \
         kernel-modules \
@@ -54,7 +54,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}modem-shutdown \
         ${@oe.utils.conditional('POWERAPPMODULE', 'True', '${MLIBPREFIX}powerapp ${MLIBPREFIX}powerapp-powerconfig', '', d)} \
         ${@oe.utils.conditional('DEBUG_BUILD', '1', '${MLIBPREFIX}packagegroup-qti-debug-tools', '', d )} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'packagegroup-qti-lxc', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', '${MLIBPREFIX}packagegroup-qti-lxc', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
         ${@oe.utils.conditional('CORESIGHTDLKM', 'True', 'coresight-dlkm', '', d)} \
 "
