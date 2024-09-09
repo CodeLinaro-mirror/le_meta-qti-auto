@@ -4,7 +4,14 @@ require conf/machine/include/basemachine.inc
 DEFAULTTUNE ?= "aarch64"
 include conf/machine/include/arm/arch-armv8a.inc
 
-MLIBPREFIX = ""
+# Multilib configuration
+MULTILIB_ENABLED ?= "True"
+require ${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'conf/multilib.conf', d)}
+MULTILIBS = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'multilib:lib32', d)}"
+DEFAULTTUNE:virtclass-multilib-lib32 = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'armv7athf-neon', d)}"
+MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)}"
+
+NON_MULTILIB_RECIPES += "iproute2 qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm"
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native = "mkbootimg-gki-native"
@@ -112,3 +119,10 @@ BOOT_HEADER_VERSION = "2"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
+
+# Y2038: Support for Y2038 safe time on 32 bit systems
+TARGET_CFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+
+TARGET_CFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
