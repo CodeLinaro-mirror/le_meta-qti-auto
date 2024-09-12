@@ -35,6 +35,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/httpd.conf /etc/httpd.conf\n\
 /systemrw/qits_env_file /etc/qits_env_file\n\
 /systemrw/telsdk_app.conf /etc/telsdk_app.conf\n\
+/systemrw/Datafilter.conf /etc/Datafilter.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
