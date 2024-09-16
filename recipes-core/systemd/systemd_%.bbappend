@@ -89,6 +89,13 @@ do_install:append() {
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
         rm -f ${D}${systemd_unitdir}/system/systemd-udev-settle.service
+        rm -f ${D}${sysconfdir}/udev/rules.d/ion.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/tui.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/kgsl.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/set-mhi-nodes.rules
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'true', 'false', d)}; then
+             rm -f ${D}${sysconfdir}/udev/rules.d/mmc-rpmb.rules
+        fi
     fi
 }
 FILES:${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
