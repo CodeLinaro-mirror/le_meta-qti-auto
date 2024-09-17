@@ -52,6 +52,7 @@ SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
 RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
                                                  atrace \
                                                  perf \
+                                                 gdbserver \
                                                "
 
 RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'

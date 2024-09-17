@@ -5,3 +5,7 @@ CACHED_CONFIGUREVARS += " \
 
 TARGET_CFLAGS:append:sa525m = "${@bb.utils.contains('MLPREFIX', 'lib32-', ' -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32', '', d)}"
 TARGET_CPPFLAGS:append:sa525m = "${@bb.utils.contains('MLPREFIX', 'lib32-', ' -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32', '', d)}"
+
+do_install:append(){
+       rm -f ${D}${bindir}/sprof
+}
