@@ -11,11 +11,13 @@ PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
 DEPENDS += "squashfs-tools-native \
             ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'mtd-utils-native', '', d)} \
-            refpolicy-mls-generic"
+            refpolicy-mls-auto"
 
 LXCRFSIMAGE_UBIFS ?= "${IMGDEPLOYDIR}/lxcrootfs.ubifs"
 LXCRFSIMAGE_SQUASHFS ?= "${IMGDEPLOYDIR}/lxcrootfs.squash"
 SELINUX_FILE_CONTEXTS_LXC ?= "${STAGING_DIR_HOST}/etc/selinux/mls/contexts/files/file_contexts"
+
+REPRODUCIBLE_TIMESTAMP_ROOTFS = ""
 
 CORE_IMAGE_BASE_INSTALL = '\
      ${CORE_IMAGE_EXTRA_INSTALL} \

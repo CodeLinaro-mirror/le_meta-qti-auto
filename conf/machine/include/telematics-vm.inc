@@ -3,7 +3,14 @@ require conf/machine/include/basemachine.inc
 DEFAULTTUNE ?= "aarch64"
 include conf/machine/include/arm/arch-armv8a.inc
 
-MLIBPREFIX = ""
+# Multilib configuration
+MULTILIB_ENABLED ?= "True"
+require ${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'conf/multilib.conf', d)}
+MULTILIBS = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'multilib:lib32', d)}"
+DEFAULTTUNE:virtclass-multilib-lib32 = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'armv7athf-neon', d)}"
+MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)}"
+
+NON_MULTILIB_RECIPES += "qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm ptp-devicetree"
 
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native ?= "mkbootimg-gki-native"
@@ -21,7 +28,7 @@ PREFERRED_VERSION_mkdtimg-gki-native ?= "5.15"
 PREFERRED_VERSION_securemsmdlkm = "1.1"
 PREFERRED_VERSION_avbtool = "git"
 PREFERRED_VERSION_avbtool-native = "git"
-PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-generic"
+PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-auto"
 
 KERNEL_VARIANT = ""
 KERNEL_VARIANT:qti-distro-debug = "debug_"
@@ -81,3 +88,10 @@ UFS_BSG_DEV_USAGE = "True"
 SYSTEMD_COREDUMP_PATH = "/systemrw/coredump"
 
 NO_SYS_JOURNAL_LOGS_TO_CONSOLE = "1"
+
+# Y2038: Support for Y2038 safe time on 32 bit systems
+TARGET_CFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+
+TARGET_CFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"

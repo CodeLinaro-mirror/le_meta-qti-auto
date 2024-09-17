@@ -6,7 +6,7 @@ inherit packagegroup
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
-    packagegroup-qti-lxc \
+    ${MLPREFIX}packagegroup-qti-lxc \
 '
 
 RDEPENDS:packagegroup-qti-lxc = "\

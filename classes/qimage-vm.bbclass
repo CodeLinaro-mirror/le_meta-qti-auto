@@ -26,6 +26,19 @@ VMSYSTEMRW_PACKIMAGE_ROOTFS ?= "${VMBOOTSYS_DEPLOY_DIR}/vm-systemrw/"
 VM_COMBINED_SIZE_EXT4 ?= "314572800"
 VM_SYSTEMRW_SIZE_EXT4 ?= "41943040"
 
+#avb footer size is ~3 MB
+AVB_FOOTER_SIZE  = "3145728"
+
+# Accomodate space for avb footer.
+# AVB footer will be added at the end of the image after signing.
+
+python adjust_vm_img_size_for_avb_footer() {
+    vm_img_size = int(d.getVar('VM_COMBINED_SIZE_EXT4'))
+    avbf_size = int(d.getVar('AVB_FOOTER_SIZE'))
+    vm_signed_size = vm_img_size - avbf_size
+    d.setVar('VM_COMBINED_SIZE_EXT4', str(vm_signed_size))
+}
+
 do_copy_vmimages[dirs] = "${VMBOOTSYS_DEPLOY_DIR} ${VMBOOTSYS_DEPLOY_DIR}/vm-images/ ${VMBOOTSYS_DEPLOY_DIR}/vm-systemrw/"
 do_copy_vmimages() {
     if [ -d "${DEPLOY_DIR}/images/${BASEMACHINE}-${VM}/vm-images/" ]; then
@@ -75,10 +88,23 @@ do_sign_vm_squashfs () {
 }
 do_sign_vm_squashfs[depends] += "avbtool-native:do_install"
 
+do_sign_vm_bootsys_ext4 () {
+    ${TMPDIR}/work-shared/avbtool/avbtool add_hashtree_footer \
+        --image ${VMBOOTSYS_DEPLOY_DIR}/${VMIMAGE_TARGET} \
+        --partition_name vm-bootsys \
+        --algorithm SHA256_RSA2048 \
+        --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
+        --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
+        --do_not_generate_fec --rollback_index 0
+}
+do_sign_vm_bootsys_ext4[depends] += "avbtool-native:do_install"
+
 do_pack_vm_images[nostamp] = "1"
 do_pack_vm_images[prefuncs] += 'do_setup_package'
+do_pack_vm_images[prefuncs] += "${@bb.utils.contains('IMAGE_FSTYPES', 'ext4', 'adjust_vm_img_size_for_avb_footer', '', d)}"
 do_pack_vm_images[prefuncs] += "${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'do_create_ubinize_vmpack_config', '', d)}"
 do_pack_vm_images[postfuncs] += "${@bb.utils.contains('MACHINE_FEATURES', 'tele-squashfs-ubi', 'do_sign_vm_squashfs', '', d)}"
+do_pack_vm_images[postfuncs] += "${@bb.utils.contains('IMAGE_FSTYPES','ext4','do_sign_vm_bootsys_ext4', '', d)}"
 do_pack_vm_images[postfuncs] += "${@bb.utils.contains('INHERIT', 'uninative', 'do_patch_ubitools do_patch_ubi_tools', '', d)}"
 do_pack_vm_images[depends] += "${PN}:do_make_vmbootsys_ubi"
 

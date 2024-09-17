@@ -31,6 +31,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/eCall.conf /etc/eCall.conf\n\
 /systemrw/telux_chrony-sock.conf /etc/telux_chrony-sock.conf\n\
 /systemrw/telux_power_refd.conf /etc/telux_power_refd.conf\n\
+/systemrw/vsomeip-sensor_service.json /usr/etc/vsomeip/SensorInterface/vsomeip-sensor_service.json\n\
 /systemrw/httpd.conf /etc/httpd.conf\n\
 /systemrw/qits_env_file /etc/qits_env_file\n\
 /systemrw/telsdk_app.conf /etc/telsdk_app.conf\n\
@@ -58,3 +59,10 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 /systemrw/gps.conf /etc/gps.conf\n\
 "
+
+do_install:append:sa525m(){
+    #Remove deprecated StandardOutput=syslog
+    for service in ${SYSTEMD_SERVICE:${PN}}; do
+         sed -i '/StandardOutput=syslog/d' ${D}${systemd_system_unitdir}/$service
+     done
+}

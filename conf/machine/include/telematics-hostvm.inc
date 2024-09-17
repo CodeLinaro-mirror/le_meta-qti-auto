@@ -7,6 +7,7 @@ MACHINE_MNT_POINTS = " \
     /data \
     /vm-bootsys \
     /vm_systemrw \
+    ${@bb.utils.contains('IMAGE_FSTYPES', 'ext4', '/cache', '', d)} \
 "
 
 KERNEL_VARIANT:qti-distro-debug ??= "hostvm_debug_"

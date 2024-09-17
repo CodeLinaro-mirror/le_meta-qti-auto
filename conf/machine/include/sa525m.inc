@@ -4,13 +4,20 @@ require conf/machine/include/basemachine.inc
 DEFAULTTUNE ?= "aarch64"
 include conf/machine/include/arm/arch-armv8a.inc
 
-MLIBPREFIX = ""
+# Multilib configuration
+MULTILIB_ENABLED ?= "True"
+require ${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'conf/multilib.conf', d)}
+MULTILIBS = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'multilib:lib32', d)}"
+DEFAULTTUNE:virtclass-multilib-lib32 = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'armv7athf-neon', d)}"
+MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)}"
+
+NON_MULTILIB_RECIPES += "qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm ptp-devicetree"
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native = "mkbootimg-gki-native"
 PREFERRED_PROVIDER_virtual/dtc-native = "dtc-android-build-native"
 PREFERRED_PROVIDER_virtual/mkdtimg-native = "mkdtimg-gki-native"
-PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-generic"
+PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-auto"
 PREFERRED_VERSION_linux-msm = "5.15"
 PREFERRED_VERSION_linux-msm-headers = "5.15"
 PREFERRED_VERSION_kernel-toolchain = "5.15"
@@ -31,7 +38,9 @@ KERNEL_CONFIG ?= "vendor/sa525_defconfig"
 KERNEL_CONFIG:qti-distro-debug ?= "vendor/sa525-debug_defconfig"
 CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 no_console_suspend=1"
 CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1 loglevel=0 systemd.log_level=0 systemd.show_status=0"
-KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0"
+IPC_LOGGING_PARAM ?= ""
+IPC_LOGGING_PARAM:qti-distro-debug ?= "qcom_ipc_logging.enabled=1"
+KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM}"
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
@@ -110,3 +119,10 @@ BOOT_HEADER_VERSION = "2"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
+
+# Y2038: Support for Y2038 safe time on 32 bit systems
+TARGET_CFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+
+TARGET_CFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
+TARGET_CPPFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"

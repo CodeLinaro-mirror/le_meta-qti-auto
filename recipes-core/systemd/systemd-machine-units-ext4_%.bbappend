@@ -5,6 +5,7 @@ SRC_URI += " file://vm-bootsys-mount.service"
 SRC_URI += " file://systemrw-gvm.conf"
 SRC_URI += " file://firmware-ext4-mount.sh"
 SRC_URI += " file://vm_systemrw.mount"
+SRC_URI += " file://vm-bootsys-ext4-mount.sh"
 
 do_install:append () {
     if ${@bb.utils.contains('MACHINE_MNT_POINTS','/systemrw','true','false',d)}; then
@@ -15,5 +16,6 @@ do_install:append () {
     fi
     if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'true', 'false', d)}; then
         install -m 0744 ${S}/firmware-ext4-mount.sh ${D}${sysconfdir}/initscripts/firmware-ext4-mount.sh
+        install -m 0744 ${S}/vm-bootsys-ext4-mount.sh ${D}${sysconfdir}/initscripts/vm-bootsys-ext4-mount.sh
     fi
 }

@@ -100,6 +100,7 @@ BB_DONT_CACHE = "1"
 
 DEPLOY_DIR_PREBUILT ?= "${DEPLOY_DIR}/prebuilts/${MACHINE}"
 PREBUILT_DIR = "${WORKDIR}/prebuilt"
+PREBUILT_ARCHIVE_DIR = "${WORKDIR}/prebuilt/archive"
 PREBUILT_DATA_DIR = "${WORKDIR}/prebuiltdata"
 PREBUILT_INHIBIT_DEPS ?= "0"
 
@@ -156,7 +157,7 @@ fakeroot python do_install_prebuilt() {
                         break
             if tarball:
                 bb.note("Install %s" % tarball)
-                cmd = "tar -xvzf %s -C %s" % (tarball, dest)
+                cmd = "tar --same-owner -xvzf %s -C %s" % (tarball, dest)
                 (retval, output) = oe.utils.getstatusoutput(cmd)
                 if retval:
                     bb.fatal("Errors in extracting prebuilt: %s (%s)" % ( tarball, output))
@@ -185,13 +186,30 @@ def gen_prebuiltvar(d):
 
     return " ".join(ret)
 
+do_generate_prebuilt[depends] += "virtual/fakeroot-native:do_populate_sysroot"
+do_install_prebuilt[depends] += "virtual/fakeroot-native:do_populate_sysroot"
+
 # Generate Prebuilt tarball
-SSTATETASKS += "do_generate_prebuilt"
+SSTATETASKS += "do_deploy_prebuilt"
+do_deploy_prebuilt[sstate-inputdirs] = "${PREBUILT_DATA_DIR}/archive"
+do_deploy_prebuilt[sstate-outputdirs] = "${DEPLOY_DIR_PREBUILT}"
+do_deploy_prebuilt[dirs] = "${B}"
+do_deploy_prebuilt[cleandirs] = "${PREBUILT_DATA_DIR}"
+do_deploy_prebuilt[stamp-extra-info] = "${MACHINE_ARCH}_${FLAVOR}"
+
+python do_deploy_prebuilt() {
+    import shutil
+    from subprocess import Popen
+
+    prebuiltarchivedir = d.getVar('PREBUILT_ARCHIVE_DIR')
+    prebuiltdatadir = d.getVar('PREBUILT_DATA_DIR')
+
+    p = Popen(['cp','-fpPRa','--preserve',prebuiltarchivedir,prebuiltdatadir])
+    p.wait()
+}
+
 do_generate_prebuilt[dirs] = "${D}"
-do_generate_prebuilt[cleandirs] = "${PREBUILT_DIR} ${PREBUILT_DATA_DIR}"
-do_generate_prebuilt[sstate-inputdirs] = "${PREBUILT_DATA_DIR}"
-do_generate_prebuilt[sstate-outputdirs] = "${DEPLOY_DIR_PREBUILT}"
-do_generate_prebuilt[stamp-extra-info] = "${MACHINE_ARCH}_${FLAVOR}"
+do_generate_prebuilt[cleandirs] = "${PREBUILT_DIR} ${PREBUILT_ARCHIVE_DIR}"
 do_generate_prebuilt[doc] = "Create a prebuilt package"
 do_generate_prebuilt[vardeps] = "${@gen_prebuiltvar(d)}"
 
@@ -200,8 +218,9 @@ def strip_dir(d, dir):
     cmd = "find " + dir + " -type f -exec " + strip + " {} +"
     (retval, output) = oe.utils.getstatusoutput(cmd)
 
-python do_generate_prebuilt() {
+fakeroot python do_generate_prebuilt() {
     import shutil
+    from subprocess import Popen
 
     ppackages = (d.getVar("PREBUILT_PACKAGES") or "").split()
     pbvariants = (d.getVar("PREBUILT_VARIANTS") or "").split()
@@ -211,12 +230,13 @@ python do_generate_prebuilt() {
     flavor = d.getVar('FLAVOR')
     prebuiltdir = os.path.join(d.getVar('PREBUILT_DIR'), "non-stripped")
     prebuiltstrippeddir = os.path.join(d.getVar('PREBUILT_DIR'), "stripped")
-    prebuiltdatadir = d.getVar('PREBUILT_DATA_DIR')
+    prebuiltarchivedir = d.getVar('PREBUILT_ARCHIVE_DIR')
     inputdir = d.getVar('D')
     licensedir = os.path.join(d.getVar('LICENSE_DIRECTORY'), pn)
 
     # Copy ${D}
-    shutil.copytree(inputdir, prebuiltdir, True)
+    p = Popen(['cp','-fpPRa','--preserve',inputdir,prebuiltdir])
+    p.wait()
 
     # Add license
     shutil.copytree(licensedir, prebuiltdir + "/__LIC__", False)
@@ -230,8 +250,8 @@ python do_generate_prebuilt() {
         for variant in pbvariants:
             files = d.getVar(variant + "_PREBUILT_FILES_" + ppackage)
             stripped = d.getVar("PREBUILT_STRIP_" + ppackage)
-            os.mkdir(os.path.join(prebuiltdatadir, variant))
-            tarball = "%s/%s/%s_%s_%s_%s.tar" % (prebuiltdatadir, variant, ppackage, pv, arch, flavor)
+            os.mkdir(os.path.join(prebuiltarchivedir, variant))
+            tarball = "%s/%s/%s_%s_%s_%s.tar" % (prebuiltarchivedir, variant, ppackage, pv, arch, flavor)
             base = prebuiltdir
 
             # If no file specified quitely quit
@@ -254,7 +274,7 @@ python do_generate_prebuilt() {
 
             # Append files
             for file in files:
-                cmd = "tar --owner 0 --group 0 -rvf %s ./%s" % (tarball, file)
+                cmd = "tar -rvf %s ./%s" % (tarball, file)
                 (retval, output) = oe.utils.getstatusoutput(cmd)
                 if retval:
                     bb.debug(1,"Unable to add %s to archive %s: %s" % (file, tarball, output))
@@ -272,7 +292,7 @@ python do_generate_prebuilt() {
                 bb.fatal("Unable to gzip archive: %s" % output)
 }
 
-python do_generate_prebuilt_setscene() {
+python do_deploy_prebuilt_setscene() {
     sstate_setscene(d)
 }
 
@@ -333,5 +353,6 @@ python () {
         # Create prebuilt tarball(s)
         bb.build.addtask('do_generate_prebuilt', 'do_packagedata', 'do_install', d)
         d.appendVarFlag('do_generate_prebuilt', 'depends', ' %s:do_populate_lic' % pn)
-        bb.build.addtask('do_generate_prebuilt_setscene', None, None, d)
+        bb.build.addtask('do_deploy_prebuilt', 'do_packagedata', 'do_generate_prebuilt', d)
+        bb.build.addtask('do_deploy_prebuilt_setscene', None, None, d)
 }

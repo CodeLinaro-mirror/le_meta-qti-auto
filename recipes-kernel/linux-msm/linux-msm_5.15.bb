@@ -18,8 +18,9 @@ SRC_URI   =  "file://kernel-${PV}/kernel_platform/msm-kernel \
 S = "${WORKDIR}/kernel-${PV}/kernel_platform/msm-kernel"
 PR = "r0"
 
-DEPENDS += "virtual/kernel-toolchain-native virtual/dtc-native rsync-native mod-signing-keys"
+DEPENDS += "virtual/kernel-toolchain-native virtual/dtc-native rsync-native mod-signing-keys virtual/mkbootimg-native openssl-native"
 DEPENDS:append:aarch64 = " libgcc"
+DEPENDS:remove = "${@oe.utils.conditional('KERNEL_USE_PREBUILTS', 'True', 'mod-signing-keys', '',d)}"
 RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""
 
 LDFLAGS:aarch64 = "-O1 --hash-style=gnu --as-needed"
@@ -37,12 +38,8 @@ get_cc_option () {
 :
 }
 
-DEPENDS += " virtual/mkbootimg-native openssl-native mod-signing-keys"
-RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""
-
 LDFLAGS_:aarch64 = "-O1 --hash-style=gnu --as-needed"
 
-DEPENDS:append:aarch64 = " libgcc"
 KERNEL_CC:append:aarch64 = " ${TOOLCHAIN_OPTIONS}"
 KERNEL_LD:append:aarch64 = " ${TOOLCHAIN_OPTIONS}"
 

@@ -18,7 +18,7 @@ CORESIGHTDLKM ?= 'False'
 CORESIGHTDLKM:sa525m = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
-        ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'e2fsprogs e2fsprogs-e2fsck e2fsprogs-mke2fs', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', '${MLIBPREFIX}e2fsprogs ${MLIBPREFIX}e2fsprogs-e2fsck ${MLIBPREFIX}e2fsprogs-mke2fs', '', d)} \
         ${MLIBPREFIX}glib-2.0 \
         ${MLIBPREFIX}i2c-tools \
         kernel-modules \
@@ -40,7 +40,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-wlan', '${MLIBPREFIX}packagegroup-qti-wlan', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-security', '${MLIBPREFIX}packagegroup-qti-securemsm', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-audio', '${MLIBPREFIX}packagegroup-qti-audio', '', d)} \
-        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x', '${MLIBPREFIX}packagegroup-qti-telematics-cv2x', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-cv2x-compensator', '${MLIBPREFIX}packagegroup-qti-cv2x', '', d)} \
         ${MLIBPREFIX}packagegroup-qti-ss-mgr \
         ${MLIBPREFIX}packagegroup-qti-telematics \
         ${@bb.utils.contains('DISTRO_FEATURES', 'qti-telux', '${MLIBPREFIX}packagegroup-qti-telsdk', '', d)} \

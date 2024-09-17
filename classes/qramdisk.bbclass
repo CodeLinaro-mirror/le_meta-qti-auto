@@ -1,6 +1,7 @@
 INIT_RAMDISK = "${@d.getVar('MACHINE_SUPPORTS_INIT_RAMDISK') or "False"}"
 FLASHLESS_MCU = "${@d.getVar('MACHINE_SUPPORTS_FLASHLESS_MEMORY') or "False"}"
 RAMDISKDIR = "${WORKDIR}/ramdisk"
+RAMDISKDIRFDE = "${WORKDIR}/ramdiskfde"
 
 MLIBPREFIX ?= ""
 TOYBOX_RAMDISK ?= "False"
@@ -23,6 +24,7 @@ inherit qdlkm
 
 do_ramdisk_create[depends] += "virtual/kernel:do_deploy"
 do_ramdisk_create[cleandirs] += "${RAMDISKDIR}"
+do_ramdisk_create[cleandirs] += "${RAMDISKDIRFDE}"
 fakeroot do_ramdisk_create() {
         mkdir -p ${RAMDISKDIR}/bin
         mkdir -p ${RAMDISKDIR}/etc
@@ -220,47 +222,6 @@ fakeroot do_ramdisk_create() {
                     cp ${IMAGE_ROOTFS}/etc/verity.env  etc/
                     cp ${IMAGE_ROOTFS}/etc/keys/x509_root.der etc/keys/x509_root.der
                 fi
-
-                # Copies dependencies for nad full disk encryption
-                if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
-
-                    echo "nad_fde=1" >> etc/fde.env
-                    cp ${IMAGE_ROOTFS}/usr/bin/nad-fde-app usr/bin/
-                    cp ${IMAGE_ROOTFS}/usr/bin/qseecomd usr/bin/
-                    cp ${IMAGE_ROOTFS}/usr/sbin/cryptsetup usr/sbin/
-                    cp ${IMAGE_ROOTFS}/lib/libgcc_s.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-km.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-keystore-rw.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libnad_mtd_al.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libKeyMaster.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libqcbor.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libcbor.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libcutils.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libutils.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/liblog.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libminkdescriptor.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libstdc++.so.6 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libcryptsetup.so.12 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libdmabufheap.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libbase.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libion.so.0 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/librpmb.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libdrmfs.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libxml2.so.2 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel_svc.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libdrmtime.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/etc/gpfspath_le_oem_config.xml etc/
-                    cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
-                    cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
-                fi
-
             else
                 ln -s bin/busybox init
             fi
@@ -316,6 +277,63 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libjson-c.so.5 lib/
             cp ${IMAGE_ROOTFS}/lib/libudev.so.1 lib/
             cp ${IMAGE_ROOTFS}/lib/libmount.so.1 lib/
+        fi
+
+        # Generate ramdisk image with fde dependencies
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+            # Copies FDE dependencies in fde ramdisk dir
+            cp -rf ${RAMDISKDIR}/* ${RAMDISKDIRFDE}
+            # Remove the below line if FDE has to be enabled in boot.img
+            cd ${RAMDISKDIRFDE}
+            echo "nad_fde=1" >> etc/fde.env
+            cp ${IMAGE_ROOTFS}/usr/bin/nad-fde-app usr/bin/
+            cp ${IMAGE_ROOTFS}/usr/bin/qseecomd usr/bin/
+            cp ${IMAGE_ROOTFS}/usr/sbin/cryptsetup usr/sbin/
+            cp ${IMAGE_ROOTFS}/lib/libgcc_s.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libnad-km.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libnad-keystore-rw.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libnad_mtd_al.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libKeyMaster.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libqcbor.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libcbor.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libcutils.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libutils.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/liblog.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libminkdescriptor.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libstdc++.so.6 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libcryptsetup.so.12 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libdmabufheap.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libbase.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libion.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/librpmb.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libdrmfs.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libxml2.so.2 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel_svc.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libdrmtime.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
+            cp ${IMAGE_ROOTFS}/etc/gpfspath_le_oem_config.xml etc/
+            cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
+            cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
+
+            # gen_initramfs_list.sh expects to be run from kernel directory
+            cd ${DEPLOY_DIR_IMAGE}/build-artifacts/kernel_scripts
+            # remove the initrd-fde.gz file if exist
+            rm -rf ${IMGDEPLOYDIR}/${PN}-initrd-fde.gz
+            if ${@bb.utils.contains_any('PREFERRED_VERSION_linux-msm', '5.10 5.15', 'true', 'false', d)}; then
+                # gen_initramfs.sh uses gen_init_cpio to generate the cpio archive.
+                bash ./scripts/gen_initramfs.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-fde -u 0 -g 0 ${RAMDISKDIRFDE}
+                gzip -n -9 -f ${IMGDEPLOYDIR}/${PN}-initrd-fde
+            else
+                # gen_initramfs_list creates compressed initramfs file using gen_init_cpio
+                # and compressor depending on the extension
+                bash ./scripts/gen_initramfs_list.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-fde.gz -u 0 -g 0 ${RAMDISKDIRFDE}
+            fi
         fi
 
         #gen_initramfs_list.sh expects to be run from kernel directory
