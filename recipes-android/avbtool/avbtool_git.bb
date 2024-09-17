@@ -21,11 +21,7 @@ do_install(){
    install -d ${TMPDIR}/work-shared/avbtool/
    install -m 0555 ${WORKDIR}/avbtool ${TMPDIR}/work-shared/avbtool/
 
-   #install -d ${D}${datadir}/avb_py_tool/keys
-   #install -m 0555 ${WORKDIR}/avbtool ${D}${datadir}/avb_py_tool/
-   #install -m 0444 ${WORKDIR}/qpsa_attest.key ${D}${datadir}/avb_py_tool/keys/
-   #install -m 0444 ${WORKDIR}/qpsa_attest.der ${D}${datadir}/avb_py_tool/keys/
-
+   # Install the avbtool and related keys to work shared for recipes build
    install -d "${D}${sysconfdir}/keys"
    install -m 0444 ${WORKDIR}/qpsa_rootca.der ${D}${sysconfdir}/keys/x509_root.der
    install -m 0444 ${WORKDIR}/qpsa_attest.key ${TMPDIR}/work-shared/avbtool/
@@ -35,9 +31,17 @@ do_install(){
 
 }
 
+do_install:append:class-nativesdk () {
+   # Add avbtool and related keys to sdk tool chain for standalone build
+   install -d ${D}${SDKPATHNATIVE}/usr/share/avb_py_tool/keys
+   install -m 0555 ${WORKDIR}/avbtool         ${D}${SDKPATHNATIVE}/usr/share/avb_py_tool/
+   install -m 0444 ${WORKDIR}/qpsa_attest.key ${D}${SDKPATHNATIVE}/usr/share/avb_py_tool/keys/
+   install -m 0444 ${WORKDIR}/qpsa_attest.der ${D}${SDKPATHNATIVE}/usr/share/avb_py_tool/keys/
+}
+
 #don't run these functions
 do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 
-FILES:${PN}:append:class-nativesdk += "${datadir}/avb_py_tool/*"
-BBCLASSEXTEND =+ "native nativesdk"
+FILES:${PN}:append:class-nativesdk = " ${SDKPATHNATIVE}/usr/share/*"
+BBCLASSEXTEND += "native nativesdk"
