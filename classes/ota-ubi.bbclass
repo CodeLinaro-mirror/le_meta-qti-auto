@@ -15,6 +15,9 @@ OTA_TARGET_FILES_UBI_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_TARGET_
 OTA_TARGET_FILES_UBI_AB = "target-files-ubi_ab.zip"
 OTA_TARGET_FILES_UBI_AB_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_TARGET_FILES_UBI_AB}"
 
+OTA_TARGET_FILES_UBI_AB_FDE = "target-files-ubi_ab-fde.zip"
+OTA_TARGET_FILES_UBI_AB_FDE_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_TARGET_FILES_UBI_AB_FDE}"
+
 MACHINE_FILESMAP_SEARCH_PATH ?= "${@':'.join('%s/conf/machine/filesmap' % p for p in '${BBPATH}'.split(':'))}}"
 MACHINE_FILESMAP_FULL_PATH = "${@machine_search(d.getVar('MACHINE_FILESMAP_CONF'), d.getVar('MACHINE_FILESMAP_SEARCH_PATH')) or ''}"
 
@@ -222,10 +225,14 @@ do_recovery_ubi() {
     #default_system_dev_certificate : Dummy location
     echo default_system_dev_certificate=build/abcd >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/META/misc_info.txt
 
-    cd ${OTA_TARGET_IMAGE_ROOTFS_UBI} && zip -qry ${OTA_TARGET_FILES_UBI_PATH} *
-
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         cd ${OTA_TARGET_IMAGE_ROOTFS_UBI} && zip -qry ${OTA_TARGET_FILES_UBI_AB_PATH} *
+    fi
+
+    # Create target zip with boot-fde.img when qti-nad-fde is enabled
+    if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+        cp -f ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/boot-fde.img ${OTA_TARGET_IMAGE_ROOTFS_UBI}/BOOTABLE_IMAGES/boot.img
+        cd ${OTA_TARGET_IMAGE_ROOTFS_UBI} && zip -qry ${OTA_TARGET_FILES_UBI_AB_FDE_PATH} *
     fi
 }
 
@@ -233,14 +240,6 @@ addtask do_recovery_ubi after do_image_complete before do_build
 
 do_gen_otazip_ubi[dirs] += "${DEPLOY_DIR_IMAGE}/ota-scripts"
 do_gen_otazip_ubi() {
-    ./full_ota.sh ${OTA_TARGET_FILES_UBI_PATH} ${IMAGE_ROOTFS_UBI} ubi --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
-
-    if [[ -e update_ubi.zip ]]; then
-        cp update_ubi.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
-    else
-        bbwarn "update_ubi.zip failed to create"
-    fi
-
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         if ${@bb.utils.contains('IMAGE_FEATURES', 'lxcrootfs-volume', 'true', 'false', d)}; then
             ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
@@ -258,9 +257,17 @@ do_gen_otazip_ubi() {
         else
             bbwarn "update_ubi_ab.zip failed to create"
         fi
-    fi
 
-    if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+            zip -d ${OTA_TARGET_FILES_UBI_AB_FDE_PATH} IMAGES/lxcrootfs.img
+            ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_FDE_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
+            if [[ -e update_ubi_ab.zip ]]; then
+               cp update_ubi_ab.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/update_ubi_ab_fde.zip
+            else
+               bbwarn "update_ubi_ab_fde.zip failed to create"
+            fi
+        fi
+
         if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'true', 'false', d)}; then
             cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && ./gen_full_stream.sh ${OTA_TARGET_FILES_UBI_AB_PATH}
             cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
