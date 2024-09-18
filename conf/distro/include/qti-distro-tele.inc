@@ -56,3 +56,6 @@ RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
 
 RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'
 RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
+
+# disable inclusion of proprietary bbclass during OSS toolchain compilation
+IMAGE_CLASSES:remove:sa525m += "${@bb.utils.contains("BBFILE_COLLECTIONS", "qti-bsp-prop", "", "populate_sdk_ext_post_install", d)}"
