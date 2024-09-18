@@ -56,11 +56,11 @@ UBIFS_VOL_HEADER="1831 0610"
 # a default volume will be set in function SetArgs()
 
 # System image partition name not including slot suffix
-SYS_PART_NAME="rootfs"
+DM_SYST_NAME="rootfs"
 
 # UBI partition name, it can be system or nad_ubi, make sure
 # they are not present at the same time.
-UBI_PART_NAME="system|nad_ubi"
+UBI_PART_NAME="system"
 
 # UBI device number for system image
 SYS_UBI_DEV_NUM="0"
@@ -113,28 +113,16 @@ WaitDevReady()
 }
 
 EarlySetup() {
-    busybox mkdir -p /proc
     busybox mkdir -p /sys
-    busybox.suid mount -t proc proc /proc
     busybox.suid mount -t sysfs sysfs /sys
+
+    echo -n 'M - Ramdisk-init Start' >> /sys/kernel/boot_kpi/kpi_values
+
+    busybox mkdir -p /proc
+    busybox.suid mount -t proc proc /proc
     busybox.suid mount -t devtmpfs none /dev
 
-    busybox mkdir -p /tmp
-    busybox.suid mount -t tmpfs tmpfs /tmp
-
-    busybox mkdir -p /run
-    busybox mkdir -p /var/run
-
     busybox mkdir -p ${ROOT_MOUNT}
-    echo -n 'M - Ramdisk-init Start' >> /sys/kernel/boot_kpi/kpi_values
-    return ${STATUS_OK}
-}
-
-SetArgs() {
-
-    # Root image name
-    DM_SYST_NAME="${SYS_PART_NAME}"
-
     return ${STATUS_OK}
 }
 
@@ -392,6 +380,9 @@ FdeInitialize ()
 
     /usr/bin/qseecomd > /dev/kmsg &
 
+    busybox mkdir -p /tmp
+    busybox.suid mount -t tmpfs tmpfs /tmp
+
     return ${STATUS_OK}
 }
 
@@ -518,6 +509,7 @@ MoveMountToSystem() {
 }
 
 SwitchToSystem() {
+    echo -n 'M - Ramdisk-init End' >> ${ROOT_MOUNT}/sys/kernel/boot_kpi/kpi_values
     exec busybox switch_root ${ROOT_MOUNT} /sbin/init
     LOGD "switch_root failure: We are not expected to reach here..."
 }
@@ -598,7 +590,7 @@ MountSystem () {
 
         # UBIFS don't support signing, so won't work with FDE
         if [ "${image_type}" != "ubifs" ]; then
-            if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
+            if ${Bgrep} -s 'nad_fde=1' ${FDE_ENV} > /dev/null; then
 
                 # Check if atleast one valid key pair is present in keystore
                 nad-fde-app -e -k ${sys_key_index}
@@ -726,7 +718,6 @@ MainBoot() {
 
     local tasks_list1="
                     EarlySetup
-                    SetArgs
                     MountSystem
                     "
 
@@ -745,10 +736,7 @@ MainBoot() {
                 SlotSwitchReboot
             fi
             return ${STATUS_ERR}
-        else
-            LOGD "Init: ${task1}"
         fi
-    echo -n 'M - Ramdisk-init End' >> /sys/kernel/boot_kpi/kpi_values
     done
 
     local tasks_list2="
@@ -768,8 +756,6 @@ MainBoot() {
         if [ $? -ne ${STATUS_OK} ]; then
             LOGD "Error: ${task2} failed"
             return ${STATUS_ERR}
-        else
-            LOGD "Init: ${task2}"
         fi
     done
     return ${STATUS_OK}
