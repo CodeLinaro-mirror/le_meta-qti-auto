@@ -11,7 +11,7 @@ ConditionFileNotEmpty=/data/stream_update/properties.txt
 [Service]
 User=system
 Group=system
-SupplementaryGroups=ubi disk binderfs logd
+SupplementaryGroups=ubi disk binder logd
 CapabilityBoundingSet=CAP_SYS_RESOURCE
 AmbientCapabilities=CAP_SYS_RESOURCE
 Restart=on-failure

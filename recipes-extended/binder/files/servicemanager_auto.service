@@ -37,8 +37,8 @@ BindsTo=dev-binder.device
 After=dev-binder.device
 
 [Service]
-User=system
-Group=system
+User=binder
+Group=binder
 Restart=always
 ExecStart=/usr/bin/servicemanager
 
