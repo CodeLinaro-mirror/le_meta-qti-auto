@@ -2,6 +2,9 @@ inherit qimage ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot','qimage-tele
 
 MLIBPREFIX ?= ""
 
+# Set the build time as timestamp
+REPRODUCIBLE_TIMESTAMP_ROOTFS = ""
+
 CORE_IMAGE_BASE_INSTALL = '\
     ${MLIBPREFIX}packagegroup-core-boot \
     ${MLIBPREFIX}packagegroup-base-extended \
