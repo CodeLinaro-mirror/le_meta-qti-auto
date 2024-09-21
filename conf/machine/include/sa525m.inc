@@ -13,12 +13,12 @@ MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)
 
 NON_MULTILIB_RECIPES += "qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm ptp-devicetree"
 
-PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
+PREFERRED_PROVIDER_virtual/kernel = "${@bb.utils.contains("BBFILE_COLLECTIONS", "qti-auto-prop", "linux-msm", "", d)}"
 PREFERRED_PROVIDER_virtual/mkbootimg-native = "mkbootimg-gki-native"
 PREFERRED_PROVIDER_virtual/dtc-native = "dtc-android-build-native"
 PREFERRED_PROVIDER_virtual/mkdtimg-native = "mkdtimg-gki-native"
 PREFERRED_PROVIDER_virtual/refpolicy = "refpolicy-mls-auto"
-PREFERRED_VERSION_linux-msm = "5.15"
+PREFERRED_VERSION_linux-msm = "${@bb.utils.contains("BBFILE_COLLECTIONS", "qti-auto-prop", "5.15", "", d)}"
 PREFERRED_VERSION_linux-msm-headers = "5.15"
 PREFERRED_VERSION_kernel-toolchain = "5.15"
 PREFERRED_VERSION_kernel-toolchain-native = "5.15"
@@ -48,7 +48,7 @@ KERNEL_DTB_NAMES = "dtb.img"
 
 KERNEL_TYPE = "msm-kernel"
 
-MACHINE_USES_KERNEL_PREBUILTS = "True"
+MACHINE_USES_KERNEL_PREBUILTS = "${@bb.utils.contains("BBFILE_COLLECTIONS", "qti-auto-prop", "True", "False", d)}"
 KERNEL_PLATFORM_PATH = "${WORKSPACE}/kernel-5.15/kernel_platform"
 KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-5.15/out/msm-kernel-sa525-${KERNEL_VARIANT}defconfig/"
 KERNEL_PREBUILT_DISTDIR = "${KERNEL_PREBUILT_PATH}/dist"
