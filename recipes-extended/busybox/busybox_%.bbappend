@@ -12,4 +12,5 @@ do_install:append() {
     install -d ${D}${sysconfdir}/initscripts
     install -m 0555 ${WORKDIR}/syslog ${D}${sysconfdir}/initscripts/syslog
     sed -i 's/syslogd -n/syslogd -- -n/' ${D}${sysconfdir}/initscripts/syslog
+    echo "${@bb.utils.contains('DEBUG_BUILD', '1', '', 'LOGLEVEL=5', d)}" >> ${D}${sysconfdir}/syslog-startup.conf
 }
