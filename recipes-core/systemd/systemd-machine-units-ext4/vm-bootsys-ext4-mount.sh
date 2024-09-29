@@ -221,22 +221,25 @@ FindAndMountFW () {
     fi
 
     mount -o noexec,nodev,nosuid,ro,context=system_u:object_r:vm-bootsys_t:s0 -t ext4 $block_device ${VMBOOTSYS_MOUNT}
-
     if [ $? -ne ${STATUS_OK} ]; then
-        echo "Unable to mount vm-bootsys partition" > /dev/kmsg
-        IsGPIOEnabled
-        if [ $? -eq 1 ]; then
-            #GPIO Enabled moving device to EDL.
-            echo "GPIO Enabled boot to EDL" > /dev/kmsg
-            /bin/sh -c 'reboot edl'
-        else
-            echo "GPIO disabled switch the slots or boot to EDL." > /dev/kmsg
-            SlotSwitchReboot
-        fi
-        exit 1
+        return ${STATUS_ERR}
     fi
+
     return ${STATUS_OK}
 }
 
 eval FindAndMountFW
+if [ $? -ne ${STATUS_OK} ]; then
+    echo "Unable to mount vm-bootsys partition" > /dev/kmsg
+    IsGPIOEnabled
+    if [ $? -eq 1 ]; then
+        #GPIO Enabled moving device to EDL.
+        echo "GPIO Enabled boot to EDL" > /dev/kmsg
+        /bin/sh -c 'reboot edl'
+    else
+        echo "GPIO disabled switch the slots or boot to EDL." > /dev/kmsg
+        SlotSwitchReboot
+    fi
+    exit 1
+fi
 exit 0
