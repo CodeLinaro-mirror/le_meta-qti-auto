@@ -61,3 +61,10 @@ do_install:append () {
         sed -i 's/SENSOR_HAL_LIB_PATH=\/usr\/lib\/libasm330sensors.so.1.0.0/#SENSOR_HAL_LIB_PATH=\/usr\/lib\/libasm330sensors.so.1.0.0/1' ${D}${sysconfdir}/sensors.conf
     fi
 }
+
+do_install:append:sa525m() {
+        # remove telaf from sensor service for emmc target
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'true', 'false', d)}; then
+            sed -i 's/telaf//' ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
+        fi
+}
