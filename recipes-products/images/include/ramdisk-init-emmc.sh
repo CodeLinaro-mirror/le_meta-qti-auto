@@ -355,6 +355,7 @@ EncryptPartition () {
 MountSystem () {
     local sys_key_index="0"
     local vb_parameter="-k /etc/keys/x509_root.der"
+    local nad_fde_status="disabled"
     local vb_option=""
 
     GetSlotSuffix
@@ -372,20 +373,29 @@ MountSystem () {
     # Encrypt 'System' partition
     if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
 
-        EncryptPartition ${EXT4_PART_NAME}"_encrypted" \
-                        ${sys_key_index} \
-                        ${DEV_NUM} \
-                        "${vb_parameter}"
-
-        if [ $? -ne ${STATUS_OK} ] ; then
-            LOGD "Encrypt partition ${EXT4_PART_NAME} failed."
-            return ${STATUS_ERR}
+        nad-fde-app -e -k ${sys_key_index}
+        if [ $? -eq ${STATUS_OK} ]; then
+            nad_fde_status="enabled"
+            LOGD "fde: enabled"
         fi
-        block_device=${FDE_MOUNT_NODE}
-        LOGD "fde: block_device=${block_device}"
+
+        # For system partition FDE enabling
+        if [ "${nad_fde_status}" == "enabled" ]; then
+            EncryptPartition ${EXT4_PART_NAME}"_encrypted" \
+                    ${sys_key_index} \
+                    ${DEV_NUM} \
+                    "${vb_parameter}"
+
+            if [ $? -ne ${STATUS_OK} ] ; then
+                LOGD "Encrypt partition ${EXT4_PART_NAME} failed."
+                return ${STATUS_ERR}
+            fi
+            block_device=${FDE_MOUNT_NODE}
+            LOGD "fde: block_device=${block_device}"
+        fi
     fi
 
-# For root file system Verified boot enabling
+    # For root file system Verified boot enabling
     if  ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
         dm_verity_device=/dev/mapper/${EXT4_PART_NAME}
         if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
