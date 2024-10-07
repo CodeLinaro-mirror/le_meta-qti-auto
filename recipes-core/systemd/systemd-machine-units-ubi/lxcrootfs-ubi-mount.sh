@@ -12,6 +12,7 @@ ABCTL_CMD="/usr/bin/nad-abctl"
 STATUS_OK=0
 STATUS_ERR=1
 STATUS_INVAL=-1
+KPI_FILE_PATH="/sys/kernel/boot_kpi/kpi_values"
 
 GetLXCRFSVolumeID () {
 
@@ -92,7 +93,7 @@ SlotSwitchReboot () {
     if [ "x${curr_slot}" == "x" ]; then
         echo "SLOT_SUFFIX not present or invalid, reboot to edl" > /dev/kmsg
         /bin/sh -c 'reboot edl'
-	exit 1
+        exit 1
     else
         # A/B system case
         #Get current image set status
@@ -203,13 +204,14 @@ FindAndMountUBIVolume () {
             fi
             block_device=${dm_verity_device}
         fi
-    mount -t squashfs $block_device $dir -o ro$extra_opts
+        mount -t squashfs $block_device $dir -o ro$extra_opts
     elif [ "$image_type" == "ubifs" ]; then
         mount -t ubifs ubi$ubi_dev_id:$partition $dir -o bulk_read$extra_opts
     else
         echo "not proper fs type, failed to mount" > /dev/kmsg
         return ${STATUS_ERR}
     fi
+    echo -n 'M - lxcrootfs mount finish' >> $KPI_FILE_PATH
 }
 
 lxcrfs_part_name="lxcrootfs$SLOT_SUFFIX"
@@ -223,6 +225,7 @@ fi
 
 if [ ! -z "$is_lxcrfs_vol_enabled" ];
 then
+    echo -n 'M - lxcrootfs mount start' >> $KPI_FILE_PATH
     eval FindAndMountUBIVolume $lxcrfs_part_name /lxcrootfs $lxcrfs_selinux_opt
     if [ $? -ne ${STATUS_OK} ] ; then
         echo "lxcrfs volume mount failed" > /dev/kmsg
