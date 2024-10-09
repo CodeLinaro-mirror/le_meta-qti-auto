@@ -7,11 +7,13 @@ SourcePath=/etc/initscripts/container_launch.sh
 After=lxcrootfs-mount.service
 ConditionDirectoryNotEmpty=/lxcrootfs
 #arguements of con_launch.sh is taken from telaf lxc launch script
+#"/etc/lxc/lxc_test_net.conf" is a just test container and should be
+#reverted back once telaf container is up for running
 
 [Service]
 Type=simple
-ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
-ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
+ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_test_net.conf" "192.168.3.200" "con1"
+ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_test_net.conf" "192.168.3.200" "con1"
 RemainAfterExit=true
 
 [Install]
