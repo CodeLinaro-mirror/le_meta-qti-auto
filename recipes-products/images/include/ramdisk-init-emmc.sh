@@ -121,19 +121,19 @@ EmmcGetPartitionID() {
     local retry_count=0
 
     # Fetch active part uevent then parse dev num from PARTN
-    while [ $retry_count -lt $MAX_RETRY ]
+    while [ -z $UEVENT_PATH ]
     do
         UEVENT_PATH=$(busybox grep -wl "PARTNAME="$PART_NAME ${SYS_MMC_PATH}/mmcblk0p*/uevent)
-        if [ -n $UEVENT_PATH ]; then
-            DEV_NUM=$(busybox grep -w PARTN $UEVENT_PATH | busybox awk -F '=' '{print $2}')
-            return ${STATUS_OK}
-        fi
         busybox usleep 100000
         retry_count=$(( retry_count + 1))
+        if [ $retry_count -ge $MAX_RETRY ]; then
+            LOGD "Error: EmmcGetPartitionID timed out $retry_count"
+            return ${STATUS_ERR}
+        fi
     done
 
-    LOGD "Error: EmmcGetPartitionID timed out $retry_count"
-    return ${STATUS_ERR}
+    DEV_NUM=$(busybox grep -w PARTN $UEVENT_PATH | busybox awk -F '=' '{print $2}')
+    return ${STATUS_OK}
 }
 
 EarlySetup() {
