@@ -10,6 +10,7 @@ SRC_URI += " file://vm-bootsys-mount.service"
 SRC_URI += " file://vm_systemrw.mount"
 SRC_URI += " ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'file://lxcrootfs-mount.service', '', d)}"
 SRC_URI += " ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'file://lxcrootfs-ubi-mount.sh', '', d)}"
+SRC_URI += " file://cv2x_extra.mount"
 
 do_install:append () {
     if ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'true', 'false', d)}; then
