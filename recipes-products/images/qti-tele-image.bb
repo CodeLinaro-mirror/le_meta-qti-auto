@@ -68,3 +68,8 @@ CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
 CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
        ${MLIBPREFIX}qmi-shutdown-modem \
 "
+
+# Following packages will be enabled later
+CORE_IMAGE_EXTRA_INSTALL:remove:sa510m = "\
+       ${MLIBPREFIX}qmi-shutdown-modem \
+"

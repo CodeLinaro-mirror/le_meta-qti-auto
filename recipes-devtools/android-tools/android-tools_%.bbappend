@@ -1,4 +1,4 @@
-COMPATIBLE_MACHINE = "(sa525m|sa410m)"
+COMPATIBLE_MACHINE = "(sa525m|sa410m|sa510m)"
 SYSTEMD_SERVICE:${PN} = ""
 
 do_install() {
