@@ -43,6 +43,8 @@ Btr="busybox tr"
 Bawk="busybox awk"
 Bchmod="busybox chmod"
 Binsmod="busybox insmod"
+Bcat="busybox cat"
+Bblockdev="busybox blockdev"
 
 #------------------------------------------------------------
 # Temporary rootfs mount node
@@ -56,6 +58,9 @@ FDE_ENCRYPTION_PATH="/tmp/test.img"
 
 # fde enable status
 FDE_ENV="/etc/fde.env"
+
+#zram enable status
+enable_zram=0
 
 # Function return status
 STATUS_OK=0
@@ -81,6 +86,43 @@ ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
 
 LOGD() {
   busybox echo "$1"
+}
+
+DisableZram()
+{
+    #umount /tmp and release swap used for FDE
+    busybox umount /tmp
+    busybox swapoff -a
+    return ${STATUS_OK}
+}
+
+EnableZram()
+{
+    if [ ! -e /dev/zram0 ]; then
+        LOGD "Error: /dev/zram0 not present."
+        return ${STATUS_ERR}
+    fi
+
+    # Adding 128Mb swap to system
+    echo 134217728 > /sys/block/zram0/disksize
+
+    busybox mkswap /dev/zram0
+    echo "/dev/zram0      none    swap    sw,pri=0    0   0" >> /etc/fstab
+
+    busybox swapon -a
+    if [ $? -ne ${STATUS_OK} ]; then
+        LOGD "Error: swapon failed."
+        return ${STATUS_ERR}
+    fi
+
+    busybox.suid mount -o remount,size=300M -t tmpfs tmpfs /tmp
+    if [ $? -ne ${STATUS_OK} ]; then
+       LOGD "Error: remount tmp failed"
+       return ${STATUS_ERR}
+    fi
+
+    enable_zram=1
+    return ${STATUS_OK}
 }
 
 WaitDevReady() {
@@ -269,6 +311,9 @@ SwitchToSystem() {
 
 FdeInitialize ()
 {
+    local dev_num=${1}
+    block_device="/dev/mmcblk0p"${dev_num}
+
     ${Binsmod} /lib/modules/smcinvoke.ko
     ${Binsmod} /lib/modules/dm-crypt.ko
 
@@ -288,6 +333,22 @@ FdeInitialize ()
 
     /usr/bin/qseecomd > /dev/kmsg &
 
+    # Get available RAM in MB
+    available_ram=$(($(${Bgrep} MemAvailable /proc/meminfo | ${Bawk} '{print $2}') / 1024 ))
+
+    # Get partition size in MB
+    partition_size=$(( $(${Bblockdev} --getsize64 ${block_device}) / (1024 * 1024) ))
+
+    # Check if partition size + 100MB is greater than available RAM
+    # If not available, enable Zram for FDE operations
+    if [ $((partition_size + 100)) -gt ${available_ram} ]; then
+        EnableZram
+        if [ $? -ne ${STATUS_OK} ]; then
+            LOGD "Error: Not enough memory available."
+            return ${STATUS_ERR}
+        fi
+    fi
+
     return ${STATUS_OK}
 }
 
@@ -306,7 +367,7 @@ EncryptPartition () {
     block_device="/dev/mmcblk0p"${dev_num}
 
     if [ "${FDE_INIT_STATUS}" != "DONE" ]; then
-        FdeInitialize
+        FdeInitialize ${dev_num}
         if [ $? -ne ${STATUS_OK} ]; then
             LOGD "Error: FDE initialization failed."
             return ${STATUS_ERR}
@@ -369,7 +430,6 @@ MountSystem () {
        return ${STATUS_ERR}
     fi
     block_device="/dev/mmcblk0p"$DEV_NUM
-
     # Encrypt 'System' partition
     if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
 
@@ -492,6 +552,12 @@ MainBoot() {
             echo -n 'M - Ramdisk-init End' >> $KPI_FILE_PATH
         fi
     done
+
+    # Disable Zram if it was previously enabled for FDE operations
+    if [ ${enable_zram} -eq 1 ]; then
+        DisableZram
+    fi
+
     local tasks_list2="
                     MoveMountToSystem
                     SwitchToSystem
