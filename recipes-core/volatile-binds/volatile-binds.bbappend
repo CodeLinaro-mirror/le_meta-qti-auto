@@ -35,6 +35,8 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/httpd.conf /etc/httpd.conf\n\
 /systemrw/qits_env_file /etc/qits_env_file\n\
 /systemrw/telsdk_app.conf /etc/telsdk_app.conf\n\
+/systemrw/Datafilter.conf /etc/Datafilter.conf\n\
+/systemrw/rtcmConfig.conf /etc/rtcmConfig.conf\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
@@ -45,6 +47,7 @@ VOLATILE_BINDS:sa525m-televm = "\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml\n\
+/systemrw/rtcmConfig.conf /etc/rtcmConfig.conf\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 /systemrw/gps.conf /etc/gps.conf\n\

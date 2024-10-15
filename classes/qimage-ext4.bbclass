@@ -118,8 +118,20 @@ python create_rootfs_ext4 () {
         bb.error("rootfs is not generated")
 }
 
+create_symlink_modules_dir() {
+
+    #Symlink modules
+    LIB_MODULES="${IMAGE_ROOTFS_EXT4}/lib/modules"
+    if [ -d ${LIB_MODULES} ]; then
+        cp -rp ${LIB_MODULES} ${IMAGE_ROOTFS_EXT4}/usr/lib/
+        rm -rf ${LIB_MODULES}
+    fi
+    ln -sf /usr/lib/modules ${IMAGE_ROOTFS_EXT4}/lib
+}
+
 do_makesystem[prefuncs] += "create_rootfs_ext4"
 do_makesystem[prefuncs] += "create_symlink_systemd_ext4_mount_rootfs"
+do_makesystem[prefuncs] += "create_symlink_modules_dir"
 
 # To successfully flash generated images on device, need to ensure combined size of
 # unsparsed image and verity fec metadata is with in actual rootfs size. As there is

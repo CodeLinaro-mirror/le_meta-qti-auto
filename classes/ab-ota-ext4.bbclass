@@ -106,6 +106,10 @@ do_recovery_ext4() {
     # ota_from_target_files.py but it would be hacky to find the absolute path there.
     cp ${STAGING_DIR_NATIVE}/usr/bin/releasetools/releasetools.py ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/.
 
+    if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
+      echo le_target_supports_nad_emmc=1 >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
+    fi
+
     # copy contents of META folder
     #recovery_api_version is from recovery module
     echo recovery_api_version=3 >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt

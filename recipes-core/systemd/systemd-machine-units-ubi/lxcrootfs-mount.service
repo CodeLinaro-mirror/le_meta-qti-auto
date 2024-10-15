@@ -4,17 +4,14 @@
 [Unit]
 Description=Mount lxcrootfs partition to /lxcrootfs mount point
 SourcePath=/etc/initscripts/lxcrootfs-ubi-mount.sh
-After=set-slotsuffix.service init_audio.service
+After=init_audio.service
 RequiresMountsFor=/lxcrootfs
-DefaultDependencies=no
-Conflicts=shutdown.target
 ConditionKernelCommandLine=systemd.setenv
 
 [Service]
 Type=oneshot
 PassEnvironment="SLOT_SUFFIX"
 ExecStart=/etc/initscripts/lxcrootfs-ubi-mount.sh
-Nice=10
 
 [Install]
 WantedBy=multi-user.target
