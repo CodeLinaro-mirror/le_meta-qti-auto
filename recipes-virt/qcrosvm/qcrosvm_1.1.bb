@@ -22,3 +22,8 @@ SRC_URI = "\
 S = "${WORKDIR}/vendor/qcom/opensource/crosvm-gunyah"
 
 CARGO_DISABLE_BITBAKE_VENDORING = "1"
+
+inherit useradd
+
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} += "-u 3025 -U qvirt;"

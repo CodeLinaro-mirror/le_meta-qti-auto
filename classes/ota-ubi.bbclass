@@ -233,6 +233,7 @@ do_recovery_ubi() {
     if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
         mkdir -p ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde
         cp -f ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/boot-fde.img ${OTA_TARGET_IMAGE_ROOTFS_UBI}/BOOTABLE_IMAGES/boot.img
+        echo le_target_supports_nad_fde=1 >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/META/misc_info.txt
         cd ${OTA_TARGET_IMAGE_ROOTFS_UBI} && zip -qry ${OTA_TARGET_FILES_UBI_AB_FDE_PATH} *
     fi
 }

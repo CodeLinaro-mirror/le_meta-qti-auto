@@ -131,9 +131,9 @@ do_pack_vm_images() {
         ubinize -o ${VMPACKIMAGE_UBI_TARGET} ${UBINIZE_ARGS} ${UBINIZE_VMPACK_CFG}
 
         if [[ "${DISTRO_FEATURES}" =~ "selinux" ]] ; then
-            mksquashfs ${VMPACKIMAGE_ROOTFS} ${VMPACKIMAGE_SQUASHFS_TARGET} -context-file ${SELINUX_FILE_CONTEXTS} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1
+            mksquashfs ${VMPACKIMAGE_ROOTFS} ${VMPACKIMAGE_SQUASHFS_TARGET} -context-file ${SELINUX_FILE_CONTEXTS} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -force-uid 3025 -force-gid 3025
         else
-            mksquashfs ${VMPACKIMAGE_ROOTFS} ${VMPACKIMAGE_SQUASHFS_TARGET} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1
+            mksquashfs ${VMPACKIMAGE_ROOTFS} ${VMPACKIMAGE_SQUASHFS_TARGET} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -force-uid 3025 -force-gid 3025
         fi
 
         if ${@bb.utils.contains('MACHINE_FEATURES','qti-vm-systemrw', 'true', 'false', d)}; then
