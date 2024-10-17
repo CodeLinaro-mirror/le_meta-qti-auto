@@ -94,14 +94,11 @@ do_prebuilt_configure() {
     install -d ${B}/include/generated
     install -d ${B}/scripts
     install -d ${B}/certs
-    # Some of the artifacts needed for module compilation are present under
-    # msm-kernel path, for now copy them for this path to avoid build failures.
-    # Ask prebuilt providers to make these available in KERNEL_PREBUILT_DISTDIR.
-    install -m 0644 ../${KERNEL_TYPE}/.config ${B}
-    install -m 0644 ../${KERNEL_TYPE}/Module.symvers ${B}
-    install -m 0644 ../${KERNEL_TYPE}/signing_key.pem ${B}/certs/signing_key.pem
-    install -m 0644 ../${KERNEL_TYPE}/verity_cert.pem ${B}/certs/verity_cert.pem
-    install -m 0644 ../${KERNEL_TYPE}/verity_key.pem ${B}/certs/verity_key.pem
+    install -m 0644 .config ${B}
+    install -m 0644 Module.symvers ${B}
+    install -m 0644 signing_key.pem ${B}/certs/signing_key.pem
+    install -m 0644 verity_cert.pem ${B}/certs/verity_cert.pem
+    install -m 0644 verity_key.pem ${B}/certs/verity_key.pem
     if [ -f module.lds ]; then
     install -m 0644 module.lds ${B}/scripts/module.lds
     fi
@@ -288,3 +285,5 @@ do_deploy() {
 
 # Put the zImage in the kernel-dev pkg
 FILES:${KERNEL_PACKAGE_NAME}-dev += "/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}"
+
+INSANE_SKIP:${PN} = "installed-vs-shipped"

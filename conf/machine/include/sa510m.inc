@@ -1,17 +1,8 @@
 BASEMACHINE ?= "sa510m"
 require conf/machine/include/basemachine.inc
 
-DEFAULTTUNE ?= "aarch64"
-include conf/machine/include/arm/arch-armv8a.inc
-
-# Multilib configuration
-#MULTILIB_ENABLED ?= "True"
-#require ${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'conf/multilib.conf', d)}
-#MULTILIBS = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'multilib:lib32', d)}"
-#DEFAULTTUNE:virtclass-multilib-lib32 = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'armv7athf-neon', d)}"
-#MLIBPREFIX = "${@bb.utils.contains('MULTILIB_ENABLED', 'False', '', 'lib32-', d)}"
-
-#NON_MULTILIB_RECIPES += "qcrosvm mvm-firmware mvm-devicetree sat-module security-tests-llvm ptp-devicetree"
+DEFAULTTUNE ?= "armv7athf-neon"
+include conf/machine/include/arm/arch-armv7a.inc
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-msm"
 PREFERRED_PROVIDER_virtual/mkbootimg-native = "mkbootimg-gki-native"
@@ -27,9 +18,11 @@ PREFERRED_VERSION_dtc-android-build = "6.6"
 PREFERRED_VERSION_mkbootimg-gki-native = "6.6"
 PREFERRED_VERSION_dtc-android-build-native = "6.6"
 PREFERRED_VERSION_mkdtimg-gki-native = "6.6"
-#PREFERRED_VERSION_qcrosvm = "1.1"
 PREFERRED_VERSION_securemsmdlkm = "1.1"
 PREFERRED_VERSION_cta = "1.1"
+PREFERRED_VERSION_avbtool = "git"
+PREFERRED_VERSION_avbtool-native = "git"
+
 SERIAL_CONSOLES = "115200;ttyMSM0"
 KERNEL_IMAGETYPE = "Image"
 KERNEL_BASE = "0xa8000000"
@@ -44,8 +37,7 @@ KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lp
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
-KERNEL_DTB_NAMES = "dtb.img"
-
+KERNEL_DTB_NAMES = "sa510m-idp.dtb"
 KERNEL_TYPE = "msm-kernel"
 
 MACHINE_USES_KERNEL_PREBUILTS = "True"
@@ -77,7 +69,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-none qti-security qseecompat qti-tzlog qti-smciqseecomd qwesd ssgtzd android-binder"
+MACHINE_FEATURES += "qti-sdx dm-verity-none android-binder"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
@@ -93,7 +85,7 @@ MACHINE_MNT_POINTS = " \
 PAGE_SIZE ?= '4096'
 EXTRA_IMAGECMD ?= "-N 2048"
 
-MACHINE_SUPPORTS_DTBO = "True"
+MACHINE_SUPPORTS_DTBO = "False"
 MACHINE_SUPPORTS_PDMAPPER = "False"
 MACHINE_SUPPORTS_INIT_RAMDISK = "False"
 TOYBOX_RAMDISK = "False"
@@ -104,22 +96,8 @@ USBCOMPOSITION = "90DB"
 # On msm-5.4 or above ufs driver supports BSG Device.
 UFS_BSG_DEV_USAGE = "True"
 
-PREFERRED_VERSION_protobuf = "3.19.6"
-PREFERRED_VERSION_protobuf-native = "3.19.6"
-PREFERRED_VERSION_avbtool = "git"
-PREFERRED_VERSION_avbtool-native = "git"
-PREFERRED_VERSION_android-tools = "5.1.1.r37"
-PREFERRED_VERSION_android-tools = "5.1.1.r37"
-
 # Fixes for boot image dtb appending
 BOOT_HEADER_VERSION = "2"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
-
-# Y2038: Support for Y2038 safe time on 32 bit systems
-TARGET_CFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
-TARGET_CPPFLAGS += "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
-
-TARGET_CFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"
-TARGET_CPPFLAGS:remove:pn-glibc = "-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64"

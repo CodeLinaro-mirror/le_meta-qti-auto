@@ -4,7 +4,6 @@ SRC_URI:append += " \
     file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch \
     file://0001-Allow-powermgr-group-to-communicate.patch \
     file://61-pps.rules \
-    file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch \
     file://0001-Allow-system-user-to-use-dbus-for-communication.patch \
     file://loc_bootup_iio.sh \
     file://postmss.service \
@@ -63,8 +62,14 @@ do_install:append() {
         else
             install -m 0555 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         fi
-        sed -i 's/SUBSYSTEM!="block|ubi", GOTO="persistent_storage_end"/SUBSYSTEM!="block", GOTO="persistent_storage_end"/g' \
-        ${D}/lib/udev/rules.d/60-persistent-storage.rules
+
+        if [ -f ${D}/lib/udev/rules.d/60-persistent-storage.rules ]; then
+            sed -i 's/SUBSYSTEM!="block|ubi", GOTO="persistent_storage_end"/SUBSYSTEM!="block", GOTO="persistent_storage_end"/g' \
+                ${D}/lib/udev/rules.d/60-persistent-storage.rules
+        elif [ -f ${D}/usr/lib/udev/rules.d/60-persistent-storage.rules ]; then
+            sed -i 's/SUBSYSTEM!="block|ubi", GOTO="persistent_storage_end"/SUBSYSTEM!="block", GOTO="persistent_storage_end"/g' \
+                ${D}/usr/lib/udev/rules.d/60-persistent-storage.rules
+        fi
     fi
 }
 
@@ -100,3 +105,6 @@ do_install:append() {
 }
 FILES:${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
 FILES:${PN} += "${sysconfdir}/udev/rules.d/platform.rules"
+
+ERROR_QA:remove = "patch-status"
+INSANE_SKIP:${PN}:sa510m += "installed-vs-shipped"
