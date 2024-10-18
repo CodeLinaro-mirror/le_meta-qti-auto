@@ -21,7 +21,7 @@ SRC_URI = "git://github.com/COVESA/${BPN}.git;protocol=https;branch=master \
            file://567.patch \
            file://0001-Modify-dlt-logd-converter-to-support-linux.patch \
            file://0001-power_selinux_issue_fix.patch \
-           file://0001-Suppress-notice-log-messages.patch \
+           file://0003-Set-default-loglevel-to-error.patch \
            file://dlt-system.conf \
            file://dlt-logd-converter.service \
            file://change-dlt-socket-permissions-to-660.patch \
