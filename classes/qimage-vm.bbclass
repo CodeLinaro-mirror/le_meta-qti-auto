@@ -130,15 +130,23 @@ do_pack_vm_images() {
                    -o ${VMPACKIMAGE_UBIFS_TARGET} ${MKUBIFS_ARGS}
         ubinize -o ${VMPACKIMAGE_UBI_TARGET} ${UBINIZE_ARGS} ${UBINIZE_VMPACK_CFG}
 
+        # set permission before packing
+        chmod -R 540 ${VMPACKIMAGE_ROOTFS}
         if [[ "${DISTRO_FEATURES}" =~ "selinux" ]] ; then
             mksquashfs ${VMPACKIMAGE_ROOTFS} ${VMPACKIMAGE_SQUASHFS_TARGET} -context-file ${SELINUX_FILE_CONTEXTS} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -force-uid 3025 -force-gid 3025
         else
             mksquashfs ${VMPACKIMAGE_ROOTFS} ${VMPACKIMAGE_SQUASHFS_TARGET} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -force-uid 3025 -force-gid 3025
         fi
+        # restore permission for further steps
+        chmod -R 755 ${VMPACKIMAGE_ROOTFS}
 
         if ${@bb.utils.contains('MACHINE_FEATURES','qti-vm-systemrw', 'true', 'false', d)}; then
+            # set permission before packing
+            chmod -R 760 ${VMSYSTEMRW_PACKIMAGE_ROOTFS}
             mkfs.ubifs -r ${VMSYSTEMRW_PACKIMAGE_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS} \
                                 -o ${VMSYSTEMRW_PACKIMAGE_UBIFS_TARGET} ${MKUBIFS_ARGS}
+             # restore permission for further steps
+            chmod -R 755 ${VMSYSTEMRW_PACKIMAGE_ROOTFS}
         fi
     fi
 }
