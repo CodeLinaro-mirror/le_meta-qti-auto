@@ -29,4 +29,7 @@ do_install:append () {
    if [ -f ${D}${sysconfdir}/initscripts/vm-bootsys-ubi-mount.sh ]; then
       chmod 555 ${D}${sysconfdir}/initscripts/vm-bootsys-ubi-mount.sh
    fi
+   if [ -f ${D}/lib/systemd/system/systemrw-ubi.conf ]; then
+      chmod 444 ${D}/lib/systemd/system/systemrw-ubi.conf
+   fi
 }
