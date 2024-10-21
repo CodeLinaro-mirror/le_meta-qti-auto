@@ -26,6 +26,12 @@ do_install:append() {
 
    #shared RW space for lxc container
    install -m 0644  -d ${D}${userfsdatadir}/lxc_rw
+   #Prepare all dirs for the telaf lxc container
+   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/data
+   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/persist
+   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/app
+   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/tmp
+   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/tmp/legato
 
    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
       #installing service file for telaflxc container
@@ -49,7 +55,7 @@ do_install:append() {
 FILES:${PN} += "${systemd_unitdir}/system/*"
 FILES:${PN} += "${sysconfdir}/lxc/*"
 FILES:${PN} += "${sysconfdir}/initscripts/*"
-FILES:${PN} += "${userfsdatadir}/lxc_rw"
+FILES:${PN} += "${userfsdatadir}/lxc_rw/*"
 SYSTEMD_SERVICE:${PN} = "telaf_lxc.service"
 SYSTEMD_AUTO_ENABLE:${PN} = "disable"
 RDEPENDS:${PN}:remove = "curl rsync"
