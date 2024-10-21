@@ -1,9 +1,5 @@
 FILESEXTRAPATHS:prepend:sa525m := "${THISDIR}/files:"
 
-VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
-/systemrw/qvirtmgr.json /etc/qvirtmgr.json\n\
-"
-
 VOLATILE_BINDS:sa525m = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
 /systemrw/data /etc/data/\n\
@@ -20,6 +16,7 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/enable /etc/cv2x/enable\n\
 /systemrw/chrony.conf /etc/chrony.conf\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
+/systemrw/qvirtmgr.json  /etc/qvirtmgr.json\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 /systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
