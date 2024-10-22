@@ -46,6 +46,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}qmi-shutdown-modem \
         ${MLIBPREFIX}modem-shutdown \
         ${@oe.utils.conditional('DEBUG_BUILD', '1', '${MLIBPREFIX}packagegroup-qti-debug-tools', '', d )} \
+        ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
 "
 
 # Following packages will be enabled later
