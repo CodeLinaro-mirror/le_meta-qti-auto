@@ -24,6 +24,7 @@ BOOTIMAGE_FDE_TARGET = "boot-fde.img"
 
 MKBOOTUTIL = '${@oe.utils.conditional("PREFERRED_PROVIDER_virtual/mkbootimg-native", "mkbootimg-gki-native", "scripts/mkbootimg.py", "mkbootimg", d)}'
 
+DTBS_PATH = '${@oe.utils.conditional("PREFERRED_VERSION_linux-msm", "5.15", "/dtbs/", "/kernel_dtbs/", d)}'
 python do_makeboot () {
     import subprocess
 
@@ -36,7 +37,7 @@ python do_makeboot () {
     if (d.getVar("BOOT_HEADER_VERSION") or "0") != "0":
         xtra_parms += " --header_version " + d.getVar('BOOT_HEADER_VERSION')
         # header version setting expects dtb to be passed seprately but not appended to kernel
-        xtra_parms += " --dtb " + d.getVar('DEPLOY_DIR_IMAGE', True) + "/dtbs/" + d.getVar('KERNEL_DTB_NAMES').strip()
+        xtra_parms += " --dtb " + d.getVar('DEPLOY_DIR_IMAGE', True) + d.getVar('DTBS_PATH') + d.getVar('KERNEL_DTB_NAMES').strip()
 
     mkboot_bin_path = d.getVar('STAGING_BINDIR_NATIVE', True) + "/" + d.getVar('MKBOOTUTIL')
     ramdisk_path    = d.getVar('RAMDISK_PATH')

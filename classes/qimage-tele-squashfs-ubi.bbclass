@@ -986,7 +986,12 @@ python () {
 }
 
 do_patch_ubi_tools() {
-    ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native/usr/sbin/mksquashfs
+
+     if [ -f ${STAGING_DIR}-components/x86_64/squashfs-tools-native/${sbindir}/mksquashfs ]; then
+         ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${sbindir}/mksquashfs
+     else 
+         ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${base_bindir}/mksquashfs 
+     fi
 }
 
 # Default Image names
