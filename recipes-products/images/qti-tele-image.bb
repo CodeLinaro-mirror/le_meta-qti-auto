@@ -73,7 +73,6 @@ CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
 CORE_IMAGE_EXTRA_INSTALL:remove:sa510m = "\
        ${MLIBPREFIX}qmi-shutdown-modem \
        ${MLIBPREFIX}packagegroup-qti-ppat \
-       ${MLIBPREFIX}packagegroup-selinux-minimal \
        ${MLIBPREFIX}packagegroup-qti-telsdk \
        ${MLIBPREFIX}modem-shutdown \
 "
