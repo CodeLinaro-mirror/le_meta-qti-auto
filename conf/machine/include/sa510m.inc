@@ -69,7 +69,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-none android-binder"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 android-binder"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
