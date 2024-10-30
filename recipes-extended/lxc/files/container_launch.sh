@@ -28,18 +28,6 @@ function prepare_lxc_dirs()
 {
    # For all logs from lxc-cmds
    mkdir -p ${LXC_CONTAINER_LOG_PATH}
-
-   # Prepare all dirs for the telaf lxc container
-   mkdir -p ${PVM_SHARED_LXC_RW}/data
-   mkdir -p ${PVM_SHARED_LXC_RW}/persist
-   mkdir -p ${PVM_SHARED_LXC_RW}/app
-   mkdir -p ${PVM_SHARED_LXC_RW}/tmp/legato
-
-   chmod 0770 ${PVM_SHARED_LXC_RW}/data
-   chmod 0770 ${PVM_SHARED_LXC_RW}/persist
-   chmod 0770 ${PVM_SHARED_LXC_RW}/app
-   chmod 0770 ${PVM_SHARED_LXC_RW}/tmp
-   chmod 0701 ${PVM_SHARED_LXC_RW}/tmp/legato
 }
 
 function exec_lxc_ops() {
