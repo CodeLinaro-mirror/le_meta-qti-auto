@@ -10,6 +10,7 @@ SRCREV = "91805d8a24e3f3c63ce72d6eee09a6ee703eff7d"
 SRC_URI = "git://github.com/COVESA/vsomeip.git;protocol=https \
            file://0001-Fix-bug-to-support-multiple-routing-managers-in-sing.patch \
            file://add-660-permissions-to-vsomeip-socket.patch \
+           file://Allow-service_discovery-to-continue-without-random_device.patch \
            "
 S = "${WORKDIR}/git"
 
