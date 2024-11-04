@@ -37,7 +37,7 @@ RDEPENDS:packagegroup-qti-telematics = "\
 RDEPENDS:packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', '', 'sensor-hal-daemon', d)}\
-    libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy sensor-fidl\
     ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
     "
 
