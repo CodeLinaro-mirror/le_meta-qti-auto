@@ -31,7 +31,7 @@ S = "${WORKDIR}/git"
 
 PACKAGECONFIG ?= "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', ' systemd systemd-watchdog systemd-journal ', '', d)} \
  dlt-examples dlt-adaptor dlt-adaptor-stdin dlt-adaptor-udp dlt-console \
- udp-connection dlt-system dlt-filetransfer dlt-logd-converter"
+ dlt-system dlt-filetransfer dlt-logd-converter"
 # dlt-dbus
 
 # General options
