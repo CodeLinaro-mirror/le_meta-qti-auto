@@ -45,6 +45,26 @@ remove_opkg_files () {
     rm -rf ${IMAGE_ROOTFS}/var/lib/opkg/info/
 }
 
+
+#This below logic is referred from telaf.
+#Compute the SHA1 checksum of the staging area.
+#Don't follow symlinks (-P), and include the directory structure and the contents of
+#symlinks as part of the SHA1 hash.
+
+do_add_hash_lxcrootfs() {
+    local sha1
+    sha1=$( cd ${IMAGE_ROOTFS} &&  find -P -print0 | LC_ALL=C sort -z && \
+       find -P -type f -print0 | LC_ALL=C sort -z | xargs -0 sha1sum && \
+       find -P -type l -print0 | LC_ALL=C sort -z | xargs -0 -r -n 1 readlink)
+
+    sha1=$(echo ${sha1} | sha1sum)
+
+    sha1=${sha1%% *}
+
+    echo "${sha1}" > ${IMAGE_ROOTFS}/etc/hash
+}
+
+
 fakeroot do_create_lxcrootfs_ubifs() {
    mkfs.ubifs -r ${IMAGE_ROOTFS} -o ${LXCRFSIMAGE_UBIFS} ${MKUBIFS_ARGS}
 }
@@ -61,6 +81,7 @@ fakeroot do_create_lxcrootfs_squash() {
 ROOTFS_POSTPROCESS_COMMAND += "remove_opkg_files;"
 
 python () {
-     bb.build.addtask('do_create_lxcrootfs_ubifs', 'do_image_complete', 'do_image', d)
+     bb.build.addtask('do_add_hash_lxcrootfs', 'do_image_complete', 'do_image', d)
+     bb.build.addtask('do_create_lxcrootfs_ubifs', 'do_image_complete', 'do_add_hash_lxcrootfs', d)
      bb.build.addtask('do_create_lxcrootfs_squash', 'do_image_complete', 'do_create_lxcrootfs_ubifs', d)
 }
