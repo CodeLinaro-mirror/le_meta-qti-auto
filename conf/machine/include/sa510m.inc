@@ -106,3 +106,15 @@ INHERIT:remove = "uninative"
 
 DEFAULT_ENFORCING = "permissive"
 
+BBMASK += " meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/subversion/subversion_%.bbappend \
+            meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/rpm/rpm_%.bbappend \
+            meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/e2fsprogs/e2fsprogs_%.bbappend \
+            meta-qti-bsp/meta-qti-customizations/core/recipes-kernel/dtc/dtc_%.bbappend \
+            meta-qti-bsp/recipes-kernel/kmod/kmod_%.bbappend \
+            meta-qti-bsp/recipes-core/ncurses/ncurses_%.bbappend \
+            meta-qti-bsp/recipes-devtools/squashfs-tools/squashfs-tools_git.bbappend \
+            meta-qti-auto/recipes-core/zlib/zlib_%.bbappend \
+            meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/binutils/* \
+            meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/perl/perl_%.bbappend \
+            meta-qti-bsp/recipes-connectivity/chrony/chrony_2.4.bb \
+          "
