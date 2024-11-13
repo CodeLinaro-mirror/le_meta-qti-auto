@@ -320,6 +320,9 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/etc/gpfspath_le_oem_config.xml etc/
             cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
             cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
+            if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'false', 'true', d)}; then
+              cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/loop.ko lib/modules/
+            fi
 
             # gen_initramfs_list.sh expects to be run from kernel directory
             cd ${DEPLOY_DIR_IMAGE}/build-artifacts/kernel_scripts
