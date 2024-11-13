@@ -255,7 +255,7 @@ fakeroot do_ramdisk_create() {
         if [ -f ${IMAGE_ROOTFS}/usr/lib/libpcre.so.1 ]; then
             cp ${IMAGE_ROOTFS}/usr/lib/libpcre.so.1 lib/libpcre.so.1
         else
-            cp ${IMAGE_ROOTFS}/lib/libpcre.so.1 lib/libpcre.so.1
+            cp ${IMAGE_ROOTFS}/usr/lib/libpcre2-8.so.0 lib/libpcre2-8.so.0
         fi
 
         if ${@bb.utils.contains('DISTRO_FEATURES', 'dm-verity', bb.utils.contains_any('MACHINE_FEATURES', 'dm-verity-initramfs dm-verity-initramfs-v3 dm-verity-initramfs-v4', 'true', 'false', d), 'false', d)}; then
@@ -272,7 +272,9 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libpopt.so.0 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libuuid.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libdevmapper.so.1.02 lib/
-            cp ${IMAGE_ROOTFS}/usr/lib/libssl.so.3 lib/
+            if [ -f ${IMAGE_ROOTFS}/usr/lib/libssl.so.3]; then
+                 cp ${IMAGE_ROOTFS}/usr/lib/libssl.so.3 lib/
+            fi
             cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libjson-c.so.5 lib/
             cp ${IMAGE_ROOTFS}/lib/libudev.so.1 lib/
@@ -325,7 +327,7 @@ fakeroot do_ramdisk_create() {
             cd ${DEPLOY_DIR_IMAGE}/build-artifacts/kernel_scripts
             # remove the initrd-fde.gz file if exist
             rm -rf ${IMGDEPLOYDIR}/${PN}-initrd-fde.gz
-            if ${@bb.utils.contains_any('PREFERRED_VERSION_linux-msm', '5.10 5.15', 'true', 'false', d)}; then
+            if ${@bb.utils.contains_any('PREFERRED_VERSION_linux-msm', '5.10 5.15 6.6', 'true', 'false', d)}; then
                 # gen_initramfs.sh uses gen_init_cpio to generate the cpio archive.
                 bash ./scripts/gen_initramfs.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-fde -u 0 -g 0 ${RAMDISKDIRFDE}
                 gzip -n -9 -f ${IMGDEPLOYDIR}/${PN}-initrd-fde
@@ -340,7 +342,7 @@ fakeroot do_ramdisk_create() {
         cd ${DEPLOY_DIR_IMAGE}/build-artifacts/kernel_scripts
         # remove the initrd.gz file if exist
         rm -rf ${IMGDEPLOYDIR}/${PN}-initrd.gz
-        if ${@bb.utils.contains_any('PREFERRED_VERSION_linux-msm', '5.10 5.15', 'true', 'false', d)}; then
+        if ${@bb.utils.contains_any('PREFERRED_VERSION_linux-msm', '5.10 5.15 6.6', 'true', 'false', d)}; then
             # gen_initramfs.sh uses gen_init_cpio to generate the cpio archive.
             bash ./scripts/gen_initramfs.sh -o ${IMGDEPLOYDIR}/${PN}-initrd -u 0 -g 0 ${RAMDISKDIR}
             gzip -n -9 -f ${IMGDEPLOYDIR}/${PN}-initrd
