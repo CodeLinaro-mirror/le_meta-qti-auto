@@ -34,6 +34,7 @@ fakeroot do_ramdisk_create() {
         mkdir -p ${RAMDISKDIR}/usr
         mkdir -p ${RAMDISKDIR}/usr/bin
         mkdir -p ${RAMDISKDIR}/usr/sbin
+        mkdir -p ${RAMDISKDIR}/usr/lib
         if [[ "${FLASHLESS_MCU}" == "True" ]]; then
             mkdir -p ${RAMDISKDIR}/lib/firmware/qcom_aw_phy/
             mkdir -p ${RAMDISKDIR}/usr/share/dhcpcd/hooks/
@@ -334,6 +335,14 @@ fakeroot do_ramdisk_create() {
                 # and compressor depending on the extension
                 bash ./scripts/gen_initramfs_list.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-fde.gz -u 0 -g 0 ${RAMDISKDIRFDE}
             fi
+        fi
+
+        if ${@bb.utils.contains('DISTRO_FEATURES','usrmerge','true','false',d)}; then
+            mv lib/* usr/lib/
+            mv bin/* usr/bin/
+            rm -rf lib bin
+            ln -s usr/lib lib
+            ln -s usr/bin bin
         fi
 
         #gen_initramfs_list.sh expects to be run from kernel directory
