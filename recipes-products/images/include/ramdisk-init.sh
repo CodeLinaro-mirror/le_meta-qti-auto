@@ -269,8 +269,8 @@ SlotSwitchReboot () {
         LOGD "Error: owner set failed"
         return ${STATUS_ERR}
     fi
-    LOGD "Reboot device for Slot Switch or EDL"
-    gracefullReboot
+    LOGD "RBM: Crashing device for Slot Switch or EDL"
+    busybox echo c > /proc/sysrq-trigger
 
     return ${STATUS_ERR}
 }
