@@ -78,6 +78,7 @@ DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
 
 MACHINE_MNT_POINTS = " \
     /firmware \
+    /systemrw \
     /persist \
     /data \
 "
