@@ -11,4 +11,11 @@ do_install:append:sa525m() {
   sed -i -e "s/$/ \, RUN+=\"\/bin\/sh -c 'chmod 0660 \/dev\/binder \&\& chown binder:binder \/dev\/binder\'\"/g" ${D}${sysconfdir}/udev/rules.d/50-binder.rules
 }
 
+do_install:append:sa510m() {
+  rm -rf ${D}${systemd_unitdir}/system/servicemanager.service
+  rm -rf ${D}${systemd_unitdir}/system/binderfs.service
+  install -m 0664 ${WORKDIR}/servicemanager_auto.service ${D}${systemd_unitdir}/system/servicemanager.service
+  sed -i -e "s/$/ \, RUN+=\"\/bin\/sh -c 'chmod 0660 \/dev\/binder \&\& chown binder:binder \/dev\/binder\'\"/g" ${D}${sysconfdir}/udev/rules.d/50-binder.rules
+}
+
 FILES:${PN} += "${systemd_unitdir}/system/"
