@@ -22,6 +22,7 @@ SRC_URI_append += "file://mask-failed-to-connect-to-journal-socket-errors.patch"
 SRC_URI_append += "file://Removed-specified-group-render-and-KVM.patch"
 SRC_URI_append += "file://auto_platform.conf"
 SRC_URI_append += "file://remove-symlink-for-localtime.patch"
+SRC_URI_append += "file://platform.rules"
 
 PACKAGECONFIG_remove_auto = " \
     acl \
@@ -70,6 +71,7 @@ do_install_append() {
 
         install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         install -m 0644 ${WORKDIR}/auto_platform.conf -D ${D}/etc/tmpfiles.d/auto_platform.conf
+	install -m 0644 ${WORKDIR}/platform.rules -D ${D}${sysconfdir}/udev/rules.d/platform.rules
     fi
 }
 
