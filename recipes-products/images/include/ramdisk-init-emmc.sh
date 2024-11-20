@@ -115,7 +115,7 @@ EnableZram()
         return ${STATUS_ERR}
     fi
 
-    busybox.suid mount -o remount,size=300M -t tmpfs tmpfs /tmp
+    busybox.suid mount -o remount,size=315M -t tmpfs tmpfs /tmp
     if [ $? -ne ${STATUS_OK} ]; then
        LOGD "Error: remount tmp failed"
        return ${STATUS_ERR}
