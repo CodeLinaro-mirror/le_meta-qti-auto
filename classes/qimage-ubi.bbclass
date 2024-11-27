@@ -17,6 +17,8 @@ SYSTEMIMAGE_UBIFS_TARGET ?= "${@bb.utils.contains('IMAGE_FEATURES', 'gluebi', bb
 USERIMAGE_UBIFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/userfs.ubifs"
 USERIMAGE_ROOTFS ?= "${WORKDIR}/usrfs"
 
+CV2X_EXTRA_IMAGE_ROOTFS ?= "${WORKDIR}/cv2x_extra-ubi"
+
 VMIMAGE_UBI_TARGET ?= "vm-bootsys.ubi"
 VMIMAGE_UBIFS_TARGET ?= "vm-bootsys.ubifs"
 VMIMAGE_ROOTFS ?= "${DEPLOY_DIR_IMAGE}/vm-images/"
@@ -64,6 +66,13 @@ create_symlink_userfs() {
     mkdir -p ${IMAGE_ROOTFS_UBI}/data/configs
     mkdir -p ${IMAGE_ROOTFS_UBI}/data/logs
     mv ${IMAGE_ROOTFS_UBI}/data/* ${USERIMAGE_ROOTFS}
+}
+
+create_cv2x_extra_image_rootfs[cleandirs] = "${CV2X_EXTRA_IMAGE_ROOTFS}"
+create_cv2x_extra_image_rootfs() {
+    # Move cv2x_extra files from rootfs to cv2x_extra folder,
+    # create the folder if it doesn't exist.
+    mv ${IMAGE_ROOTFS_UBI}/cv2x_extra/* ${CV2X_EXTRA_IMAGE_ROOTFS} || mkdir -p ${IMAGE_ROOTFS_UBI}/cv2x_extra
 }
 
 create_symlink_systemd_ubi_mount_rootfs() {
@@ -335,6 +344,7 @@ do_makesystem_ubi[prefuncs] += "create_rootfs_ubi"
 do_makesystem_ubi[prefuncs] += "create_symlink_userfs"
 do_makesystem_ubi[prefuncs] += "create_symlink_systemd_ubi_mount_rootfs"
 do_makesystem_ubi[prefuncs] += "do_create_ubinize_config"
+do_makesystem_ubi[prefuncs] += "create_cv2x_extra_image_rootfs"
 do_makesystem_ubi[postfuncs] += "${@bb.utils.contains('INHERIT', 'uninative', 'do_patch_ubitools', '', d)}"
 do_makesystem_ubi[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}"
 

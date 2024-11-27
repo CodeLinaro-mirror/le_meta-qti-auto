@@ -34,6 +34,9 @@ MODEM_UBIFS_IMAGE = "${WORKSPACE}/NON-HLOS.ubifs"
 LXCRFSIMAGE_UBIFS_TARGET ?= "${DEPLOY_DIR_IMAGE}/lxcrootfs.ubifs"
 LXCRFSIMAGE_SQUASHFS_TARGET ?= "${DEPLOY_DIR_IMAGE}/lxcrootfs.squash"
 
+CV2X_EXTRA_UBIFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/cv2x_extra.ubifs"
+CV2X_EXTRA_ROOTFS ?= "${WORKDIR}/cv2x_extra"
+
 VM_IMAGE_UBI_TARGET ?= "vm-bootsys.ubi"
 VM_IMAGE_SQUASHFS_TARGET ?= "vm-bootsys.squash"
 VM_IMAGE_ROOTFS ?= "${DEPLOY_DIR_IMAGE}/vm-images/"
@@ -103,6 +106,13 @@ create_symlink_tele_userfs() {
     mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/configs
     mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/logs
     mv ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/* ${USER_IMAGE_ROOTFS}
+}
+
+create_cv2x_extra_rootfs[cleandirs] = "${CV2X_EXTRA_ROOTFS}"
+create_cv2x_extra_rootfs() {
+    # Move cv2x_extra files from rootfs to cv2x_extra folder,
+    # create the folder if it doesn't exist.
+    mv ${IMAGE_ROOTFS_SQUASHFS_UBI}/cv2x_extra/* ${CV2X_EXTRA_ROOTFS} || mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/cv2x_extra
 }
 
 create_symlink_systemd_ubi_mount_tele_rootfs() {
@@ -826,6 +836,7 @@ do_makesystem_tele_ubi[prefuncs] += "create_rootfs_tele_ubi"
 do_makesystem_tele_ubi[prefuncs] += "create_symlink_tele_userfs"
 do_makesystem_tele_ubi[prefuncs] += "create_symlink_systemd_ubi_mount_tele_rootfs"
 do_makesystem_tele_ubi[prefuncs] += "do_create_ubinize_tele_config"
+do_makesystem_tele_ubi[prefuncs] += "create_cv2x_extra_rootfs"
 do_makesystem_tele_ubi[prefuncs] += "create_rootfs_tele_ubifs"
 do_makesystem_tele_ubi[prefuncs] += "create_tele_systemrw"
 do_makesystem_tele_ubi[postfuncs] += "${@bb.utils.contains('INHERIT', 'uninative', 'do_patch_ubi_tools', '', d)}"
@@ -858,6 +869,7 @@ fakeroot do_makesystem_tele_ubi() {
 
    mkfs.ubifs -r ${SYSTEMRW_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS_SYSTEMRW} -o ${SYSTEMRW_UBIFS_TARGET} ${MKUBIFS_SYSTEMRW_ARGS}
    mkfs.ubifs -r ${USER_IMAGE_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS_DATA} -o ${USER_IMAGE_UBIFS_TARGET} ${MKUBIFS_USERFS_ARGS}
+   mkfs.ubifs -r ${CV2X_EXTRA_ROOTFS} -o ${CV2X_EXTRA_UBIFS_TARGET} ${MKUBIFS_ARGS}
    if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
        if [ -d ${MODEM_IMAGE_DIR} ]; then
            mkfs.ubifs -r ${MODEM_IMAGE_DIR} --selinux=${SELINUX_CONTEXT_MODEM} -o ${MODEM_UBIFS_IMAGE} ${MKUBIFS_ARGS}
