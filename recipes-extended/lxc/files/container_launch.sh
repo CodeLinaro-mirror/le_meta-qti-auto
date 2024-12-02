@@ -10,6 +10,7 @@ LXC_CONTAINER_LOG_PATH="/tmp/container_logs"
 CONTAINER_NAME="${4}"
 PVM_SHARED_LXC_RW="/data/lxc_rw"
 KPI_FILE_PATH="/sys/kernel/boot_kpi/kpi_values"
+LXC_PID_FILE_PATH="/var/run/lxc_start_${CONTAINER_NAME}.pid"
 
 function moduleExist(){
 
@@ -63,7 +64,7 @@ function exec_lxc_ops() {
             fi
 
             lxc-create -n $CONTAINER_NAME -f $LXC_CONF_PATH -t none -o $LXC_CONTAINER_LOG_PATH/lxc-create.log -l trace
-            lxc-start -n $CONTAINER_NAME -f $LXC_CONF_PATH -o $LXC_CONTAINER_LOG_PATH/lxc-start.log -l trace
+            lxc-start -n $CONTAINER_NAME -f $LXC_CONF_PATH -o $LXC_CONTAINER_LOG_PATH/lxc-start.log -l trace -p ${LXC_PID_FILE_PATH}
             lxc-info -n $CONTAINER_NAME | grep Link: | awk '{print $2}' | xargs -t -I {} ifconfig {} "$DEF_VETH_HOST_IP"
          else
             echo "No files in /lxcrootfs, skipping lxc create/start" > /dev/kmsg
