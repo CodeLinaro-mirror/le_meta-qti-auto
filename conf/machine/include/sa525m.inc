@@ -84,7 +84,7 @@ MACHINE_MNT_POINTS = " \
     /data \
     ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', '/lxcrootfs', '', d), '', d)} \
     ${@bb.utils.contains('IMAGE_FSTYPES', 'ext4', '/cache', '', d)} \
-    /cv2x_extra \
+    ${@bb.utils.contains('IMAGE_FSTYPES', 'ubi', '/cv2x_extra', '', d)} \
 "
 
 PAGE_SIZE ?= '4096'
