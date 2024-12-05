@@ -4,6 +4,7 @@
 [Unit]
 After=telaf.mount.service
 ConditionPathExists=!/mnt/legato/systems/current/read-only
+DefaultDependencies=no
 
 [Mount]
 Type=ubifs
