@@ -9,4 +9,4 @@ ConditionPathExists=!/mnt/legato/systems/current/read-only
 Type=ubifs
 What=ubi0:telaf_app
 Where=/cv2x_extra
-Options=bulk_read,rw,noexec,nodev,nosuid
+Options=bulk_read,rw,exec,nodev,nosuid
