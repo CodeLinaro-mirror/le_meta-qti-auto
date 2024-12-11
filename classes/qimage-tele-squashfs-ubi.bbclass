@@ -134,7 +134,7 @@ create_symlink_systemd_ubi_mount_tele_rootfs() {
             fi
             if [[ "$mountname" == "$userfsdatadir" ]] ; then
                 ln -sf ${systemd_unitdir}/system/${mountname}.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/local-fs.target.wants/${mountname}.mount
-            elif [[ "$mountname" == "cache" ]] ; then
+            elif [[ "$mountname" == "cache" || "$mountname" == "cv2x_extra" ]] ; then
                 ln -sf ${systemd_unitdir}/system/${mountname}.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/multi-user.target.wants/${mountname}.mount
             elif [[ "$mountname" == "persist" ]] ; then
                 ln -sf ${systemd_unitdir}/system/${mountname}.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/sysinit.target.wants/${mountname}.mount
