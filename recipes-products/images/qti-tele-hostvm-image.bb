@@ -57,8 +57,3 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
         ${@oe.utils.conditional('CORESIGHTDLKM', 'True', 'coresight-dlkm', '', d)} \
 "
-
-# Following packages will be enabled later
-CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
-       ${MLIBPREFIX}packagegroup-qti-security-test \
-"
