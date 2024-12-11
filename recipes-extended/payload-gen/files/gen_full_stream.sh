@@ -31,8 +31,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-mkdir $PWD/destn/
-unzip -o -q $1 -d $PWD/destn/
+mkdir destn/
+unzip -o -q $1 -d destn/
 cp -rf destn/BOOTABLE_IMAGES/boot.img destn/IMAGES/
 cd destn
 mv IMAGES/system.img IMAGES/rootfs.img
@@ -42,15 +42,4 @@ cd SYSTEM
 rm -rf var/run
 ln -snf ../run var/run
 cd ../..
-export PATH=$PATH:$PWD/../recipe-sysroot-native/usr/bin:$PWD/../recipe-sysroot-native/usr/lib
-LD_LIBRARY_PATH=$PWD/../recipe-sysroot-native/usr/lib
-export  LD_LIBRARY_PATH
-
-mkdir -p lib/shflags
-
-cp -rf ../OTA/streaming/external/shflags/src/shflags lib/shflags/
-cp -rf ../OTA/streaming/system/update_engine/scripts/brillo_update_payload scripts_brillo_update_payload
-chmod 0777 *
 echo "start generating payload.bin"
-./scripts_brillo_update_payload generate --payload payload.bin --target_image  target.zip
-./scripts_brillo_update_payload properties --payload payload.bin > properties.txt
