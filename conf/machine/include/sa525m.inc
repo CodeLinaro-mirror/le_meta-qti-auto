@@ -113,3 +113,7 @@ BOOT_HEADER_VERSION = "2"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
+
+BBMASK += "meta-qti-auto/recipes-devtools/squashfs-tools/ \
+           meta-qti-auto/classes/buildhistory.bbclass/ \
+           meta-qti-auto/recipes-kernel/dtc/  "
