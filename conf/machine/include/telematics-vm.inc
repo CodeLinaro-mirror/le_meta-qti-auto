@@ -81,3 +81,7 @@ UFS_BSG_DEV_USAGE = "True"
 SYSTEMD_COREDUMP_PATH = "/systemrw/coredump"
 
 NO_SYS_JOURNAL_LOGS_TO_CONSOLE = "1"
+
+BBMASK += "meta-qti-auto/recipes-devtools/squashfs-tools/ \
+           meta-qti-auto/classes/buildhistory.bbclass \
+           meta-qti-auto/recipes-kernel/dtc/ "
