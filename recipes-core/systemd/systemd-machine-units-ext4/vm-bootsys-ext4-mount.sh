@@ -142,10 +142,10 @@ SlotSwitchReboot () {
         fi
     fi
 
-    #Set owner is set by SetImageStatus command internally, perform device reboot.
-    echo "Reboot device for Slot Switch or EDL" > /dev/kmsg
+    #Set owner is set by SetImageStatus command internally, crashing device.
     #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
-    /bin/sh -c 'reboot'
+    echo "RBM: Crashing for switching slots or EDL mode" > /dev/kmsg
+    echo c > /proc/sysrq-trigger
     exit 1
 }
 
