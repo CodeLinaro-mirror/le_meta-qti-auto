@@ -38,8 +38,8 @@ index 9aa4381a..e3c03a77
  LIBS = -lpthread -lm
 +
 +ifeq ($(WITH_SELINUX),1)
-+CFLAGS += -DWITH_SELINUX
-+LIBS += -lselinux
++CFLAGS += -DWITH_SELINUX -Dstrlcpy=g_strlcpy
++LIBS += -lselinux -lglib-2.0
 +endif
 +
  ifeq ($(GZIP_SUPPORT),1)
