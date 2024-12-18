@@ -100,6 +100,11 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 /systemrw/gps.conf /etc/gps.conf\n\
 "
 
+VOLATILE_BINDS:sa510m = "\
+/systemrw/adb_devid  /etc/adb_devid\n\
+/systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
+"
+
 do_install:append:sa525m(){
     #Remove deprecated StandardOutput=syslog
     for service in ${SYSTEMD_SERVICE:${PN}}; do
