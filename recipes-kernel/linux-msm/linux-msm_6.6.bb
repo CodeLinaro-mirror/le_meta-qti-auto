@@ -49,7 +49,7 @@ DTBO_MACHINE = "${@d.getVar('MACHINE_SUPPORTS_DTBO') or "False"}"
 
 # Don't set any version extention on debug build
 LINUX_VERSION_EXTENSION ?= "-perf"
-LINUX_VERSION_EXTENSION_qti-distro-debug = ""
+LINUX_VERSION_EXTENSION:qti-distro-debug = ""
 
 # returns all the elements from the src uri that are config fragments
 def find_sccs(d):
@@ -86,6 +86,16 @@ do_configure:prepend() {
     fi
 }
 
+# Set up hosttools for techpack module compilation
+do_setup_module_compilation() {
+    cd ${WORKSPACE}/kernel-${PREFERRED_VERSION_linux-msm}/kernel_platform  && \
+          BUILD_CONFIG=${KERNEL_BUILD_CONFIG} \
+          OUT_DIR=${KERNEL_OUT_PATH}/ \
+          KERNEL_UAPI_HEADERS_DIR=${STAGING_KERNEL_BUILDDIR} \
+          INSTALL_MODULE_HEADERS=1 \
+          ./build/build_module.sh
+}
+
 do_prebuilt_configure[cleandirs] += "${B}"
 do_prebuilt_configure() {
     cd ${KERNEL_PREBUILT_DISTDIR}
@@ -96,15 +106,27 @@ do_prebuilt_configure() {
     install -d ${B}/certs
     install -m 0644 .config ${B}
     install -m 0644 Module.symvers ${B}
+    install -m 0755 sign-file ${B}/scripts/sign-file
+    install -m 0755 signing_key.x509 ${B}/certs/signing_key.x509
     install -m 0644 signing_key.pem ${B}/certs/signing_key.pem
+
+    install -d ${B}/headers
+    cp -a kernel-headers.tar.gz ${B}/headers
+    cd ${B}/headers
+    tar -xvzf kernel-headers.tar.gz
+    rm -f kernel-headers.tar.gz
+    cd -
+
+    if [ -f ${B}/headers/kernel-headers/include/generated/utsrelease.h ]; then
+        install -m 0644 ${B}/headers/kernel-headers/include/generated/utsrelease.h ${B}/include/generated
+    fi
+
     install -m 0644 verity_cert.pem ${B}/certs/verity_cert.pem
     install -m 0644 verity_key.pem ${B}/certs/verity_key.pem
     if [ -f module.lds ]; then
     install -m 0644 module.lds ${B}/scripts/module.lds
     fi
-    if [ -f utsrelease.h ]; then
-    install -m 0644 utsrelease.h ${B}/include/generated
-    fi
+
     # update paths of signature checking certificates to reflect current host
     sed -i -e '/CONFIG_MODULE_SIG_KEY[ =]/d' ${B}/.config
     echo "CONFIG_MODULE_SIG_KEY="\"${STAGING_DIR_TARGET}/kernel-certs/signing_key.pem\" >> ${B}/.config
@@ -131,6 +153,10 @@ do_prebuilt_configure() {
     cp -R ./gen_init_cpio ${B}/usr
     cp -R ${KERNEL_PLATFORM_PATH}/msm-kernel/usr/gen_initramfs.sh ${B}/usr
 
+    # Copied prebuilt kernel modules
+    for kmod in $(find . -name "*.ko") ; do
+        install -m 0644 $kmod ${B}
+    done
 }
 
 do_prebuilt_shared_workdir[cleandirs] += " ${STAGING_KERNEL_BUILDDIR}"
@@ -154,8 +180,22 @@ do_prebuilt_shared_workdir() {
     mkdir -p $kerneldir/include/config
     mkdir -p $kerneldir/scripts
     mkdir -p $kerneldir/include/generated
+    mkdir -p $kerneldir/certs
+    install -m 0755 ${B}/scripts/sign-file ${STAGING_KERNEL_BUILDDIR}/scripts/sign-file
+    install -m 0755 ${B}/certs/signing_key.x509 ${STAGING_KERNEL_BUILDDIR}/certs/signing_key.x509
+    install -m 0755 ${B}/certs/signing_key.pem ${STAGING_KERNEL_BUILDDIR}/certs/signing_key.pem
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'dm-verity', bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v3', 'true', 'false', d), 'false', d)}; then
+        install -m 0755 ${B}/certs/verity_cert.pem ${STAGING_KERNEL_BUILDDIR}/certs/verity_cert.pem
+        install -m 0644 ${B}/certs/verity_key.pem ${STAGING_KERNEL_BUILDDIR}/certs/verity_key.pem
+    fi
+
     if [ -e "${B}/scripts/module.lds" ]; then
         install -m 0644 ${B}/scripts/module.lds ${STAGING_KERNEL_BUILDDIR}/scripts/module.lds
+    fi
+
+    if [ -d arch/${ARCH}/boot ]; then
+        mkdir -p $kerneldir/arch/${ARCH}/boot/
+        cp -fR arch/${ARCH}/boot/* $kerneldir/arch/${ARCH}/boot/
     fi
 }
 
@@ -168,23 +208,29 @@ fakeroot do_prebuilt_install() {
     # Install various kernel output (zImage, map file, config, module support files)
     # From prebuilt paths
     #
-#    install -d ${D}/${KERNEL_IMAGEDEST}
-#    install -d ${D}/boot
-#    for imageType in ${KERNEL_IMAGETYPES} ; do
-#        install -m 0644 ${KERNEL_OUTPUT_DIR}/${imageType} ${D}/${KERNEL_IMAGEDEST}/${imageType}-${KERNEL_VERSION}
-#        if [ "${KERNEL_PACKAGE_NAME}" = "kernel" ]; then
-#            ln -sf ${imageType}-${KERNEL_VERSION} ${D}/${KERNEL_IMAGEDEST}/${imageType}
-#        fi
-#    done
-    #install -m 0644 System.map ${D}/boot/System.map-${KERNEL_VERSION}
-    #install -m 0644 .config ${D}/boot/config-${KERNEL_VERSION}
-    #install -m 0644 vmlinux ${D}/boot/vmlinux-${KERNEL_VERSION}
-#    [ -e Module.symvers ] && install -m 0644 Module.symvers ${D}/boot/Module.symvers-${KERNEL_VERSION}
-    install -d ${D}${sysconfdir}/modules-load.d
-    install -d ${D}${sysconfdir}/modprobe.d
+    install -d ${D}/${KERNEL_IMAGEDEST}
+    install -d ${D}/boot
+    for imageType in ${KERNEL_IMAGETYPES} ; do
+        install -m 0644 ${KERNEL_OUTPUT_DIR}/${imageType} ${D}/${KERNEL_IMAGEDEST}/${imageType}-${KERNEL_VERSION}
+        if [ "${KERNEL_PACKAGE_NAME}" = "kernel" ]; then
+            ln -sf ${imageType}-${KERNEL_VERSION} ${D}/${KERNEL_IMAGEDEST}/${imageType}
+        fi
+    done
+    install -m 0644 System.map ${D}/boot/System.map-${KERNEL_VERSION}
+    install -m 0644 .config ${D}/boot/config-${KERNEL_VERSION}
+    install -m 0644 vmlinux ${D}/boot/vmlinux-${KERNEL_VERSION}
+    [ -e Module.symvers ] && install -m 0644 Module.symvers ${D}/boot/Module.symvers-${KERNEL_VERSION}
 
     # Copied files may cause host contamination due to invalid UID. Change ownership to root.
     find ${D} -name '*' -exec chown -h root:root {} \;
+
+    # Install modules
+    mkdir -p ${D}/${base_libdir}/modules/${KERNEL_VERSION}
+    for mod in *.ko; do
+        if [ -f $mod ]; then
+            install -m 0644 $mod ${D}/${base_libdir}/modules/${KERNEL_VERSION}/
+        fi
+    done
 }
 
 # Must be ran no earlier than after do_kernel_checkout or else Makefile won't be in ${S}/Makefile
@@ -292,13 +338,13 @@ do_deploy() {
      install -d ${DEPLOYDIR}/build-artifacts
      install -d ${DEPLOYDIR}/build-artifacts/kernel_scripts/scripts
      install -d ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
+     install -d ${DEPLOYDIR}/build-artifacts/dtb
 
      cp -a ${B}/usr/gen_initramfs.sh ${DEPLOYDIR}/build-artifacts/kernel_scripts/scripts
      cp -a ${B}/usr/gen_init_cpio ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
+     cp -a ${KERNEL_PREBUILT_DISTDIR}/*.dtb ${DEPLOYDIR}/build-artifacts/dtb
 
 }
 
 # Put the zImage in the kernel-dev pkg
 FILES:${KERNEL_PACKAGE_NAME}-dev += "/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}"
-
-INSANE_SKIP:${PN} = "installed-vs-shipped"
