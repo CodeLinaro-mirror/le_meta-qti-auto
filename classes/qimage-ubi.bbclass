@@ -55,13 +55,15 @@ IMAGE_ROOTFS_UBI = "${WORKDIR}/rootfs-ubi"
 create_symlink_userfs[cleandirs] = "${USERIMAGE_ROOTFS}"
 create_symlink_userfs() {
 
-    #Symlink modules
-    LIB_MODULES="${IMAGE_ROOTFS_UBI}/lib/modules"
-    if [ -d ${LIB_MODULES} ]; then
-        cp -rp ${LIB_MODULES} ${IMAGE_ROOTFS_UBI}/usr/lib/
-        rm -rf ${LIB_MODULES}
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'usrmerge', 'false', 'true', d)}; then
+        #Symlink modules
+        LIB_MODULES="${IMAGE_ROOTFS_UBI}/lib/modules"
+        if [ -d ${LIB_MODULES} ]; then
+            cp -rp ${LIB_MODULES} ${IMAGE_ROOTFS_UBI}/usr/lib/
+            rm -rf ${LIB_MODULES}
+        fi
+        ln -sf /usr/lib/modules ${IMAGE_ROOTFS_UBI}/lib
     fi
-    ln -sf /usr/lib/modules ${IMAGE_ROOTFS_UBI}/lib
 
     # Move rootfs data to userfs directory
     # Content of userfs is added to data volume
