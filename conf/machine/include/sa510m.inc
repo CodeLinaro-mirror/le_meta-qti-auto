@@ -33,7 +33,7 @@ CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 no_console_suspend=1"
 CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1 loglevel=0 systemd.log_level=0 systemd.show_status=0"
 IPC_LOGGING_PARAM ?= ""
 IPC_LOGGING_PARAM:qti-distro-debug ?= "qcom_ipc_logging.enabled=1"
-KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM}"
+KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM} systemd.setenv="SLOT_SUFFIX"="_a""
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
@@ -42,12 +42,12 @@ KERNEL_TYPE = "msm-kernel"
 
 MACHINE_USES_KERNEL_PREBUILTS = "True"
 KERNEL_PLATFORM_PATH = "${WORKSPACE}/kernel-6.6/kernel_platform"
-KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-6.6/out/msm-kernel-sa510m-${KERNEL_VARIANT}defconfig/"
+KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-6.6/kernel_platform/out/msm-kernel-sa510m-${KERNEL_VARIANT}defconfig/"
 KERNEL_PREBUILT_DISTDIR = "${KERNEL_PREBUILT_PATH}/dist"
 KERNEL_OUT_PATH ?= "${KERNEL_PREBUILT_PATH}"
-KERNEL_BUILD_CONFIG ?= "msm-kernel/build.config.msm.sa510"
+KERNEL_BUILD_CONFIG ?= "msm-kernel/build.config.msm.sa510m"
 
-KERNEL_DEFCONFIG = "msm-kernel-sa510-${KERNEL_VARIANT}defconfig"
+KERNEL_DEFCONFIG = "msm-kernel-sa510m-${KERNEL_VARIANT}defconfig"
 
 # MACHINE_FEATURES ##
 # qti-adsp:               Machine supports QTI adsp solution
@@ -69,7 +69,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 android-binder"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 android-binder tele-squashfs-ubi"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
@@ -101,3 +101,8 @@ BOOT_HEADER_VERSION = "2"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
+
+INHERIT:remove = "uninative"
+
+DEFAULT_ENFORCING = "permissive"
+
