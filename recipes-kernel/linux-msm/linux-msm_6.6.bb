@@ -128,7 +128,8 @@ do_prebuilt_configure() {
     # copy initramfs scripts
     install -d ${B}/usr
 
-    cp -R ../../../kernel_platform/msm-kernel/usr/gen_initramfs.sh ${B}/usr
+    cp -R ./gen_init_cpio ${B}/usr
+    cp -R ${KERNEL_PLATFORM_PATH}/msm-kernel/usr/gen_initramfs.sh ${B}/usr
 
 }
 
@@ -261,7 +262,6 @@ do_shared_workdir:append () {
 # Path for dtbo generation is kernel version dependent.
 DTBO_SRC_PATH ?= "${STAGING_KERNEL_BUILDDIR}/arch/${ARCH}/boot/dts/qcom/"
 
-do_deploy[depends] += "gen-initramfs-native:do_install"
 do_deploy() {
     if [ -f ${D}/${KERNEL_IMAGEDEST}/-${KERNEL_VERSION} ]; then
         mv ${D}/${KERNEL_IMAGEDEST}/-${KERNEL_VERSION} ${D}/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}
@@ -294,9 +294,7 @@ do_deploy() {
      install -d ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
 
      cp -a ${B}/usr/gen_initramfs.sh ${DEPLOYDIR}/build-artifacts/kernel_scripts/scripts
-     cp -a ${STAGING_KERNEL_DIR}/usr/gen_init_cpio ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
-     #cp -a ${B}/usr/initramfs_data.cpio ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
-     #cp -a ${B}/usr/initramfs_inc_data ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
+     cp -a ${B}/usr/gen_init_cpio ${DEPLOYDIR}/build-artifacts/kernel_scripts/usr/
 
 }
 
