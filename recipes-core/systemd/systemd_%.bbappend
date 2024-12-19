@@ -107,4 +107,3 @@ FILES:${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
 FILES:${PN} += "${sysconfdir}/udev/rules.d/platform.rules"
 
 ERROR_QA:remove = "patch-status"
-INSANE_SKIP:${PN}:sa510m += "installed-vs-shipped"
