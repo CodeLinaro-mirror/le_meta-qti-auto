@@ -19,6 +19,10 @@ IMAGE_FEATURES += " \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'lxcrootfs-volume', '', d)} \
 "
 
+IMAGE_FEATURES:append:sa510m = " \
+        ${@oe.utils.conditional('DEBUG_BUILD', '1', 'empty-root-password serial-autologin-root', '', d )} \
+"
+
 python () {
     if d.getVar('PREFERRED_VERSION_linux-msm') == "5.15":
         bb.build.addtask('do_merge_dtbs', 'do_makeboot', bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'do_makesystem_ubi', 'do_makesystem', d), d)
