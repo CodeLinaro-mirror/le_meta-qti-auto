@@ -118,4 +118,5 @@ BBMASK += " meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/subversio
             meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/binutils/* \
             meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/perl/perl_%.bbappend \
             meta-qti-bsp/recipes-connectivity/chrony/chrony_2.4.bb \
+            meta-qti-auto/recipes-extended/lxc/busybox-init.bb \
           "
