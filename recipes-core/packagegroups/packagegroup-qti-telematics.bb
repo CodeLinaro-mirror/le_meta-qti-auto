@@ -17,6 +17,10 @@ PTPVIRT:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-
 SENSORIDL ?= "False"
 SENSORIDL:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-tele', 'False', 'True',d)}"
 
+CRONIE ?= "True"
+CRONIE:sa510m = "False"
+CRONIE:sa525m-fotavm = "False"
+
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     ${MLPREFIX}packagegroup-qti-telematics \
@@ -43,6 +47,7 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
+    ${@oe.utils.conditional('CRONIE', 'True', 'cronie', '', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-vnw = "\
