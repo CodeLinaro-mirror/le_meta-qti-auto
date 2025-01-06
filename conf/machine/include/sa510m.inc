@@ -42,7 +42,7 @@ KERNEL_TYPE = "msm-kernel"
 
 MACHINE_USES_KERNEL_PREBUILTS = "True"
 KERNEL_PLATFORM_PATH = "${WORKSPACE}/kernel-6.6/kernel_platform"
-KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-6.6/kernel_platform/out/msm-kernel-sa510m-${KERNEL_VARIANT}defconfig/"
+KERNEL_PREBUILT_PATH ?= "${WORKSPACE}/kernel-6.6/out/msm-kernel-sa510m-${KERNEL_VARIANT}defconfig/"
 KERNEL_PREBUILT_DISTDIR = "${KERNEL_PREBUILT_PATH}/dist"
 KERNEL_OUT_PATH ?= "${KERNEL_PREBUILT_PATH}"
 KERNEL_BUILD_CONFIG ?= "msm-kernel/build.config.msm.sa510m"
