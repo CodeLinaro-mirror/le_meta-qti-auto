@@ -19,6 +19,10 @@ OTA_FULL_UPDATE_EXT4_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_FULL_UP
 OTA_INCREMENTAL_UPDATE_EXT4 = "incremental_update_ext4.zip"
 OTA_INCREMENTAL_UPDATE_EXT4_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_INCREMENTAL_UPDATE_EXT4}"
 
+OTA_TARGET_FILES_EXT4_FDE = "target-files-ext4-fde.zip"
+OTA_TARGET_FILES_EXT4_FDE_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde/${OTA_TARGET_FILES_EXT4_FDE}"
+OTA_FULL_UPDATE_EXT4_FDE = "full_update_ext4_fde.zip"
+
 MACHINE_FILESMAP_SEARCH_PATH ?= "${@':'.join('%s/conf/machine/filesmap' % p for p in '${BBPATH}'.split(':'))}}"
 MACHINE_FILESMAP_FULL_PATH = "${@machine_search(d.getVar('MACHINE_FILESMAP_CONF'), d.getVar('MACHINE_FILESMAP_SEARCH_PATH')) or ''}"
 
@@ -169,6 +173,15 @@ do_recovery_ext4() {
     echo le_target_supports_ab=1 >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
 
     cd ${OTA_TARGET_IMAGE_ROOTFS_EXT4} && zip -qry ${OTA_TARGET_FILES_EXT4_PATH} *
+
+    # Create target zip with boot-fde.img when qti-nad-fde is enabled
+    if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+        mkdir -p ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde
+        cp -f ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/boot-fde.img ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/BOOTABLE_IMAGES/boot.img
+        cp -f ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/boot-fde.img ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/IMAGES/boot.img
+        echo le_target_supports_nad_fde=1 >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
+        cd ${OTA_TARGET_IMAGE_ROOTFS_EXT4} && zip -qry ${OTA_TARGET_FILES_EXT4_FDE_PATH} *
+    fi
 }
 addtask do_recovery_ext4 after do_image_complete before do_build
 
@@ -188,8 +201,20 @@ do_gen_ota_incremental_zip_ext4() {
 do_gen_ota_full_zip_ext4[dirs] += "${DEPLOY_DIR_IMAGE}/ota-scripts"
 do_gen_ota_full_zip_ext4() {
     ./full_ota.sh ${OTA_TARGET_FILES_EXT4_PATH} ${IMAGE_ROOTFS} ext4 --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT} ${SIGN_OTA_PACKAGE}
+    if [[ -e update_ext4.zip ]]; then
+        cp update_ext4.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_FULL_UPDATE_EXT4}
+    else
+        bbwarn "Failed to create full_update_ext4.zip"
+    fi
 
-    cp update_ext4.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/${OTA_FULL_UPDATE_EXT4}
+    if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+        ./full_ota.sh ${OTA_TARGET_FILES_EXT4_FDE_PATH} ${IMAGE_ROOTFS} ext4 --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT} ${SIGN_OTA_PACKAGE}
+        if [[ -e update_ext4.zip ]]; then
+            cp update_ext4.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde/${OTA_FULL_UPDATE_EXT4_FDE}
+        else
+            bbwarn "Failed to create full_update_ext4_fde.zip"
+        fi
+    fi
 
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'true', 'false', d)}; then
