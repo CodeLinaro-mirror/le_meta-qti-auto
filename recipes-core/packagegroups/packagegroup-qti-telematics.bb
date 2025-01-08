@@ -17,6 +17,10 @@ OPENAVB:sa525m = "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'Fals
 CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
 CV2X_ITS:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', [ 'qti-cv2x', 'qti-wwan-plus-cv2x' ], 'True', 'False',d)}"
 
+CRONIE ?= "True"
+CRONIE:sa510m = "False"
+CRONIE:sa525m-fotavm = "False"
+
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     packagegroup-qti-telematics \
@@ -51,6 +55,7 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
     ${@oe.utils.conditional('CV2X_ITS', 'True', 'udpreplay', '', d)} \
+    ${@oe.utils.conditional('CRONIE', 'True', 'cronie', '', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-vnw = "\
