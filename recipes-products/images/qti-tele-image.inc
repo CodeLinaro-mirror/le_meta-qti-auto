@@ -24,7 +24,9 @@ IMAGE_FEATURES:append:sa510m = " \
 "
 
 python () {
-    if d.getVar('PREFERRED_VERSION_linux-msm') == "5.15":
+    preferred_version = d.getVar('PREFERRED_VERSION_linux-msm')
+
+    if preferred_version in ["5.15", "6.6"]:
         bb.build.addtask('do_merge_dtbs', 'do_makeboot', bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'do_makesystem_ubi', 'do_makesystem', d), d)
         bb.build.addtask('do_copy_abl', 'do_image_complete', 'do_makeboot', d)
 }
