@@ -68,6 +68,8 @@ STATUS_ERR=1
 STATUS_INVAL=-1
 
 SLOT_SUFFIX=""
+BOOT_SLOT=""
+
 DEV_NUM=-1
 SYS_MMC_PATH="/sys/class/block"
 RECINFO_PATH="/dev/block/bootdevice/by-name/recoveryinfo"
@@ -141,14 +143,14 @@ WaitDevReady() {
 
 
 GetSlotSuffix() {
-    local boot_slot=""
-    boot_slot=`busybox cat /proc/cmdline | busybox awk -F'SLOT_SUFFIX=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
-    if [ "${boot_slot}" == "_a" ]; then
+    BOOT_SLOT=`busybox cat /proc/cmdline | busybox awk -F'SLOT_SUFFIX=' '{print $2}' | busybox awk '{print $1}' | busybox tr -d '"'`
+    if [ "${BOOT_SLOT}" == "_a" ]; then
         SLOT_SUFFIX=""
-    elif [ "${boot_slot}" == "_b" ]; then
+    elif [ "${BOOT_SLOT}" == "_b" ]; then
         SLOT_SUFFIX="_b"
     else
         SLOT_SUFFIX=""
+        BOOT_SLOT=""
         LOGD "SLOT_SUFFIX not found in cmdline"
         return ${STATUS_ERR}
     fi
@@ -311,9 +313,6 @@ SwitchToSystem() {
 
 FdeInitialize ()
 {
-    local dev_num=${1}
-    block_device="/dev/mmcblk0p"${dev_num}
-
     ${Binsmod} /lib/modules/smcinvoke.ko
     ${Binsmod} /lib/modules/dm-crypt.ko
 
@@ -333,22 +332,6 @@ FdeInitialize ()
 
     /usr/bin/qseecomd > /dev/kmsg &
 
-    # Get available RAM in MB
-    available_ram=$(($(${Bgrep} MemAvailable /proc/meminfo | ${Bawk} '{print $2}') / 1024 ))
-
-    # Get partition size in MB
-    partition_size=$(( $(${Bblockdev} --getsize64 ${block_device}) / (1024 * 1024) ))
-
-    # Check if partition size + 100MB is greater than available RAM
-    # If not available, enable Zram for FDE operations
-    if [ $((partition_size + 100)) -gt ${available_ram} ]; then
-        EnableZram
-        if [ $? -ne ${STATUS_OK} ]; then
-            LOGD "Error: Not enough memory available."
-            return ${STATUS_ERR}
-        fi
-    fi
-
     return ${STATUS_OK}
 }
 
@@ -360,14 +343,23 @@ FdeInitialize ()
 EncryptPartition () {
     local device_name=${1} #system
     local key_index=${2}
-    local dev_num=${3}
+    local block_device=${3}
     local for_vb_parameter="${4}"
-    local encryption_path=${FDE_ENCRYPTION_PATH}
+    local slot_suffix_inactive=""
 
-    block_device="/dev/mmcblk0p"${dev_num}
+    if [ "${SLOT_SUFFIX}" == "" ]; then
+        slot_suffix_inactive="_b"
+    fi
+
+    EmmcGetPartitionID ${EXT4_PART_NAME}${slot_suffix_inactive}
+    if [ "${DEV_NUM}" == "${STATUS_INVAL}" ]; then
+        LOGD "Cannot get ${EXT4_PART_NAME}${slot_suffix_inactive} partition."
+        return ${STATUS_ERR}
+    fi
+    local encryption_path="/dev/mmcblk0p"$DEV_NUM
 
     if [ "${FDE_INIT_STATUS}" != "DONE" ]; then
-        FdeInitialize ${dev_num}
+        FdeInitialize
         if [ $? -ne ${STATUS_OK} ]; then
             LOGD "Error: FDE initialization failed."
             return ${STATUS_ERR}
@@ -379,32 +371,28 @@ EncryptPartition () {
     # 0 -- Run encryption and/or decryption successful
     # 1 -- Fuse not blown, continue as normal boot
     # 2 -- Failed
-    nad-fde-app  -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} -s \
+    nad-fde-app -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} -s \
                 -V "${for_vb_parameter}"
     nad_fde_result=$?
     case "${nad_fde_result}" in
         0)
             LOGD "FDE enabled for ${device_name}."
             FDE_MOUNT_NODE="/dev/mapper/${device_name}"
-            busybox rm -rf ${encryption_path}
             return ${STATUS_OK}
         ;;
         1)
             LOGD "FDE fuse bit not blown."
             FDE_MOUNT_NODE=${block_device}
-            busybox rm -rf ${encryption_path}
             return ${STATUS_OK}
         ;;
         2)
             LOGD "FDE Failed"
             FDE_MOUNT_NODE=${block_device}
-            busybox rm -rf ${encryption_path}
             return ${STATUS_OK}
         ;;
         *)
             LOGD "FDE encryption failed ${nad_fde_result}."
             FDE_MOUNT_NODE=""
-            busybox rm -rf ${encryption_path}
             return ${STATUS_ERR}
         ;;
     esac
@@ -429,7 +417,8 @@ MountSystem () {
        LOGD "Cannot get ${EXT4_PART_NAME}${SLOT_SUFFIX} partition."
        return ${STATUS_ERR}
     fi
-    block_device="/dev/mmcblk0p"$DEV_NUM
+    local block_device="/dev/mmcblk0p"$DEV_NUM
+
     # Encrypt 'System' partition
     if ${Bgrep} 'nad_fde=1' ${FDE_ENV} > /dev/null; then
 
@@ -443,7 +432,7 @@ MountSystem () {
         if [ "${nad_fde_status}" == "enabled" ]; then
             EncryptPartition ${EXT4_PART_NAME}"_encrypted" \
                     ${sys_key_index} \
-                    ${DEV_NUM} \
+                    ${block_device} \
                     "${vb_parameter}"
 
             if [ $? -ne ${STATUS_OK} ] ; then
@@ -552,11 +541,6 @@ MainBoot() {
             echo -n 'M - Ramdisk-init End' >> $KPI_FILE_PATH
         fi
     done
-
-    # Disable Zram if it was previously enabled for FDE operations
-    if [ ${enable_zram} -eq 1 ]; then
-        DisableZram
-    fi
 
     local tasks_list2="
                     MoveMountToSystem
