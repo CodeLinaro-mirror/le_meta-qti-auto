@@ -193,8 +193,14 @@ do_gen_ota_full_zip_ext4() {
 
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'true', 'false', d)}; then
-            cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && ./gen_full_stream.sh ${OTA_TARGET_FILES_EXT4_PATH}
-            cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+            TMP=$(mktemp -d)
+            cd $TMP
+            gen_full_stream.sh ${OTA_TARGET_FILES_EXT4_PATH}
+            scripts_brillo_update_payload generate --payload payload.bin --target_image target.zip
+            scripts_brillo_update_payload properties --payload payload.bin > properties.txt
+            cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+            cd -
+            rm -rf $TMP
         fi
     fi
 }
