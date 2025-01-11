@@ -273,7 +273,7 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libpopt.so.0 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libuuid.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libdevmapper.so.1.02 lib/
-            if [ -f ${IMAGE_ROOTFS}/usr/lib/libssl.so.3]; then
+            if [ -f ${IMAGE_ROOTFS}/usr/lib/libssl.so.3 ]; then
                  cp ${IMAGE_ROOTFS}/usr/lib/libssl.so.3 lib/
             fi
             cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
