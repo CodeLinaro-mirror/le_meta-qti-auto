@@ -107,6 +107,14 @@ INHERIT:remove = "uninative"
 
 DEFAULT_ENFORCING = "permissive"
 
+# Disable autosuspend for USB peripheral mode
+MACHINE_SUPPORTS_USB_AUTOSUSPEND = "False"
+
+DISTRO_FEATURES:remove = "qti-telux"
+
+INHERIT += "utils base patch staging"
+USER_CLASSES += "staging base"
+
 BBMASK += " meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/subversion/subversion_%.bbappend \
             meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/rpm/rpm_%.bbappend \
             meta-qti-bsp/meta-qti-customizations/core/recipes-devtools/e2fsprogs/e2fsprogs_%.bbappend \
