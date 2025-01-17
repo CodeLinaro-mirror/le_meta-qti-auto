@@ -19,13 +19,13 @@ SRC_URI = "file://OTA/streaming/system/update_engine/scripts/brillo_update_paylo
 
 S = "${WORKDIR}/payload"
 
-PACKAGES += "${PN}-bin"
-FILES:${PN}-bin += "${bindir}"
-do_configure[depends] += "stream-update-native:do_compile"
-RM_WORK_EXCLUDE += "${PN}"
-do_configure() {
-    echo "Running update engine interface files ${S}"
-    cp -f ${WORKDIR}/gen_full_stream.sh ${S}
-    chmod 755 ${S}/*
+do_configure[noexec] = "1"
+do_compile[noexec] = "1"
+
+do_install() {
+    echo "Installing update engine interface files"
+    install -m 755 -D ${WORKDIR}/gen_full_stream.sh ${D}${bindir}/gen_full_stream.sh
+    install -m 755 -D ${WORKDIR}/OTA/streaming/system/update_engine/scripts/brillo_update_payload ${D}${bindir}/scripts_brillo_update_payload
+    install -m 644 -D ${WORKDIR}/OTA/streaming/external/shflags/src/shflags ${D}${bindir}/lib/shflags/shflags
 }
 FILESPATH =+ "${WORKSPACE}:"

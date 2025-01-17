@@ -34,7 +34,7 @@ DISTRO_FEATURES:append = " selinux dm-verity"
 DISTRO_FEATURES:append = " qti-adsp qti-security qti-vble qti-audio qti-earlyusb qti-mvm qti-early-eth qti-telux vbleima vbleevm qti-nad-core qti-nad-telaf"
 
 # Allow checking of required and conflicting features across the distro
-INHERIT += "features_check"
+IMAGE_CLASSES += "features_check"
 
 # Include in native DISTRO_FEATURES if present in the target DISTRO_FEATURES.
 DISTRO_FEATURES_FILTER_NATIVE += " selinux"

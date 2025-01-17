@@ -14,3 +14,5 @@ do_install:append() {
             ${D}${sysconfdir}/udev/scripts/automountsdcard.sh
     fi
 }
+
+ERROR_QA:remove = "patch-status"

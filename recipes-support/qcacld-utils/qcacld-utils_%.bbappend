@@ -1,0 +1,1 @@
+TARGET_CC_ARCH:append = " -D_FORTIFY_SOURCE=2 "

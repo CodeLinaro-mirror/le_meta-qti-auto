@@ -23,6 +23,8 @@ S = "${WORKDIR}/vendor/qcom/opensource/crosvm-gunyah"
 
 CARGO_DISABLE_BITBAKE_VENDORING = "1"
 
+do_compile[network] = "1"
+
 inherit useradd
 
 USERADD_PACKAGES = "${PN}"

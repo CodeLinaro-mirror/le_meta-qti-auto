@@ -34,6 +34,9 @@ MODEM_UBIFS_IMAGE = "${WORKSPACE}/NON-HLOS.ubifs"
 LXCRFSIMAGE_UBIFS_TARGET ?= "${DEPLOY_DIR_IMAGE}/lxcrootfs.ubifs"
 LXCRFSIMAGE_SQUASHFS_TARGET ?= "${DEPLOY_DIR_IMAGE}/lxcrootfs.squash"
 
+CV2X_EXTRA_UBIFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/cv2x_extra.ubifs"
+CV2X_EXTRA_ROOTFS ?= "${WORKDIR}/cv2x_extra"
+
 VM_IMAGE_UBI_TARGET ?= "vm-bootsys.ubi"
 VM_IMAGE_SQUASHFS_TARGET ?= "vm-bootsys.squash"
 VM_IMAGE_ROOTFS ?= "${DEPLOY_DIR_IMAGE}/vm-images/"
@@ -90,19 +93,28 @@ create_tele_systemrw[noexec] = "1"
 create_symlink_tele_userfs[cleandirs] = "${USER_IMAGE_ROOTFS}"
 create_symlink_tele_userfs() {
 
-    #Symlink modules
-    LIB_MODULES="${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/modules"
-    if [ -d ${LIB_MODULES} ]; then
-        cp -rp ${LIB_MODULES} ${IMAGE_ROOTFS_SQUASHFS_UBI}/usr/lib/
-        rm -rf ${LIB_MODULES}
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'usrmerge', 'false', 'true', d)}; then
+        #Symlink modules
+        LIB_MODULES="${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/modules"
+        if [ -d ${LIB_MODULES} ]; then
+            cp -rp ${LIB_MODULES} ${IMAGE_ROOTFS_SQUASHFS_UBI}/usr/lib/
+            rm -rf ${LIB_MODULES}
+        fi
+        ln -sf /usr/lib/modules ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib
     fi
-    ln -sf /usr/lib/modules ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib
 
     # Move rootfs data to userfs directory
     # Content of userfs is added to data volume
     mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/configs
     mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/logs
     mv ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/* ${USER_IMAGE_ROOTFS}
+}
+
+create_cv2x_extra_rootfs[cleandirs] = "${CV2X_EXTRA_ROOTFS}"
+create_cv2x_extra_rootfs() {
+    # Move cv2x_extra files from rootfs to cv2x_extra folder,
+    # create the folder if it doesn't exist.
+    mv ${IMAGE_ROOTFS_SQUASHFS_UBI}/cv2x_extra/* ${CV2X_EXTRA_ROOTFS} || mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/cv2x_extra
 }
 
 create_symlink_systemd_ubi_mount_tele_rootfs() {
@@ -112,9 +124,11 @@ create_symlink_systemd_ubi_mount_tele_rootfs() {
         if [[ "$mountname" == "firmware" || "$mountname" == "bt_firmware" || "$mountname" == "dsp" || "$mountname" == "vm-bootsys" || "$mountname" == "lxcrootfs" ]] ; then
             cp -f ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/${mountname}-mount-ubi.service ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/${mountname}-mount.service
             ln -sf ${systemd_unitdir}/system/${mountname}-mount.service ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/local-fs.target.requires/${mountname}-mount.service
-            if [ -e ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/non-hlos-squash.sh ]; then
-              rm -f ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/firmware-ubi-mount.sh
-              mv -f ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/non-hlos-squash.sh ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/firmware-ubi-mount.sh
+            if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
+                if [ -e ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/non-hlos-squash.sh ]; then
+                    rm -f ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/firmware-ubi-mount.sh
+                    mv -f ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/non-hlos-squash.sh ${IMAGE_ROOTFS_SQUASHFS_UBI}/etc/initscripts/firmware-ubi-mount.sh
+                fi
             fi
         else
             cp ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/${mountname}-ubi.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/${mountname}.mount
@@ -124,7 +138,7 @@ create_symlink_systemd_ubi_mount_tele_rootfs() {
             fi
             if [[ "$mountname" == "$userfsdatadir" ]] ; then
                 ln -sf ${systemd_unitdir}/system/${mountname}.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/local-fs.target.wants/${mountname}.mount
-            elif [[ "$mountname" == "cache" ]] ; then
+            elif [[ "$mountname" == "cache" || "$mountname" == "cv2x_extra" ]] ; then
                 ln -sf ${systemd_unitdir}/system/${mountname}.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/multi-user.target.wants/${mountname}.mount
             elif [[ "$mountname" == "persist" ]] ; then
                 ln -sf ${systemd_unitdir}/system/${mountname}.mount ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/sysinit.target.wants/${mountname}.mount
@@ -826,6 +840,7 @@ do_makesystem_tele_ubi[prefuncs] += "create_rootfs_tele_ubi"
 do_makesystem_tele_ubi[prefuncs] += "create_symlink_tele_userfs"
 do_makesystem_tele_ubi[prefuncs] += "create_symlink_systemd_ubi_mount_tele_rootfs"
 do_makesystem_tele_ubi[prefuncs] += "do_create_ubinize_tele_config"
+do_makesystem_tele_ubi[prefuncs] += "create_cv2x_extra_rootfs"
 do_makesystem_tele_ubi[prefuncs] += "create_rootfs_tele_ubifs"
 do_makesystem_tele_ubi[prefuncs] += "create_tele_systemrw"
 do_makesystem_tele_ubi[postfuncs] += "${@bb.utils.contains('INHERIT', 'uninative', 'do_patch_ubi_tools', '', d)}"
@@ -858,6 +873,7 @@ fakeroot do_makesystem_tele_ubi() {
 
    mkfs.ubifs -r ${SYSTEMRW_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS_SYSTEMRW} -o ${SYSTEMRW_UBIFS_TARGET} ${MKUBIFS_SYSTEMRW_ARGS}
    mkfs.ubifs -r ${USER_IMAGE_ROOTFS} ${IMAGE_UBIFS_SELINUX_OPTIONS_DATA} -o ${USER_IMAGE_UBIFS_TARGET} ${MKUBIFS_USERFS_ARGS}
+   mkfs.ubifs -r ${CV2X_EXTRA_ROOTFS} -o ${CV2X_EXTRA_UBIFS_TARGET} ${MKUBIFS_ARGS}
    if ${@bb.utils.contains('IMAGE_FEATURES', 'modem-volume', 'true', 'false', d)}; then
        if [ -d ${MODEM_IMAGE_DIR} ]; then
            mkfs.ubifs -r ${MODEM_IMAGE_DIR} --selinux=${SELINUX_CONTEXT_MODEM} -o ${MODEM_UBIFS_IMAGE} ${MKUBIFS_ARGS}
@@ -974,7 +990,12 @@ python () {
 }
 
 do_patch_ubi_tools() {
-    ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native/usr/sbin/mksquashfs
+
+     if [ -f ${STAGING_DIR}-components/x86_64/squashfs-tools-native/${sbindir}/mksquashfs ]; then
+         ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${sbindir}/mksquashfs
+     else 
+         ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${base_bindir}/mksquashfs 
+     fi
 }
 
 # Default Image names

@@ -17,6 +17,10 @@ PTPVIRT:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-
 SENSORIDL ?= "False"
 SENSORIDL:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-tele', 'False', 'True',d)}"
 
+CRONIE ?= "True"
+CRONIE:sa510m = "False"
+CRONIE:sa525m-fotavm = "False"
+
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     ${MLPREFIX}packagegroup-qti-telematics \
@@ -37,12 +41,13 @@ RDEPENDS:packagegroup-qti-telematics = "\
 RDEPENDS:packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', '', 'sensor-hal-daemon', d)}\
-    libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy sensor-fidl\
     ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
+    ${@oe.utils.conditional('CRONIE', 'True', 'cronie', '', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-vnw = "\

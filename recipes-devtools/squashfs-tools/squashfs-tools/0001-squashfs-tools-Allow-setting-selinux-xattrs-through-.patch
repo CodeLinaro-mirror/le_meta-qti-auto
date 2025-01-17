@@ -1,0 +1,252 @@
+From 6419748c6b8888eb4bedd58b0663c522cb179f3d Mon Sep 17 00:00:00 2001
+From: Mohamad Ayyash <mkayyash@google.com>
+Date: Tue, 24 Feb 2015 19:21:29 -0800
+Subject: [PATCH] squashfs-tools: Allow setting selinux xattrs through
+ file_context
+
+Add a context-file flag that allows passing an selinux security context
+file to set security.selinux xattrs rather than reading xattrs from
+filesystem's source directory.
+
+Change-Id: Icad4d38a736137d85835a0eab9650c0c99908721
+Signed-off-by: Mohamad Ayyash <mkayyash@google.com>
+[stummala@codeaurora.org: Port the change to LE environment.
+Change the path provided to selabel_lookup() to use the
+path from the root of the filesystem. Add WITH_SELINUX to
+CFLAGS to ensure the code compiles fine even when selinux
+library support is not available.]
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+
+Upstream-Status: Inappropriate [other]
+
+---
+ squashfs-tools/Makefile     |  6 +++
+ squashfs-tools/mksquashfs.c | 20 +++++++++
+ squashfs-tools/xattr.c      | 88 ++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 113 insertions(+), 1 deletion(-)
+ mode change 100755 => 100644 squashfs-tools/Makefile
+
+diff --git a/squashfs-tools/Makefile b/squashfs-tools/Makefile
+old mode 100755
+new mode 100644
+index 9aa4381a..e3c03a77
+--- a/squashfs-tools/Makefile
++++ b/squashfs-tools/Makefile
+@@ -220,6 +220,12 @@ CFLAGS += $(EXTRA_CFLAGS) $(INCLUDEDIR) -D_FILE_OFFSET_BITS=64 \
+ 	-Wall
+ 
+ LIBS = -lpthread -lm
++
++ifeq ($(WITH_SELINUX),1)
++CFLAGS += -DWITH_SELINUX -Dstrlcpy=g_strlcpy
++LIBS += -lselinux -lglib-2.0
++endif
++
+ ifeq ($(GZIP_SUPPORT),1)
+ CFLAGS += -DGZIP_SUPPORT
+ MKSQUASHFS_OBJS += gzip_wrapper.o
+diff --git a/squashfs-tools/mksquashfs.c b/squashfs-tools/mksquashfs.c
+index ba28d65d..7df829c3 100644
+--- a/squashfs-tools/mksquashfs.c
++++ b/squashfs-tools/mksquashfs.c
+@@ -209,6 +209,7 @@ unsigned int cache_bytes = 0, cache_size = 0, inode_count = 0;
+ 
+ /* inode lookup table */
+ squashfs_inode *inode_lookup_table = NULL;
++char *context_file = NULL;
+ struct inode_info *inode_info[INODE_HASH_SIZE];
+ 
+ /* hash tables used to do fast duplicate searches in duplicate check */
+@@ -6270,6 +6271,7 @@ static void print_options(FILE *stream, char *name, int total_mem)
+ 	fprintf(stream, "cross the boundary\n");
+ 	fprintf(stream, "\nFilesystem extended attribute (xattrs) options:\n");
+ 	fprintf(stream, "-no-xattrs\t\tdo not store extended attributes" NOXOPT_STR "\n");
++       fprintf(stream, "-context-file <file>\tApply selinux security xattrs from context-file instead of reading xattrs from file system\n");
+ 	fprintf(stream, "-xattrs\t\t\tstore extended attributes" XOPT_STR "\n");
+ 	fprintf(stream, "-xattrs-exclude <regex>\texclude any xattr names ");
+ 	fprintf(stream, "matching <regex>.  <regex> is a\n\t\t\tPOSIX ");
+@@ -6927,6 +6929,7 @@ int sqfstar(int argc, char *argv[])
+ 	always_use_fragments = TRUE;
+ 
+ 	for(i = 1; i < dest_index; i++) {
++		ERROR("Here %s\n",argv[i]);
+ 		if(strcmp(argv[i], "-ignore-zeros") == 0)
+ 			ignore_zeros = TRUE;
+ 		else if(strcmp(argv[i], "-no-hardlinks") == 0)
+@@ -7364,6 +7367,14 @@ print_sqfstar_compressor_options:
+ 		} else if(strcmp(argv[i], "-nopad") == 0)
+ 			nopad = TRUE;
+ 
++                else if(strcmp(argv[i], "-context-file") == 0) {
++                      if(++i == argc) {
++                               ERROR("%s: -context-file: missing file name\n",
++                                       argv[0]);
++                               exit(1);
++                       } ERROR("Entered here\n");
++                      context_file = argv[i];
++                }
+ 		else if(strcmp(argv[i], "-info") == 0)
+ 			silent = FALSE;
+ 
+@@ -8383,6 +8394,15 @@ print_compressor_options:
+ 		} else if(strcmp(argv[i], "-nopad") == 0)
+ 			nopad = TRUE;
+ 
++		else if(strcmp(argv[i], "-context-file") == 0) {
++                      if(++i == argc) {
++                               ERROR("%s: -context-file: missing file name\n",
++                                       argv[0]);
++                               exit(1);
++                       } ERROR("Entered here\n");
++                      context_file = argv[i];
++		}
++
+ 		else if(strcmp(argv[i], "-info") == 0)
+ 			silent = FALSE;
+ 
+diff --git a/squashfs-tools/xattr.c b/squashfs-tools/xattr.c
+index f9f4cc37..5f2e9ba1 100644
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -39,6 +39,11 @@
+ #include <sys/xattr.h>
+ #include <regex.h>
+ 
++#ifdef WITH_SELINUX
++#include <selinux/label.h>
++#include <selinux/selinux.h>
++#endif
++
+ #include "squashfs_fs.h"
+ #include "squashfs_swap.h"
+ #include "mksquashfs.h"
+@@ -50,6 +55,8 @@
+ #include "action.h"
+ #include "merge_sort.h"
+ 
++#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
++
+ #ifdef XATTR_NOFOLLOW /* Apple's xattrs */
+ 	#define llistxattr(path_, buf_, sz_) \
+ 		listxattr(path_, buf_, sz_, XATTR_NOFOLLOW)
+@@ -94,6 +101,7 @@ extern int no_xattrs, noX;
+ extern long long bytes;
+ extern int fd;
+ extern unsigned int xattr_bytes, total_xattr_bytes;
++extern char *context_file;
+ extern regex_t *xattr_exclude_preg;
+ extern regex_t *xattr_include_preg;
+ 
+@@ -123,6 +131,68 @@ static int xattr_get_type(char *name)
+ 	return prefix_table[i].type;
+ }
+ 
++#ifdef WITH_SELINUX
++
++static struct selabel_handle *sehnd = NULL;
++
++struct selabel_handle *get_sehnd(const char *context_file) {
++    struct selinux_opt seopts[] = {
++        {
++            .type = SELABEL_OPT_PATH,
++            .value = context_file
++        }
++    };
++    struct selabel_handle *sehnd =
++        selabel_open(SELABEL_CTX_FILE, seopts, ARRAY_SIZE(seopts));
++
++    if (!sehnd) {
++        perror("Error running selabel_open.");
++        exit(EXIT_FAILURE);
++    }
++    return sehnd;
++}
++
++char *set_selabel(const char *path, unsigned int mode, struct selabel_handle *sehnd) {
++    char *secontext;
++    if (sehnd != NULL) {
++        int full_name_size = strlen(path) + 2;
++        char* full_name = (char*) malloc(full_name_size);
++        if (full_name == NULL) {
++            perror("Malloc Failure.");
++            exit(EXIT_FAILURE);
++        }
++
++        full_name[0] = '/';
++        strlcpy(full_name + 1, path, full_name_size - 1);
++
++        if (selabel_lookup(sehnd, &secontext, full_name, mode)) {
++            secontext = strdup("u:object_r:unlabeled:s0");
++        }
++
++        free(full_name);
++        return secontext;
++    }
++    perror("Selabel handle is NULL.");
++    exit(EXIT_FAILURE);
++}
++
++
++static int read_xattrs_from_context_file(char *filename, int mode,
++       struct selabel_handle *sehnd, struct xattr_list **xattrs)
++{
++       char *attr_val;
++       struct xattr_list *x = malloc(sizeof(*x));
++       if(x == NULL)
++               MEM_ERROR();
++
++       x->type = xattr_get_prefix(x, "security.selinux");
++       attr_val = set_selabel(filename, mode, sehnd);
++       x->value = (void *)attr_val;
++       x->vsize = strlen(attr_val);
++       *xattrs = x;
++       return 1;
++}
++#endif
+ 
+ static void xattr_copy_prefix(struct xattr_list *xattr, int t, char *name)
+ {
+@@ -702,12 +772,13 @@ int generate_xattrs(int xattrs, struct xattr_list *xattr_list)
+ SORT(sort_list, xattr_add, name, next);
+ SORT(sort_xattr_list, xattr_list, full_name, vnext);
+ 
+-
++extern char *subpathname(struct dir_ent *dir_ent);
+ int read_xattrs(void *d, int type)
+ {
+ 	struct dir_ent *dir_ent = d;
+ 	struct inode_info *inode = dir_ent->inode;
+ 	char *filename = pathname(dir_ent);
++        char *subpath = subpathname(dir_ent);
+ 	struct xattr_list *xattr_list = NULL, *head;
+ 	int count, i = 0, j;
+ 	struct xattr_add *l1 = xattr_add_list, *l2 = NULL, *l3 = NULL;
+@@ -716,10 +787,25 @@ int read_xattrs(void *d, int type)
+ 	if(no_xattrs || inode->root_entry)
+ 		return SQUASHFS_INVALID_XATTR;
+ 
++#ifdef WITH_SELINUX
++       if (context_file) {
++               if (sehnd == NULL)
++                       sehnd = get_sehnd(context_file);
++               i = read_xattrs_from_context_file(subpath, inode->buf.st_mode,
++                               sehnd, &xattr_list);
++       } else {
++               if(IS_TARFILE(inode))
++                       i = read_xattrs_from_tarfile(inode, &xattr_list);
++               else
++                       i = read_xattrs_from_system(dir_ent, filename, &xattr_list);
++       }
++#else
++
+ 	if(IS_TARFILE(inode))
+ 		i = read_xattrs_from_tarfile(inode, &xattr_list);
+ 	else if(!inode->dummy_root_dir && !IS_PSEUDO(inode))
+ 		i = read_xattrs_from_system(dir_ent, filename, &xattr_list);
++#endif
+ 
+ 	action_add_list = eval_xattr_add_actions(root_dir, dir_ent, &count);
+ 
+-- 
+2.17.1
+

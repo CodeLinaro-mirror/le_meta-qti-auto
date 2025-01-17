@@ -19,6 +19,10 @@ IMAGE_FEATURES += " \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', 'lxcrootfs-volume', '', d)} \
 "
 
+IMAGE_FEATURES:append:sa510m = " \
+        ${@oe.utils.conditional('DEBUG_BUILD', '1', 'empty-root-password serial-autologin-root', '', d )} \
+"
+
 python () {
     if d.getVar('PREFERRED_VERSION_linux-msm') == "5.15":
         bb.build.addtask('do_merge_dtbs', 'do_makeboot', bb.utils.contains('IMAGE_FSTYPES', 'ubi', 'do_makesystem_ubi', 'do_makesystem', d), d)
@@ -46,9 +50,14 @@ do_copy_abl() {
 
 TOOLCHAIN_TARGET_TASK += "sensor-hal-daemon-hdr telux"
 
+TOOLCHAIN_TARGET_TASK:remove:sa510m += "sensor-hal-daemon-hdr telux"
+
 # Remove unsupported SDK packages
 TOOLCHAIN_TARGET_TASK:remove = "ath6kl-utils-staticdev"
 TOOLCHAIN_TARGET_TASK:remove = "kernel-devsrc"
 
 # Exclude packages
 PACKAGE_EXCLUDE += "kernel-dev"
+
+# Modem is a partition on SA510M
+IMAGE_FEATURES:remove:sa510m = "modem-volume"
