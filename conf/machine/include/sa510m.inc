@@ -37,7 +37,7 @@ KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lp
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
-KERNEL_DTB_NAMES = "sa510m-idp.dtb"
+KERNEL_DTB_NAMES = "dtb.img"
 KERNEL_TYPE = "msm-kernel"
 
 MACHINE_USES_KERNEL_PREBUILTS = "True"
