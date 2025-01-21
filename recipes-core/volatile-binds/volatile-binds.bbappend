@@ -101,8 +101,7 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 "
 
 VOLATILE_BINDS:sa510m = "\
-/systemrw/adb_devid  /etc/adb_devid\n\
-/systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
+/systemrw/tel.conf /etc/tel.conf\n\
 "
 
 do_install:append:sa525m(){
