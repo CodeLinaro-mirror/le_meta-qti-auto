@@ -10,3 +10,4 @@ BOOST_LIBS = "\
     system \
     thread \
     "
+TARGET_CC_ARCH:append = " -O2 "
