@@ -2,6 +2,8 @@ INIT_RAMDISK = "${@d.getVar('MACHINE_SUPPORTS_INIT_RAMDISK') or "False"}"
 FLASHLESS_MCU = "${@d.getVar('MACHINE_SUPPORTS_FLASHLESS_MEMORY') or "False"}"
 RAMDISKDIR = "${WORKDIR}/ramdisk"
 RAMDISKDIRFDE = "${WORKDIR}/ramdiskfde"
+RAMDISKDIRDEBUG = "${WORKDIR}/ramdiskdebug"
+OVERLAY_ENABLED ?= "False"
 
 MLIBPREFIX ?= ""
 TOYBOX_RAMDISK ?= "False"
@@ -25,6 +27,7 @@ inherit qdlkm
 do_ramdisk_create[depends] += "virtual/kernel:do_deploy"
 do_ramdisk_create[cleandirs] += "${RAMDISKDIR}"
 do_ramdisk_create[cleandirs] += "${RAMDISKDIRFDE}"
+do_ramdisk_create[cleandirs] += "${RAMDISKDIRDEBUG}"
 fakeroot do_ramdisk_create() {
         mkdir -p ${RAMDISKDIR}/bin
         mkdir -p ${RAMDISKDIR}/etc
@@ -364,6 +367,32 @@ fakeroot do_ramdisk_create() {
             bash ./scripts/gen_initramfs_list.sh -o ${IMGDEPLOYDIR}/${PN}-initrd.gz -u 0 -g 0 ${RAMDISKDIR}
         fi
 
+        if [[ "${OVERLAY_ENABLED}" == "True" ]]; then
+
+
+            cd ${RAMDISKDIRDEBUG}
+            cp -rf ${RAMDISKDIR}/* ./
+
+            if  ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'true', 'false', d)}; then
+               install -m 744 ${COREBASE}/meta-qti-auto/recipes-products/images/include/ramdisk-init-debug.sh init
+            fi
+
+            # gen_initramfs_list.sh expects to be run from kernel directory
+            cd ${DEPLOY_DIR_IMAGE}/build-artifacts/kernel_scripts
+            # remove the initrd-overlay.gz file if exist
+            rm -rf ${IMGDEPLOYDIR}/${PN}-initrd-debug.gz
+
+            if ${@bb.utils.contains_any('PREFERRED_VERSION_linux-msm', '5.10 5.15 6.6', 'true', 'false', d)}; then
+
+                 # gen_initramfs.sh uses gen_init_cpio to generate the cpio archive.
+                 bash ./scripts/gen_initramfs.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-debug -u 0 -g 0 ${RAMDISKDIRDEBUG}
+                 gzip -n -9 -f ${IMGDEPLOYDIR}/${PN}-initrd-debug
+            else
+                 # gen_initramfs_list creates compressed initramfs file using gen_init_cpio
+                 # and compressor depending on the extension
+                 bash ./scripts/gen_initramfs_list.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-debug.gz -u 0 -g 0 ${RAMDISKDIRDEBUG}
+             fi
+        fi
         cd ${CURRENT_DIR}
 }
 
