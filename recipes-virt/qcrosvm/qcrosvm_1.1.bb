@@ -28,4 +28,4 @@ do_compile[network] = "1"
 inherit useradd
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} += "-u 3025 -U qvirt;"
+USERADD_PARAM:${PN} += "-u 3025 --home /usr/sbin --no-create-home --shell /bin/nologin --user-group qvirt;"
