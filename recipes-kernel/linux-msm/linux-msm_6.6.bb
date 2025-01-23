@@ -140,7 +140,7 @@ do_prebuilt_configure() {
     install -m 0644 vmlinux ${B}
     install -m 0644 System.map ${B}
 
-    for dtbf in ${KERNEL_DTB_NAMES}; do
+    for dtbf in $(find . -name "*.dtb"); do
         install -m 0644 $dtbf ${B}
     done
     for dtbof in $(find . -name "*.dtbo") ; do
@@ -318,15 +318,6 @@ do_deploy() {
     install -m 0644 ${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE} ${DEPLOYDIR}/${KERNEL_IMAGETYPE}
     install -m 0644 vmlinux ${DEPLOYDIR}
     install -m 0644 System.map ${DEPLOYDIR}
-
-    install -d ${DEPLOYDIR}/kernel_dtbs
-    cd ${KERNEL_PREBUILT_DISTDIR}/
-    for dtbf in ${KERNEL_DTB_NAMES}; do
-        install -m 0644 $dtbf ${DEPLOYDIR}/kernel_dtbs
-    done
-    for dtbof in $(find . -name "*.dtbo") ; do
-        install -m 0644 $dtbof ${DEPLOYDIR}/kernel_dtbs
-    done
 
     install -d ${DEPLOYDIR}/kernel_modules
     cd ${KERNEL_PREBUILT_DISTDIR}
