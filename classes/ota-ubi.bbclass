@@ -272,8 +272,14 @@ do_gen_otazip_ubi() {
             fi
             # Create stream update files with FDE target zip
             if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-stream-update', 'true', 'false', d)}; then
-                cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && ./gen_full_stream.sh ${OTA_TARGET_FILES_UBI_AB_FDE_PATH}
-                cd ${TMPDIR}/work/x86_64-linux/payload-gen-native/1.0-r0/payload/ && cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde
+                TMP=$(mktemp -d)
+                cd $TMP
+                gen_full_stream.sh ${OTA_TARGET_FILES_UBI_AB_FDE_PATH}
+                scripts_brillo_update_payload generate --payload payload.bin --target_image target.zip
+                scripts_brillo_update_payload properties --payload payload.bin > properties.txt
+                cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde
+                cd -
+                rm -rf $TMP
             fi
         fi
 

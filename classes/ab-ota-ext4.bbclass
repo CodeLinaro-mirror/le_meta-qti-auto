@@ -226,6 +226,16 @@ do_gen_ota_full_zip_ext4() {
             cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
             cd -
             rm -rf $TMP
+            if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-fde', 'true', 'false', d)}; then
+                TMP=$(mktemp -d)
+                cd $TMP
+                gen_full_stream.sh ${OTA_TARGET_FILES_EXT4_FDE_PATH}
+                scripts_brillo_update_payload generate --payload payload.bin --target_image target.zip
+                scripts_brillo_update_payload properties --payload payload.bin > properties.txt
+                cp payload.bin properties.txt ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde
+                cd -
+                rm -rf $TMP
+            fi
         fi
     fi
 }
