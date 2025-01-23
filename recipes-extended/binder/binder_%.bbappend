@@ -18,4 +18,6 @@ do_install:append:sa510m() {
   sed -i -e "s/$/ \, RUN+=\"\/bin\/sh -c 'chmod 0660 \/dev\/binder \&\& chown binder:binder \/dev\/binder\'\"/g" ${D}${sysconfdir}/udev/rules.d/50-binder.rules
 }
 
+EXTRA_OECONF:remove:sa510m = "--enable-32bit-binder-ipc"
+
 FILES:${PN} += "${systemd_unitdir}/system/"
