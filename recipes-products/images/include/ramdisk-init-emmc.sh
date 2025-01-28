@@ -294,8 +294,9 @@ SlotSwitchReboot () {
     fi
 
     #XBL or ABL will take care of slot switching after reboot with Trial Boot Enabled.
-    LOGD "RBM: Crashing device for Slot Switch or EDL"
-    busybox echo c > /proc/sysrq-trigger
+    LOGD "RBM: Rebooting device for Slot Switch or EDL"
+    busybox echo "warm" > /sys/kernel/reboot/mode
+    gracefullReboot
     return ${STATUS_ERR}
 }
 
