@@ -8,7 +8,9 @@ VOLATILE_BINDS:sa525m = "\
 /systemrw/data/ipa /etc/data/ipa/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/\n\
-/systemrw/c2c /etc/c2c/\n\
+/systemrw/c2c/phone_home.json /etc/c2c/phone_home.json\n\
+/systemrw/c2c/c2c_vehicle.json /etc/c2c/c2c_vehicle.json\n\
+/systemrw/c2c/c2c_default.conf /etc/c2c/c2c_default.conf\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml\n\
 /systemrw/tm.conf /etc/tm.conf\n\
@@ -46,7 +48,9 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/data/ipa /etc/data/ipa/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/\n\
-/systemrw/c2c /etc/c2c/\n\
+/systemrw/c2c/phone_home.json /etc/c2c/phone_home.json\n\
+/systemrw/c2c/c2c_vehicle.json /etc/c2c/c2c_vehicle.json\n\
+/systemrw/c2c/c2c_default.conf /etc/c2c/c2c_default.conf\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml\n\
 /systemrw/tm.conf /etc/tm.conf\n\
