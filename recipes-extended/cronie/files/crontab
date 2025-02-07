@@ -34,7 +34,3 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # 30  7     * *               *  root        cd / && run-parts /etc/cron.daily
 # 42  7     * *               7  root        cd / && run-parts /etc/cron.weekly
 # 55  7     1 *               *  root        cd / && run-parts /etc/cron.monthly
-   0  0     * jan,apr,jul,oct *  root        systemctl start attestation_manager
-   0  0     * jan,apr,jul,oct *  root        systemctl start c2c_hub
-   0  0     * jan,apr,jul,oct *  root        systemctl start c2c_dm
-   0  0     * jan,apr,jul,oct *  root        systemctl start phclient
