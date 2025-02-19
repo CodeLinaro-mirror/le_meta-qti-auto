@@ -61,5 +61,3 @@ TOOLCHAIN_TARGET_TASK:remove = "kernel-devsrc"
 # Exclude packages
 PACKAGE_EXCLUDE += "kernel-dev"
 
-# Modem is a partition on SA510M
-IMAGE_FEATURES:remove:sa510m = "modem-volume"
