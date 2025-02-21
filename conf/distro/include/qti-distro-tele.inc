@@ -49,7 +49,7 @@ PREFERRED_VERSION_chrony = "4.2"
 
 SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
 
-RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
+RDEPENDS:packagegroup-qti-debug-tools:remove:sa525m = " valgrind \
                                                  atrace \
                                                  perf \
                                                  gdbserver \
