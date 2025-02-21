@@ -21,6 +21,9 @@ RAMDISK_PATH = "${@get_ramdisk_path(d)}"
 
 RAMDISK_FDE_PATH = "${IMGDEPLOYDIR}/${PN}-initrd-fde.gz"
 BOOTIMAGE_FDE_TARGET = "boot-fde.img"
+RAMDISK_DEBUG_PATH = "${IMGDEPLOYDIR}/${PN}-initrd-debug.gz"
+BOOTIMAGE_DEBUG_TARGET = "boot-debug.img"
+OVERLAY_ENABLED ?= "False"
 
 MKBOOTUTIL = '${@oe.utils.conditional("PREFERRED_PROVIDER_virtual/mkbootimg-native", "mkbootimg-gki-native", "scripts/mkbootimg.py", "mkbootimg", d)}'
 
@@ -67,6 +70,20 @@ python do_makeboot () {
             ret = subprocess.check_output(cmd, shell=True)
         except RuntimeError as e:
             bb.error("dm-verity-initramfs-v4 fde cmd: %s failed with error %s" % (cmd, str(e)))
+
+    if [d.getVar('OVERLAY_ENABLED', True) == "True"]:
+
+        # generate images with overlayfs
+        ramdiskdebug_path = d.getVar('RAMDISK_DEBUG_PATH')
+        outputdebug = d.getVar('BOOTIMAGE_DEBUG_TARGET', True)
+        # cmd to make boot-debug.img
+        cmd =  mkboot_bin_path + " --kernel %s --cmdline %s --pagesize %s --base %s --ramdisk %s --ramdisk_offset 0x0 %s --output %s" \
+               % (zimg_path, cmdline, pagesize, base, ramdiskdebug_path, xtra_parms, outputdebug )
+        bb.debug(1, "dm-verity-initramfs-v4 do_makeboot debug(overlay) cmd: %s" % (cmd))
+        try:
+               ret = subprocess.check_output(cmd, shell=True)
+        except RuntimeError as e:
+               bb.error("dm-verity-initramfs-v4 debug(overlay) cmd: %s failed with error %s" % (cmd, str(e)))
 
 }
 do_makeboot[dirs]      = "${BOOTIMGDEPLOYDIR}/${IMAGE_BASENAME}"

@@ -74,6 +74,8 @@ IMAGE_UBIFS_SELINUX_OPTIONS_SYSTEMRW = "${@bb.utils.contains('DISTRO_FEATURES', 
 MKUBIFS_SYSTEMRW_ARGS ?= "-m 4096 -e 253952 -c 25 -F"
 MKUBIFS_USERFS_ARGS ?= "-m 4096 -e 253952 -c 2146 -F"
 
+OVERLAY_ENABLED ?= "False"
+
 do_image_ubi[noexec] = "1"
 do_image_ubifs[noexec] = "1"
 do_image_multiubi[noexec] = "1"
@@ -101,6 +103,17 @@ create_symlink_tele_userfs() {
             rm -rf ${LIB_MODULES}
         fi
         ln -sf /usr/lib/modules ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib
+    fi
+
+    if [[ "${OVERLAY_ENABLED}" == "True" ]]; then
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/etc
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/usr-lib
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/usr-bin
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/usr-sbin
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/usr-lib-work
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/etc-work
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/usr-bin-work
+        mkdir -p ${IMAGE_ROOTFS_SQUASHFS_UBI}/data/usr-sbin-work
     fi
 
     # Move rootfs data to userfs directory
