@@ -1,4 +1,0 @@
-::sysinit:/etc/init.d/rcS
-::shutdown:/sbin/init 0
-tty2:::-/bin/sh
-tty3:::-/bin/sh

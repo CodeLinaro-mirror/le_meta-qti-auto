@@ -1,7 +1,0 @@
-imu_sensor_placement = [000000,000000,000000]
-imu_sensor_euler_angles = [00000,00000,00000]
-algo_towing_jack_delta_th =    25
-algo_towing_jack_min_duration =        120
-algo_crash_impact_th =   600
-algo_crash_min_duration =        120
-ignition_off = 0
