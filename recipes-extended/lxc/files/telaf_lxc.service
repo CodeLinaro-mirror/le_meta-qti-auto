@@ -10,8 +10,8 @@ ConditionDirectoryNotEmpty=/lxcrootfs
 [Service]
 Type=simple
 PIDFile=/var/run/lxc_start_telaflxc.pid
-ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
-ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
+ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_telaf.conf" "192.168.200.200" "telaflxc"
+ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_telaf.conf" "192.168.200.200" "telaflxc"
 RemainAfterExit=true
 Restart=always
 RestartSec=1
