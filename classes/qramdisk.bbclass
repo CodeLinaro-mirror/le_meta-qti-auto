@@ -256,10 +256,10 @@ fakeroot do_ramdisk_create() {
         fi
 
         # meta-selinux layer does not currently check for distro_features
-        if [ -f ${IMAGE_ROOTFS}/usr/lib/libpcre.so.1 ]; then
-            cp ${IMAGE_ROOTFS}/usr/lib/libpcre.so.1 lib/libpcre.so.1
-        else
+        if [ -f ${IMAGE_ROOTFS}/usr/lib/libpcre2-8.so.0 ]; then
             cp ${IMAGE_ROOTFS}/usr/lib/libpcre2-8.so.0 lib/libpcre2-8.so.0
+        else
+            cp ${IMAGE_ROOTFS}/usr/lib/libpcre.so.1 lib/libpcre.so.1
         fi
 
         if ${@bb.utils.contains('DISTRO_FEATURES', 'dm-verity', bb.utils.contains_any('MACHINE_FEATURES', 'dm-verity-initramfs dm-verity-initramfs-v3 dm-verity-initramfs-v4', 'true', 'false', d), 'false', d)}; then
