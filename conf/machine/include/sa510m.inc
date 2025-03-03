@@ -106,8 +106,6 @@ PACKAGECONFIG:append:pn-post-boot = "debug"
 
 INHERIT:remove = "uninative"
 
-DEFAULT_ENFORCING = "permissive"
-
 # Disable autosuspend for USB peripheral mode
 MACHINE_SUPPORTS_USB_AUTOSUSPEND = "False"
 
