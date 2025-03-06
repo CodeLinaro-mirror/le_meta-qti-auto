@@ -106,6 +106,7 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 
 VOLATILE_BINDS:sa510m = "\
 /systemrw/tel.conf /etc/tel.conf\n\
+/systemrw/sensors.conf /etc/sensors.conf\n\
 "
 
 do_install:append:sa525m(){
