@@ -14,6 +14,7 @@ ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_telaf.conf"
 ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_telaf.conf" "192.168.2.200" "telaflxc"
 RemainAfterExit=true
 Restart=always
+RestartSec=1
 
 [Install]
 WantedBy=multi-user.target

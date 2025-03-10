@@ -31,6 +31,16 @@ function prepare_lxc_dirs()
    mkdir -p ${LXC_CONTAINER_LOG_PATH}
 }
 
+function cleanup_container()
+{
+   let if_present_lxc
+
+   if_present_lxc=$(lxc-ls | grep $CONTAINER_NAME)
+   if [ ! -z "$if_present_lxc" ]; then
+      lxc-destroy -n $CONTAINER_NAME -q --rcfile=${LXC_CONF_PATH} -o $LXC_CONTAINER_LOG_PATH/lxc-destroy.log -l trace
+   fi
+}
+
 function exec_lxc_ops() {
    local OPS="${1}"
 
@@ -62,6 +72,8 @@ function exec_lxc_ops() {
             if [ "$?" == "1"  ]; then
                modprobe xt_CHECKSUM
             fi
+
+            cleanup_container
 
             lxc-create -n $CONTAINER_NAME -f $LXC_CONF_PATH -t none -o $LXC_CONTAINER_LOG_PATH/lxc-create.log -l trace
             lxc-start -n $CONTAINER_NAME -f $LXC_CONF_PATH -o $LXC_CONTAINER_LOG_PATH/lxc-start.log -l trace -p ${LXC_PID_FILE_PATH}
