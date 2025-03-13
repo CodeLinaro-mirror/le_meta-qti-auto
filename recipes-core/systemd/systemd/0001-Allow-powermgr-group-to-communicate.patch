@@ -1,0 +1,30 @@
+From f0172156996508d1ccb9aa35a7fa29d0363e3b5d Mon Sep 17 00:00:00 2001
+From: Pavankumar Vijapur <pvijapur@codeaurora.org>
+Date: Wed, 7 Oct 2020 10:16:13 +0530
+Subject: [PATCH] Allow-powermgr-group-to-communicate
+
+The function sd_bus_query_sender_privilege is part of the libsystemd
+library and is used to check the privileges of the sender of a D-Bus message.
+Add pmd user (3014) as well so this user can communicate.
+---
+ src/libsystemd/sd-bus/bus-convenience.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/libsystemd/sd-bus/bus-convenience.c b/src/libsystemd/sd-bus/bus-convenience.c
+index 4191051..eeae2a3 100644
+--- a/src/libsystemd/sd-bus/bus-convenience.c
++++ b/src/libsystemd/sd-bus/bus-convenience.c
+@@ -596,6 +596,10 @@ _public_ int sd_bus_query_sender_privilege(sd_bus_message *call, int capability)
+                         /* Sender is root, we are not root. */
+                         if (our_uid != 0 && sender_uid == 0)
+                                 return 1;
++
++                        /* Other specific users also allowed access (powermgr) */
++                        if (sender_uid == 3014)
++                                return 1;
+                 }
+         }
+ 
+-- 
+2.7.4
+
