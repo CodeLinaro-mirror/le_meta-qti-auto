@@ -96,7 +96,7 @@ do_setup_module_compilation() {
           ./build/build_module.sh
 }
 
-do_prebuilt_configure[cleandirs] += "${B}"
+do_prebuilt_configure[nostamp] = "1"
 do_prebuilt_configure() {
     cd ${KERNEL_PREBUILT_DISTDIR}
 
@@ -160,7 +160,7 @@ do_prebuilt_configure() {
 }
 
 do_prebuilt_shared_workdir[cleandirs] += " ${STAGING_KERNEL_BUILDDIR}"
-#do_prebuilt_shared_workdir[nostamp] = "1"
+do_prebuilt_shared_workdir[nostamp] = "1"
 do_prebuilt_shared_workdir() {
     cd ${B}
 
