@@ -67,8 +67,7 @@ CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
 # Following packages will be enabled later
 CORE_IMAGE_EXTRA_INSTALL:remove:sa510m = "\
        ${MLIBPREFIX}qmi-shutdown-modem \
-       ${MLIBPREFIX}packagegroup-qti-ppat \
-       ${MLIBPREFIX}packagegroup-qti-telsdk \
        ${MLIBPREFIX}modem-shutdown \
        packagegroup-qti-security-test \
+       ${MLIBPREFIX}packagegroup-qti-telsdk \
 "

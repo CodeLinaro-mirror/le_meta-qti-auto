@@ -27,6 +27,12 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+/sbin/insmod /lib/modules/$(uname -r)/extra/qti-can.ko
+if [ $? -ne 0 ]; then
+    echo "Failed to insert module qti-can.ko"
+    exit 1
+fi
+
 if [ -L /sys/class/net/can0 ]; then
     echo "Configure CAN0 bitrate to 500kbps & Enable"
 	/sbin/ip link set can0 type can bitrate 500000
