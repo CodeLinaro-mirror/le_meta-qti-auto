@@ -33,8 +33,6 @@
 [Unit]
 Description= Service manager Service
 SourcePath=/usr/bin/servicemanager
-BindsTo=dev-binder.device
-After=dev-binder.device
 
 [Service]
 User=binder
