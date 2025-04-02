@@ -46,7 +46,7 @@ do_module_signing() {
   strip_tool="${STRIP}"
   ${strip_tool} --strip-debug ${PKGDEST}/${PN}/${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/qti-can.ko
 
-  export LD_LIBRARY_PATH="${KERNEL_PREBUILT_DISTDIR}"
+  export LD_LIBRARY_PATH="${KERNEL_PREBUILT_DISTDIR}/openssl/lib64/"
   if [ -f ${STAGING_KERNEL_BUILDDIR}/signing_key.priv ]; then
         ${STAGING_KERNEL_DIR}/scripts/sign-file sha1 ${STAGING_KERNEL_BUILDDIR}/signing_key.priv ${STAGING_KERNEL_BUILDDIR}/signing_key.x509 ${PKGDEST}/${PN}/${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
   elif [ -f ${STAGING_KERNEL_BUILDDIR}/certs/signing_key.pem ]; then
