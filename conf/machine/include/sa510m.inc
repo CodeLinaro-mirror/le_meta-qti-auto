@@ -109,8 +109,6 @@ INHERIT:remove = "uninative"
 # Disable autosuspend for USB peripheral mode
 MACHINE_SUPPORTS_USB_AUTOSUSPEND = "False"
 
-DISTRO_FEATURES:remove = "qti-telux"
-
 INHERIT += "utils base patch staging"
 USER_CLASSES += "staging base"
 
