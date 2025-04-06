@@ -30,8 +30,8 @@ KERNEL_BASE = "0xa8000000"
 KERNEL_TAGS_OFFSET = "0x1e00000"
 KERNEL_CONFIG ?= "vendor/sa510_defconfig"
 KERNEL_CONFIG:qti-distro-debug ?= "vendor/sa510-debug_defconfig"
-CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 no_console_suspend=1"
-CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1 loglevel=0 systemd.log_level=0 systemd.show_status=0"
+CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 "
+CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 loglevel=0 systemd.log_level=0 systemd.show_status=0"
 IPC_LOGGING_PARAM ?= ""
 IPC_LOGGING_PARAM:qti-distro-debug ?= "qcom_ipc_logging.enabled=1"
 KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM} systemd.setenv="SLOT_SUFFIX"="_a""
@@ -70,7 +70,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510m-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 android-binder tele-squashfs-ubi qti-location qti-wlan qti-sensors qti-audio"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 android-binder tele-squashfs-ubi qti-location qti-wlan qti-sensors qti-audio qti-data-modem qti-bluetooth"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
@@ -106,12 +106,8 @@ PACKAGECONFIG:append:pn-post-boot = "debug"
 
 INHERIT:remove = "uninative"
 
-DEFAULT_ENFORCING = "permissive"
-
 # Disable autosuspend for USB peripheral mode
 MACHINE_SUPPORTS_USB_AUTOSUSPEND = "False"
-
-DISTRO_FEATURES:remove = "qti-telux"
 
 INHERIT += "utils base patch staging"
 USER_CLASSES += "staging base"
