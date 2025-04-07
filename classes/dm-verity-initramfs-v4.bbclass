@@ -71,7 +71,8 @@ python do_makeboot () {
         except RuntimeError as e:
             bb.error("dm-verity-initramfs-v4 fde cmd: %s failed with error %s" % (cmd, str(e)))
 
-    if [d.getVar('OVERLAY_ENABLED', True) == "True"]:
+    overlay_enabled = d.getVar('OVERLAY_ENABLED', True)
+    if ( overlay_enabled == "True"):
 
         # generate images with overlayfs
         ramdiskdebug_path = d.getVar('RAMDISK_DEBUG_PATH')
