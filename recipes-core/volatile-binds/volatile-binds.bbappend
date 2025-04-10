@@ -106,6 +106,7 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 
 VOLATILE_BINDS:sa510m = "\
 /systemrw/tel.conf /etc/tel.conf\n\
+/systemrw/wpa_supplicant.conf /etc/misc/wifi/wpa_supplicant.conf\n\
 /systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
 /systemrw/sensors.conf /etc/sensors.conf\n\
 "
