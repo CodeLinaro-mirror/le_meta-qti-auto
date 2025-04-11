@@ -38,7 +38,7 @@ SourcePath=/etc/initscripts/init-can.sh
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/etc/initscripts/init-can.sh start
-ExecStop=/etc/initscripts/init-can.sh stop
+ExecStop=/bin/sh -c '/sbin/rmmod qti-can'
 
 [Install]
 WantedBy=multi-user.target
