@@ -7,6 +7,7 @@ IMAGE_INSTALL += "telux-lib"
 IMAGE_INSTALL += "telux-samples"
 IMAGE_INSTALL += "telux-services-ril"
 IMAGE_INSTALL += "start-scripts-init-can"
+IMAGE_INSTALL += "cronie"
 
 # Target SDK Packages
 TOOLCHAIN_TARGET_TASK_append += "telux"
