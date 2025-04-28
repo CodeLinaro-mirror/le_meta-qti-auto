@@ -98,6 +98,9 @@ do_install:append() {
         rm -f ${D}${sysconfdir}/udev/rules.d/tui.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/kgsl.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/set-mhi-nodes.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/70-camera.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/64-btrfs.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/mountpartitions.rules
         if ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'true', 'false', d)}; then
              rm -f ${D}${sysconfdir}/udev/rules.d/mmc-rpmb.rules
         fi
