@@ -108,6 +108,9 @@ VOLATILE_BINDS:sa510m = "\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
 /systemrw/sensors.conf /etc/sensors.conf\n\
+/systemrw/wifi /etc/misc/wifi/\n\
+/systemrw/data/adpl /etc/data/adpl/\n\
+/systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
 "
 
 do_install:append:sa525m(){
