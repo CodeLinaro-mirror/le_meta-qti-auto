@@ -127,6 +127,7 @@ do_recovery_ext4() {
     export VDLKM_SIZE=$(sed -r 's/.*label="vendor_dlkm_a".*size_in_kb="([0-9]+\.*[0-9]*).*/\1/;t;d' ${WORKDIR}/partition.xml)
     export DTBO_SIZE=$(sed -r 's/.*label="dtbo_a".*size_in_kb="([0-9]+\.*[0-9]*).*/\1/;t;d' ${WORKDIR}/partition.xml)
     export VBOOT_SIZE=$(sed -r 's/.*label="vendor_boot_a".*size_in_kb="([0-9]+\.*[0-9]*).*/\1/;t;d' ${WORKDIR}/partition.xml)
+    export CACHE_SIZE=$(sed -r 's/.*label="cache".*size_in_kb="([0-9]+\.*[0-9]*).*/\1/;t;d' ${WORKDIR}/partition.xml)
 
     # convert kb to bytes
     export BOOT_SIZE="$(expr $BOOT_SIZE \* 1024)"
@@ -135,6 +136,7 @@ do_recovery_ext4() {
     export VDLKM_SIZE="$(expr $VDLKM_SIZE \* 1024)"
     export DTBO_SIZE="$(expr $DTBO_SIZE \* 1024)"
     export VBOOT_SIZE="$(expr $VBOOT_SIZE \* 1024)"
+    export CACHE_SIZE="$(expr $CACHE_SIZE \* 1024)"
 
     #boot_size: Size of boot partition from partition.xml
     echo "boot_size=0x$(echo "obase=16; $BOOT_SIZE" | bc)" >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
@@ -155,7 +157,7 @@ do_recovery_ext4() {
     echo "userdate_size=0x$(echo "obase=16; $USERDATA_SIZE" | bc)" >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
 
     #cache_size : Size of data partition from partition.xml
-    echo "cache_size=0x$(echo "obase=16; $USERDATA_SIZE" | bc)" >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
+    echo "cache_size=0x$(echo "obase=16; $CACHE_SIZE" | bc)" >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
 
     #mkyaffs2_extra_flags : -c $(BOARD_KERNEL_PAGESIZE) -s $(BOARD_KERNEL_SPARESIZE)
     echo mkyaffs2_extra_flags=-c 4096 -s 16 >> ${OTA_TARGET_IMAGE_ROOTFS_EXT4}/META/misc_info.txt
