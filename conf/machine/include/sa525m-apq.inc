@@ -4,3 +4,4 @@ USBCOMPOSITION = "901D"
 SDCARD_DEVICE:sa525m = "mmcblk1"
 
 FLAVOR = "apq"
+SYSTEMD_AUTO_ENABLE:modem-monitor = "enable"
