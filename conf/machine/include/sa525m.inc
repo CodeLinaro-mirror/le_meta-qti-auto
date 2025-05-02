@@ -34,7 +34,7 @@ CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 no_console_suspend=1
 IPC_LOGGING_PARAM ?= ""
 IPC_LOGGING_PARAM:qti-distro-debug ?= "qcom_ipc_logging.enabled=1"
 FIRMWARE_CLASS_PATH_PREPEND ?= ""
-KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=${FIRMWARE_CLASS_PATH_PREPEND}/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM}"
+KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=${FIRMWARE_CLASS_PATH_PREPEND}/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM} softdog.soft_reboot_cmd=\"watchdog bark\""
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
