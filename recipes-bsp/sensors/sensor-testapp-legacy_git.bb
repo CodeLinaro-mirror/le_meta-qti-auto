@@ -8,8 +8,8 @@ file://${COREBASE}/meta-qti-bsp/files/common-licenses/BSD-3-Clause-Clear;md5=377
 
 DEPENDS = "glib-2.0 libsensors libcutils"
 FILESPATH =+ "${WORKSPACE}:"
-SRC_URI = "file://hardware/qcom/sensors/sensor-test-app-legacy"
-S = "${WORKDIR}/hardware/qcom/sensors/sensor-test-app-legacy"
+SRC_URI = "file://hardware/qcom/sensors/sensor-test-app"
+S = "${WORKDIR}/hardware/qcom/sensors/sensor-test-app"
 EXTRA_OECONF = "--with-glib \
 		--with-core-includes=${WORKSPACE}/system/core/include"
 RM_WORK_EXCLUDE += "sensor-testapp-legacy"
