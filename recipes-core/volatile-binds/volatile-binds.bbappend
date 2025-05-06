@@ -104,12 +104,17 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 /systemrw/gps.conf /etc/gps.conf\n\
 "
 
+#############################################################################################
+# An optional third parameter "Target" can be specified to set the execution priority of the
+# volatile bind service file. If not provided, the default target is "Basic.target".
+#############################################################################################
+
 VOLATILE_BINDS:sa510m = "\
-/systemrw/tel.conf /etc/tel.conf\n\
-/systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
-/systemrw/sensors.conf /etc/sensors.conf\n\
+/systemrw/tel.conf /etc/tel.conf multi-user.target\n\
+/systemrw/gptp_cfg.ini /etc/gptp_cfg.ini multi-user.target\n\
+/systemrw/sensors.conf /etc/sensors.conf multi-user.target\n\
 /systemrw/wifi /etc/misc/wifi/\n\
-/systemrw/data/adpl /etc/data/adpl/\n\
+/systemrw/data/adpl /etc/data/adpl/ multi-user.target\n\
 /systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
 "
 
@@ -119,3 +124,36 @@ do_install:append:sa525m(){
          sed -i '/StandardOutput=syslog/d' ${D}${systemd_system_unitdir}/$service
      done
 }
+
+
+do_compile () {
+    while read spec mountpoint target; do
+        if [ -z "$spec" ]; then
+            continue
+        fi
+
+       if [ -z "$target" ]; then
+            target="basic.target"
+       fi
+
+        servicefile="$(echo "${spec#/}" | tr / -).service"
+        [ "$mountpoint" != ${localstatedir}/lib ] || var_lib_servicefile=$servicefile
+        sed -e "s#@what@#$spec#g; s#@where@#$mountpoint#g" \
+            -e "s#@whatparent@#${spec%/*}#g; s#@whereparent@#${mountpoint%/*}#g" \
+            -e "s#@avoid_overlayfs@#${@d.getVar('AVOID_OVERLAYFS')}#g" \
+            -e "s/basic.target/${target}/g" \
+            volatile-binds.service.in >$servicefile
+    done <<END
+${@d.getVar('VOLATILE_BINDS').replace("\\n", "\n")}
+END
+
+    if [ -e "$var_lib_servicefile" ]; then
+        # As the seed is stored under /var/lib, ensure that this service runs
+        # after the volatile /var/lib is mounted.
+        sed -i -e "/^Before=/s/\$/ systemd-random-seed.service/" \
+               -e "/^WantedBy=/s/\$/ systemd-random-seed.service/" \
+               "$var_lib_servicefile"
+    fi
+}
+do_compile[dirs] = "${WORKDIR}"
+
