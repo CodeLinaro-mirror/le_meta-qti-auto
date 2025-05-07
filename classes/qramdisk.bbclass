@@ -319,7 +319,7 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libdrmfs.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libxml2.so.2 lib/
-            cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel_svc.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libdrmtime.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
@@ -328,6 +328,15 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
             if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'false', 'true', d)}; then
               cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/loop.ko lib/modules/
+              cp ${IMAGE_ROOTFS}/usr/sbin/ubiupdatevol usr/sbin/
+            fi
+
+            if ${@bb.utils.contains('DISTRO_FEATURES','usrmerge','true','false',d)}; then
+                mv lib/* usr/lib/
+                mv bin/* usr/bin/
+                rm -rf lib bin
+                ln -s usr/lib lib
+                ln -s usr/bin bin
             fi
 
             # gen_initramfs_list.sh expects to be run from kernel directory
@@ -343,6 +352,8 @@ fakeroot do_ramdisk_create() {
                 # and compressor depending on the extension
                 bash ./scripts/gen_initramfs_list.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-fde.gz -u 0 -g 0 ${RAMDISKDIRFDE}
             fi
+
+            cd ${RAMDISKDIR}
         fi
 
         if ${@bb.utils.contains('DISTRO_FEATURES','usrmerge','true','false',d)}; then
