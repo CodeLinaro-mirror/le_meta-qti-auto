@@ -521,7 +521,7 @@ MountSystem () {
     local nad_fde_status="disabled"
     local sys_key_index="0"
     local vb_parameter="-k /etc/keys/x509_root.der"
-    local vb_option=
+    local vb_option=""
 
     if [ ! -e /bin/dd ]; then
         LOGD "Error: cmd: /bin/dd not found"
@@ -648,9 +648,9 @@ MountSystem () {
             if ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
                 dm_verity_device=/dev/mapper/${DM_SYST_NAME}
                 if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
-                    vb_option="-s"
+                    vb_option="-s -k ${CERT_CA_PATH}"
                 fi
-                verified-boot -n ${DM_SYST_NAME} -d ${block_device} -k ${CERT_CA_PATH} ${vb_option}
+                verified-boot -n ${DM_SYST_NAME} -d ${block_device} ${vb_option}
 
                 if [ $? -ne ${STATUS_OK} ] ; then
                     LOGD "Created dm-verity device ${dm_verity_device} failed."
