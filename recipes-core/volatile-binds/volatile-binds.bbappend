@@ -113,7 +113,7 @@ VOLATILE_BINDS:sa510m = "\
 /systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
 "
 
-do_install:append:sa525m(){
+do_install:append (){
     #Remove deprecated StandardOutput=syslog
     for service in ${SYSTEMD_SERVICE:${PN}}; do
          sed -i '/StandardOutput=syslog/d' ${D}${systemd_system_unitdir}/$service
