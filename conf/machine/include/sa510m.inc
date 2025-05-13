@@ -109,6 +109,9 @@ INHERIT:remove = "uninative"
 # Disable autosuspend for USB peripheral mode
 MACHINE_SUPPORTS_USB_AUTOSUSPEND = "False"
 
+# Disable display dependency
+MACHINE_SUPPORTS_DISPLAY = "False"
+
 INHERIT += "utils base patch staging"
 USER_CLASSES += "staging base"
 
