@@ -10,6 +10,7 @@ SRCREV = "02c199dff8aba814beebe3ca417fd991058fe90c"
 SRC_URI = "git://github.com/COVESA/vsomeip.git;protocol=https \
            file://0001-for-3.4.10.patch \
            file://0002-for-3.4.10.patch \
+           file://0003-Fix-the-loss-of-availability-event.patch \
           "
 S = "${WORKDIR}/git"
 
