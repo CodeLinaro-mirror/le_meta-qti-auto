@@ -70,7 +70,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510m-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-security qseecompat qti-tzlog qti-smciqseecomd gptee ssgtzd ta_autoload android-binder tele-squashfs-ubi qti-location qti-wlan qti-sensors qti-audio qti-data-modem qti-bluetooth qwesd"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-security qseecompat qti-crypto qti-tzlog qti-smciqseecomd gptee ssgtzd ta_autoload android-binder tele-squashfs-ubi qti-location qti-wlan qti-sensors qti-audio qti-data-modem qti-bluetooth qwesd"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
