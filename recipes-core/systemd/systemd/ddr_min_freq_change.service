@@ -7,6 +7,8 @@ DefaultDependencies=no
 Before=shutdown.target
 
 [Service]
+User=system
+Group=system
 Type=oneshot
 Nice=-20
 ExecStart=/etc/initscripts/ddr_min_freq_change.sh

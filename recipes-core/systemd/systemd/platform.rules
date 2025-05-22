@@ -2,3 +2,5 @@
 # SPDX-License-Identifier: BSD-3-Clause-Clear
 ACTION=="add", KERNEL=="kmsg", OWNER="root", GROUP="kmsg", MODE="0664"
 ACTION=="add", KERNEL=="hw_random", NAME="hwrng", MODE="0644"
+ACTION=="add", NAME="min_freq", RUN+="/bin/chown system:system /sys/devices/system/cpu/bus_dcvs/DDR/soc:qcom,memlat:ddr:silver/min_freq"
+ACTION=="add", NAME="min_freq", RUN+="/bin/chown system:system /sys/devices/system/cpu/bus_dcvs/DDR/soc:qcom,memlat:ddr:silver-compute/min_freq"

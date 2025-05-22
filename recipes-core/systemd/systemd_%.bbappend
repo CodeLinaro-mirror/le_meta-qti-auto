@@ -78,7 +78,7 @@ do_install:append() {
         if ${@bb.utils.contains('MACHINE', 'sa525m', 'true', 'false', d)}; then
             if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'false', 'true', d)}; then
                 # Place script script in initscripts dir
-	        install -m 0755 ${WORKDIR}/ddr_min_freq_change.sh \
+	        install -m 0755 -o 1000 -g 1000 ${WORKDIR}/ddr_min_freq_change.sh \
                         ${D}${sysconfdir}/initscripts/ddr_min_freq_change.sh
 
 		# Place service file in systemd unitdir
