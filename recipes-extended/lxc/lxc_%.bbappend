@@ -6,6 +6,7 @@ SRC_URI:append += " \
                     file://lxc_system.conf \
                     file://seccom_attach_unsupported_fix.patch \
                     file://container_launch.sh \
+                    file://99-tty_lxc.rules \
                     "
 
 FILES:${PN}-configs = " \
@@ -23,7 +24,7 @@ do_install:append() {
    install -m 0655  -d ${D}${sysconfdir}/lxc
    install -m 0644  -d ${D}${sysconfdir}/default
    install -m 0644  -d ${D}${sysconfdir}/initscripts
-
+   install -m 0644  -d ${D}${sysconfdir}/udev/rules.d
    #shared RW space for lxc container
    install -m 0644  -d ${D}${userfsdatadir}/lxc_rw
    #Prepare all dirs for the telaf lxc container
@@ -32,6 +33,7 @@ do_install:append() {
    install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/app
    install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/tmp
    install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/tmp/legato
+   install -m 0644 ${WORKDIR}/99-tty_lxc.rules ${D}${sysconfdir}/udev/rules.d/
 
    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
       #installing service file for telaflxc container
