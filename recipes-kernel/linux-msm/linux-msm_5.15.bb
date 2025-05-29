@@ -149,6 +149,8 @@ do_prebuilt_configure() {
     for kmod in $(find . -name "*.ko") ; do
         install -m 0644 $kmod ${B}
     done
+
+    install -m 0644 modules.builtin ${B}
 }
 
 do_prebuilt_shared_workdir[nostamp] = "1"
@@ -221,6 +223,8 @@ fakeroot do_prebuilt_install() {
             install -m 0644 $mod ${D}/lib/modules/${KERNEL_VERSION}/
         fi
     done
+
+    install -m 0644 modules.builtin ${D}/lib/modules/${KERNEL_VERSION}/
 }
 
 # Must be ran no earlier than after do_kernel_checkout or else Makefile won't be in ${S}/Makefile
