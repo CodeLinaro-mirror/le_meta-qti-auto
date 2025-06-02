@@ -3,8 +3,13 @@ inherit pkgconfig cmake pythonnative
 SUMMARY = "Telephony service for QTI's Modem"
 DESCRIPTION = "Telephony service for QTI's Modem"
 
-LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/${LICENSE};md5=550794465ba0ec5312d6919e203a55f9"
+LICENSE = "Apache-2.0 & BSD-3-Clause-Clear"
+
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
+Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
+
+LIC_FILES_CHKSUM += "file://${COREBASE}/meta-qti-bsp/files/common-licenses/\
+BSD-3-Clause-Clear;md5=48b43ba58d0f8e9ef3704313a46b7a43"
 
 PACKAGE_ARCH ?= "${MACHINE_ARCH}"
 
