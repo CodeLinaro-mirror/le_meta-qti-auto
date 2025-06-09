@@ -173,6 +173,7 @@ create_symlink_systemd_ubi_mount_tele_rootfs() {
     rm -rf ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/local-fs.target.requires/vm-bootsys.mount
     # Recheck when overlay support added for ubi
     rm -rf ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/systemd/system/local-fs.target.wants/overlay-restore.service
+    rm -rf ${IMAGE_ROOTFS_SQUASHFS_UBI}/usr/lib/systemd/system/selinux-autorelabel.service
 
    # Remove rules to automount block devices.
    sed -i '/SUBSYSTEM=="block", TAG+="systemd"/d' ${IMAGE_ROOTFS_SQUASHFS_UBI}/lib/udev/rules.d/99-systemd.rules
