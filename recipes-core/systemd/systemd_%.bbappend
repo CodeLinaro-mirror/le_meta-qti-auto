@@ -91,6 +91,7 @@ do_install:append() {
         rm -f ${D}${base_libdir}/udev/rules.d/71-seat.rules
         rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-sensor.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
         rm -f ${D}${systemd_unitdir}/system/systemd-udev-settle.service
