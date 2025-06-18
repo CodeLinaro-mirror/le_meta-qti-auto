@@ -116,6 +116,7 @@ VOLATILE_BINDS:sa510m = "\
 /systemrw/wifi /etc/misc/wifi/\n\
 /systemrw/data/adpl /etc/data/adpl/ multi-user.target\n\
 /systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
+/systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf multi-user.target\n\
 "
 
 do_install:append (){
