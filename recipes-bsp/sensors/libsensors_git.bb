@@ -19,8 +19,6 @@ DEPENDS = "glib-2.0 libcutils"
 EXTRA_OECONF = "--with-glib \
                 --with-core-includes=${WORKSPACE}/system/core/include"
 
-RM_WORK_EXCLUDE += "libsensors"
-
 do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/udev/rules.d/
