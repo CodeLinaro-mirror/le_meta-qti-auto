@@ -70,3 +70,5 @@ CORE_IMAGE_EXTRA_INSTALL:remove:sa510m = "\
        ${MLIBPREFIX}modem-shutdown \
        packagegroup-qti-security-test \
 "
+
+NO_RECOMMENDATIONS = "1"
