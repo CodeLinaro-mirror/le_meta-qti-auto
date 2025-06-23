@@ -29,6 +29,9 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}libgpiod ${MLIBPREFIX}libgpiod-tools \
         ${MLIBPREFIX}spitools \
         ${MLIBPREFIX}coreutils \
+        busybox-syslog \
+        systemd-conf \
+        ca-certificates \
         ${MLIBPREFIX}packagegroup-android-utils \
         ${MLIBPREFIX}packagegroup-qti-core \
         ${MLIBPREFIX}packagegroup-qti-ppat \
