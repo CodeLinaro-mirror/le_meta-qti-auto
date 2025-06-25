@@ -72,5 +72,4 @@ CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
 CORE_IMAGE_EXTRA_INSTALL:remove:sa510m = "\
        ${MLIBPREFIX}qmi-shutdown-modem \
        ${MLIBPREFIX}modem-shutdown \
-       packagegroup-qti-security-test \
 "
