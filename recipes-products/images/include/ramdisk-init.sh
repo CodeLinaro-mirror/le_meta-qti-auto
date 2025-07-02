@@ -47,6 +47,7 @@ Bdd="busybox dd"
 Bdf="busybox df"
 Btr="busybox tr"
 Bfree="busybox free"
+Brm="busybox rm"
 Bhexdump="busybox hexdump"
 
 UBIFS_VOL_HEADER="1831 0610"
@@ -361,6 +362,12 @@ CheckTmpDirectorySizeForFde () {
 
 FdeInitialize ()
 {
+    MountModemVol
+    if [ $? -ne ${STATUS_OK} ]; then
+        LOGD "Error: Mount modem UBI volume failed"
+        return ${STATUS_ERR}
+    fi
+
     busybox insmod /lib/modules/smcinvoke.ko
     busybox insmod /lib/modules/dm-crypt.ko
 
@@ -440,34 +447,27 @@ EncryptUbiPartition () {
 
     # nad-fde-app return:
     # 0 -- Run encryption and/or decryption successful
-    # 1 -- Fuse not blown, continue as normal boot
+    # 1 -- FDE keys not found, continue as normal boot
     # 2 -- Failed
-    nad-fde-app -c ${char_device} -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} -s \
-                -V "${for_vb_parameter}"
+
+    nad-fde-app -c ${char_device} -d ${block_device} -n ${device_name} -p ${encryption_path} -k ${key_index} -V "${for_vb_parameter}"
     nad_fde_result=$?
+    ${Brm} -rf ${encryption_path}
+
     case "${nad_fde_result}" in
         0)
             LOGD "FDE enabled for ${device_name}."
             FDE_MOUNT_NODE="/dev/mapper/${device_name}"
-            busybox rm -rf ${encryption_path}
             return ${STATUS_OK}
         ;;
         1)
-            LOGD "FDE fuse bit not blown."
+            LOGD "FDE keys not present."
             FDE_MOUNT_NODE=${block_device}
-            busybox rm -rf ${encryption_path}
-            return ${STATUS_OK}
-        ;;
-        2)
-            LOGD "FDE Failed"
-            FDE_MOUNT_NODE=${block_device}
-            busybox rm -rf ${encryption_path}
             return ${STATUS_OK}
         ;;
         *)
             LOGD "FDE encryption failed ${nad_fde_result}."
             FDE_MOUNT_NODE=""
-            busybox rm -rf ${encryption_path}
             return ${STATUS_ERR}
         ;;
     esac
@@ -522,7 +522,6 @@ MountSystem () {
     local image_type="ubifs"
     local nad_fde_status="disabled"
     local sys_key_index="0"
-    local vb_parameter="-k /etc/keys/x509_root.der"
     local vb_option=""
 
     if [ ! -e /bin/dd ]; then
@@ -588,17 +587,11 @@ MountSystem () {
             image_type="unknown"
         fi
 
+        # Check if FDE is enabled
         # UBIFS don't support signing, so won't work with FDE
         if [ "${image_type}" != "ubifs" ]; then
             if ${Bgrep} -s 'nad_fde=1' ${FDE_ENV} > /dev/null; then
-
-                # Check if atleast one valid key pair is present in keystore
-                nad-fde-app -e -k ${sys_key_index}
-                if [ $? -eq ${STATUS_OK} ]; then
-                    nad_fde_status="enabled"
-                    LOGD "fde: enabled"
-                fi
-
+                nad_fde_status="enabled"
                 # Currently, only squashfs image is supported for FDE. If the image magic
                 # isn't squashfs type "hsqs", then suppose this partition was encrypted.
                 # And, after decrypted, it still squashfs type.
@@ -614,7 +607,7 @@ MountSystem () {
                 ubiblock --create "${char_device}"
                 WaitDevReady "-b" "${block_device}"
                 if [ $? -ne ${STATUS_OK} ]; then
-                    LOGD "Error: EncryptUbiPartition no device: ${block_device} found"
+                    LOGD "Error: no device: ${block_device} found"
                     return ${STATUS_ERR}
                 fi
             fi
@@ -622,11 +615,15 @@ MountSystem () {
             # For system and/or other partitions FDE enabling
             if [ "${nad_fde_status}" == "enabled" ]; then
 
-                EncryptUbiPartition ${DM_SYST_NAME}"_encrypted" \
+                if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+                    vb_option="-s -k ${CERT_CA_PATH}"
+                fi
+
+                EncryptUbiPartition ${DM_SYST_NAME}"_dmcrypt" \
                                     ${SYS_UBI_DEV_NUM} \
                                     ${SYS_IMAGE_VOL} \
                                     ${sys_key_index} \
-                                    "${vb_parameter}"
+                                    "${vb_option}"
 
                 if [ $? -ne ${STATUS_OK} ] ; then
                     LOGD "Encrypt partition ${DM_SYST_NAME} failed."
