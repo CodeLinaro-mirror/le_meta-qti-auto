@@ -247,6 +247,7 @@ python () {
         for task in d.getVar('PREBUILT_DISCARDED_TASKS').split():
             d.setVarFlag(task, 'noexec', '1')
         bb.build.addtask('do_prebuilt_configure', 'do_configure', 'do_unpack', d)
+        bb.build.addtask('do_setup_module_compilation', 'do_configure', 'do_unpack', d)
         bb.build.addtask('do_prebuilt_install', 'do_install', 'do_compile', d)
         bb.build.addtask('do_prebuilt_shared_workdir', 'do_compile_kernelmodules', 'do_compile', d)
 }
