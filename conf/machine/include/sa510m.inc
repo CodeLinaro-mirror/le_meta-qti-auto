@@ -23,6 +23,8 @@ PREFERRED_VERSION_audiodevicetree = "6.6"
 PREFERRED_VERSION_cta = "1.1"
 PREFERRED_VERSION_avbtool = "git"
 PREFERRED_VERSION_avbtool-native = "git"
+PREFERRED_VERSION_libevent = "2.1.12"
+PREFERRED_VERSION_libevent-native = "2.1.12"
 
 SERIAL_CONSOLES = "115200;ttyMSM0"
 KERNEL_IMAGETYPE = "zImage"
