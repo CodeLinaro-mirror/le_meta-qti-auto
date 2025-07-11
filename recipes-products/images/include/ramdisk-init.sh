@@ -186,7 +186,11 @@ SlotSwitchReboot () {
 
     if [ -z "${mtd_device}" ]; then
         LOGD " recoveryinfo part not found."
-        return ${STATUS_ERR}
+        mtd_device=`${Bgrep} misc /proc/mtd | ${Bawk} -F ':' '{print $1}'`
+        if [ -z "${mtd_device}" ]; then
+            LOGD " misc part not found."
+            return ${STATUS_ERR}
+        fi
     fi
 
     if [ ! -e "/dev/ubi${SYS_UBI_DEV_NUM}" ]; then
@@ -261,8 +265,8 @@ SlotSwitchReboot () {
         LOGD "Error: owner set failed"
         return ${STATUS_ERR}
     fi
-    LOGD "RBM: Crashing device for Slot Switch or EDL"
-    busybox echo c > /proc/sysrq-trigger
+    LOGD "RBM: Rebooting device for Slot Switch or EDL"
+    gracefullReboot
 
     return ${STATUS_ERR}
 }
