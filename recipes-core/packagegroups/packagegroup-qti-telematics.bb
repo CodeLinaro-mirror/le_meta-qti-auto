@@ -15,6 +15,8 @@ PTPVIRT_sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-
 SENSORIDL ?= "False"
 SENSORIDL_sa525m = "True"
 
+SENSORMULTICLIENT ?= "False"
+
 # Define whether to install packagegroup-qti-telematics-cv2x-its, for ITS stacks and related packages
 # Normally this is enabled for external APs only, but can also be enabled for specific targets, like sa525m
 CV2X_ITS ?= "${@bb.utils.contains_any('MACHINE_FEATURES', ['external-ap', 'qti-external-ap'], "True", "False", d)}"
@@ -49,8 +51,11 @@ RDEPENDS_packagegroup-qti-telematics-cv2x-its = "\
     "
 
 RDEPENDS_packagegroup-qti-telematics-sensors = "\
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
-    libsensors sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', \
+        oe.utils.conditional('SENSORMULTICLIENT', 'True', \
+        'sensor-util-lib sensor-util-testapp', '', d), d)} \
+    libsensors sensor-testapp-legacy \
+    ${@oe.utils.conditional('SENSORMULTICLIENT', 'True', 'sensor-hal-daemon sensor-socket sensor-client-api sensor-client-api-testapp ', '', d)} \
     ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
     "
 
@@ -73,4 +78,3 @@ RDEPENDS_packagegroup-qti-telematics-mvm = "\
 RDEPENDS_packagegroup-qti-telematics-nad-core = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'stream-update', '', d)} \
     "
-
