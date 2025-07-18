@@ -101,9 +101,13 @@ SlotSwitchReboot () {
 
     mtd_device=`cat /proc/mtd | grep recoveryinfo | awk -F ':' '{print $1}'`
     if [ -z "${mtd_device}" ]; then
-        echo " recoveryinfo part not found, reboot to edl " > /dev/kmsg
-        /bin/sh -c 'reboot edl'
-        exit 0
+        echo " recoveryinfo part not found. " > /dev/kmsg
+        mtd_device=`cat /proc/mtd | grep misc | awk -F ':' '{print $1}'`
+        if [ -z "${mtd_device}" ]; then
+                echo " misc part not found, reboot to edl"> /dev/kmsg
+                /bin/sh -c 'reboot edl'
+                exit 0
+        fi
     fi
 
     chmod 666 /dev/${mtd_device}
@@ -156,9 +160,10 @@ SlotSwitchReboot () {
             /bin/sh -c 'reboot edl'
             exit 0
         fi
-        chmod 660 /dev/${mtd_device}
-        echo "RBM: Crashing for switching slots or EDL mode" > /dev/kmsg
-	echo c > /proc/sysrq-trigger
+        #chmod 660 /dev/${mtd_device}
+        echo "RBM: Rebooting for switching slots or EDL mode" > /dev/kmsg
+        /bin/sh -c 'reboot'
+        exit 0
     else
         echo "non a/b volumes , reboot to edl " > /dev/kmsg
         /bin/sh -c 'reboot edl'
