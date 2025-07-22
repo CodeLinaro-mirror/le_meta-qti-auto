@@ -19,12 +19,12 @@ DEPENDS = "glib-2.0 libcutils"
 EXTRA_OECONF = "--with-glib \
                 --with-core-includes=${WORKSPACE}/system/core/include"
 
-RM_WORK_EXCLUDE += "libsensors"
+SENSORUDEV ?= 'False'
 
 do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/udev/rules.d/
-        install -m 0444 ${WORKDIR}/61-sensor.rules ${D}${sysconfdir}/udev/rules.d/61-sensor.rules
+        ${@oe.utils.conditional('SENSORUDEV', 'True', 'install -m 0444 ${WORKDIR}/61-sensor.rules ${D}${sysconfdir}/udev/rules.d/61-sensor.rules', '', d)}
         install -m 0444 ${WORKDIR}/61-iio.rules ${D}${sysconfdir}/udev/rules.d/61-iio.rules
         install -d ${D}${sysconfdir}/udev/scripts/
         install -m 0555 ${WORKDIR}/sensors.sh ${D}${sysconfdir}/udev/scripts/sensors.sh

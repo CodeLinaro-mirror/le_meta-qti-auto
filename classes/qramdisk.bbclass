@@ -10,6 +10,7 @@ TOYBOX_RAMDISK ?= "False"
 ENABLE_ADB = "True"
 ENABLE_ADB:qti-distro-base-user ?= "False"
 ENABLE_ADB:sa525m ?= "False"
+ENABLE_ADB:sa510m ?= "False"
 USB_AUTOSUSPEND_SUPPORT = "${@d.getVar('MACHINE_SUPPORTS_USB_AUTOSUSPEND') or "True"}"
 PACKAGE_INSTALL += "${@oe.utils.conditional('ENABLE_ADB', 'True', '${MLIBPREFIX}adbd ${MLIBPREFIX}usb-composition', '', d)}"
 PACKAGE_INSTALL += "${@oe.utils.conditional('USB_AUTOSUSPEND_SUPPORT', 'True', '${MLIBPREFIX}usb-composition-usbd', '', d)}"
@@ -210,22 +211,13 @@ fakeroot do_ramdisk_create() {
 
                 # Creating actual rootfs dir mountpoint for initramfs
                 mkdir -p ${RAMDISKDIR}/rootfs
-                cp ${IMAGE_ROOTFS}/usr/sbin/ubi* usr/sbin/
+                cp ${IMAGE_ROOTFS}/usr/sbin/ubiblock usr/sbin/
+                cp ${IMAGE_ROOTFS}/usr/sbin/ubiattach usr/sbin/
                 cp ${IMAGE_ROOTFS}/usr/bin/nad-abctl usr/bin/nad-abctl
                 cp ${IMAGE_ROOTFS}/usr/lib/libnad_ab_al.so.1 lib/libnad_ab_al.so.1
                 cp ${IMAGE_ROOTFS}/usr/lib/libgthread-2.0.so.0 lib/libgthread-2.0.so.0
                 cp ${IMAGE_ROOTFS}/usr/lib/libglib-2.0.so.0 lib/libglib-2.0.so.0
                 ln -s busybox bin/dd
-
-                # The verity need to work with verified boot lib
-                if [[ -e "${IMAGE_ROOTFS}/etc/verity.env" ]]; then
-                    mkdir -p etc/keys
-                    cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/usr/sbin/verified-boot usr/sbin/
-                    cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
-                    cp ${IMAGE_ROOTFS}/etc/verity.env  etc/
-                    cp ${IMAGE_ROOTFS}/etc/keys/x509_root.der etc/keys/x509_root.der
-                fi
             else
                 ln -s bin/busybox init
             fi
@@ -264,13 +256,17 @@ fakeroot do_ramdisk_create() {
 
         if ${@bb.utils.contains('DISTRO_FEATURES', 'dm-verity', bb.utils.contains_any('MACHINE_FEATURES', 'dm-verity-initramfs dm-verity-initramfs-v3 dm-verity-initramfs-v4', 'true', 'false', d), 'false', d)}; then
 
-            cp ${IMAGE_ROOTFS}/usr/sbin/veritysetup bin/
-            if ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'false', 'true', d)}; then
-                cp ${WORKDIR}/verity.env etc/
-                cp ${WORKDIR}/verity_sig.txt etc/
-            fi
+            # Copy certificates
+            mkdir -p etc/keys
+            cp ${IMAGE_ROOTFS}/etc/keys/x509_root.der etc/keys/x509_root.der
 
-            # Shared library dependencies for dm-verity feature
+            cp ${IMAGE_ROOTFS}/etc/verity.env  etc/
+
+            # Tools required to enable dmverity
+            cp ${IMAGE_ROOTFS}/usr/sbin/verified-boot usr/sbin/
+            cp ${IMAGE_ROOTFS}/usr/sbin/veritysetup bin/
+
+            # Shared library dependencies for verified-boot
             cp ${IMAGE_ROOTFS}/usr/lib/libcryptsetup.so.12 lib/
             cp ${IMAGE_ROOTFS}/lib/libblkid.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libpopt.so.0 lib/
@@ -283,6 +279,10 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libjson-c.so.5 lib/
             cp ${IMAGE_ROOTFS}/lib/libudev.so.1 lib/
             cp ${IMAGE_ROOTFS}/lib/libmount.so.1 lib/
+            cp ${IMAGE_ROOTFS}/lib/libcap.so.2 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
+
         fi
 
         # Generate ramdisk image with fde dependencies
@@ -319,7 +319,7 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libdrmfs.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libxml2.so.2 lib/
-            cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libGPreqcancel_svc.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libdrmtime.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libQseeComApi.so.1 lib/
@@ -328,6 +328,15 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
             if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'false', 'true', d)}; then
               cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/loop.ko lib/modules/
+              cp ${IMAGE_ROOTFS}/usr/sbin/ubiupdatevol usr/sbin/
+            fi
+
+            if ${@bb.utils.contains('DISTRO_FEATURES','usrmerge','true','false',d)}; then
+                mv lib/* usr/lib/
+                mv bin/* usr/bin/
+                rm -rf lib bin
+                ln -s usr/lib lib
+                ln -s usr/bin bin
             fi
 
             # gen_initramfs_list.sh expects to be run from kernel directory
@@ -343,6 +352,8 @@ fakeroot do_ramdisk_create() {
                 # and compressor depending on the extension
                 bash ./scripts/gen_initramfs_list.sh -o ${IMGDEPLOYDIR}/${PN}-initrd-fde.gz -u 0 -g 0 ${RAMDISKDIRFDE}
             fi
+
+            cd ${RAMDISKDIR}
         fi
 
         if ${@bb.utils.contains('DISTRO_FEATURES','usrmerge','true','false',d)}; then

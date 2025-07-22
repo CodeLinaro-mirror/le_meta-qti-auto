@@ -13,6 +13,7 @@ EVDEVMODULE:mdm9607 = 'True'
 # Install coresight loading module for selected machines
 CORESIGHTDLKM ?= 'False'
 CORESIGHTDLKM:sa525m = 'True'
+CORESIGHTDLKM:sa510m = 'True'
 
 # Install powerapp for selected machines
 POWERAPPMODULE ?= 'False'
@@ -29,6 +30,9 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}libgpiod ${MLIBPREFIX}libgpiod-tools \
         ${MLIBPREFIX}spitools \
         ${MLIBPREFIX}coreutils \
+        busybox-syslog \
+        systemd-conf \
+        ca-certificates \
         ${MLIBPREFIX}packagegroup-android-utils \
         ${MLIBPREFIX}packagegroup-qti-core \
         ${MLIBPREFIX}packagegroup-qti-ppat \

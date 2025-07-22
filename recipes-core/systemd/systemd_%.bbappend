@@ -91,6 +91,7 @@ do_install:append() {
         rm -f ${D}${base_libdir}/udev/rules.d/71-seat.rules
         rm -f ${D}${base_libdir}/udev/rules.d/73-seat-late.rules
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
+        rm -f ${D}${base_libdir}/udev/rules.d/60-sensor.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
         rm -f ${D}${systemd_unitdir}/system/systemd-udev-settle.service
@@ -98,6 +99,9 @@ do_install:append() {
         rm -f ${D}${sysconfdir}/udev/rules.d/tui.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/kgsl.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/set-mhi-nodes.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/70-camera.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/64-btrfs.rules
+        rm -f ${D}${sysconfdir}/udev/rules.d/mountpartitions.rules
         if ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'true', 'false', d)}; then
              rm -f ${D}${sysconfdir}/udev/rules.d/mmc-rpmb.rules
         fi

@@ -34,7 +34,7 @@ CONSOLE_PARAM ?= "console=ttyMSM0,115200,n8 "
 CONSOLE_PARAM:qti-distro-perf ?= "console=ttyMSM0,115200,n8 loglevel=0 systemd.log_level=0 systemd.show_status=0"
 IPC_LOGGING_PARAM ?= ""
 IPC_LOGGING_PARAM:qti-distro-debug ?= "qcom_ipc_logging.enabled=1"
-KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM} systemd.setenv="SLOT_SUFFIX"="_a""
+KERNEL_CMD_PARAMS = "ro rootwait ${CONSOLE_PARAM} androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 firmware_class.path=/data/firmware/image,/lib/firmware/updates,/vm-bootsys/boot service_locator.enable=1 net.ifnames=0 ${IPC_LOGGING_PARAM}"
 KERNEL_VARIANT ??= ""
 KERNEL_VARIANT:qti-distro-debug ??= "debug_"
 KERNEL_VARIANT:qti-distro-perf ??= "perf_"
@@ -70,7 +70,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510m-${KERNEL_VARIANT}defconfig"
 # qti-nad-telaf:          Machine supports telematics application framework
 # qti-nad-mrc             Machine supports mrcd feature
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 android-binder tele-squashfs-ubi qti-location qti-wlan qti-sensors qti-audio qti-data-modem qti-bluetooth"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-security qseecompat qti-crypto qti-tzlog qti-smciqseecomd gptee ssgtzd ta_autoload android-binder tele-squashfs-ubi qti-location qti-wlan qti-sensors qti-audio qti-data-modem qti-bluetooth qwesd"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
@@ -93,7 +93,7 @@ MACHINE_SUPPORTS_INIT_RAMDISK = "False"
 TOYBOX_RAMDISK = "False"
 MACHINE_SUPPORTS_ANDROID_PROPERTIES = "False"
 
-USBCOMPOSITION = "90DB"
+USBCOMPOSITION = "90B8"
 
 # On msm-5.4 or above ufs driver supports BSG Device.
 UFS_BSG_DEV_USAGE = "True"
@@ -108,6 +108,9 @@ INHERIT:remove = "uninative"
 
 # Disable autosuspend for USB peripheral mode
 MACHINE_SUPPORTS_USB_AUTOSUSPEND = "False"
+
+# Disable display dependency
+MACHINE_SUPPORTS_DISPLAY = "False"
 
 INHERIT += "utils base patch staging"
 USER_CLASSES += "staging base"
