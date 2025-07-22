@@ -25,6 +25,7 @@ EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
 		--with-glib"
 
 SYSTEMD_SERVICE_${PN} = "sensor_hal_daemon.service"
+SYSTEMD_AUTO_ENABLE_${PN}_sa515m = "disable"
 
 FILES_${PN} += "${userfsdatadir}/sensorhal"
 
