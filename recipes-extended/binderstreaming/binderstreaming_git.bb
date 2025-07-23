@@ -26,7 +26,6 @@ EXTRA_OECONF:append:arm = " \
     ${@bb.utils.contains('MULTILIB_VARIANTS', 'lib32','','--enable-32bit-binder-ipc',d)} \
 "
 
-EXTRA_OECONF:remove:sa510m = "--enable-32bit-binder-ipc"
 BBCLASSEXTEND = "native"
 
 # sdmsteppe uses 64bit IPC though userspace is 32bit.
