@@ -22,6 +22,7 @@ SRC_URI_append += "file://evdev_load.conf"
 SRC_URI_append += "file://sensor_hal_daemon.conf"
 SRC_URI_append += "file://sensor_bootup_iio.sh"
 SRC_URI_append += "file://99-kmsg-permissions.rules"
+SRC_URI_append += "file://diag-socket-log.service"
 
 PACKAGECONFIG_remove = " \
     acl \
@@ -83,6 +84,13 @@ do_install_append() {
             install -m 0755 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         fi
 
+        #Install diag-socket-log service
+        install -d ${D}/lib/systemd/system/multi-user.target.wants
+        # Install diag-socket-log.service
+        install -m 0644 ${WORKDIR}/diag-socket-log.service ${D}/lib/systemd/system/diag-socket-log.service
+        if [ "${DIAG_TCP_LOGGING}" == "1" ]; then
+            ln -sf /lib/systemd/system/diag-socket-log.service ${D}/lib/systemd/system/multi-user.target.wants/diag-socket-log.service
+        fi
     fi
 }
 
