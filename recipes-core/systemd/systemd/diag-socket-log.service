@@ -1,0 +1,11 @@
+[Unit]
+Description=Diag Socket Logger
+SourcePath=/usr/bin/diag_socket_log
+
+[Service]
+ExecStart=/usr/bin/diag_socket_log -a 192.168.225.40 -p 52345
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
