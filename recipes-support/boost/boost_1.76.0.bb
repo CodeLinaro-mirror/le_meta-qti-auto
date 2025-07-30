@@ -7,6 +7,7 @@ BOOST_LIBS = "\
     filesystem \
     log \
     regex \
+    serialization \
     system \
     thread \
     "
