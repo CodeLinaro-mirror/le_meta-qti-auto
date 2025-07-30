@@ -15,7 +15,7 @@ do_install:append:sa510m() {
   rm -rf ${D}${systemd_unitdir}/system/servicemanager.service
   rm -rf ${D}${systemd_unitdir}/system/binderfs.service
   install -m 0664 ${WORKDIR}/servicemanager_auto.service ${D}${systemd_unitdir}/system/servicemanager.service
-  sed -i -e "s/$/ \, RUN+=\"\/bin\/sh -c 'chmod 0660 \/dev\/binder \&\& chown binder:binder \/dev\/binder\'\"/g" ${D}${sysconfdir}/udev/rules.d/50-binder.rules
+  sed -i -e "s/$/, RUN+=\"\/bin\/sh -c 'chmod 0660 \/dev\/binder \&\& chown binder:binder \/dev\/binder\'\"/g" ${D}${sysconfdir}/udev/rules.d/50-binder.rules
 }
 
 EXTRA_OECONF:remove:sa510m = "--enable-32bit-binder-ipc"
