@@ -14,6 +14,7 @@ SRC_URI = "git://github.com/COVESA/vsomeip.git;protocol=https \
            file://0004-add-request_response_delay.patch \
            file://0005-Fix-the-event-loss-if-payload-unchange.patch \
            file://0006-Create-new-train-to-void-duplicate-messages.patch \
+           file://0007-Improve-req-resp-delay.patch \
           "
 S = "${WORKDIR}/git"
 
