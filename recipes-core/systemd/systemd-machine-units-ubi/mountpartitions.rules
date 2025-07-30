@@ -14,7 +14,7 @@
 #
 
 # Automount partitions
-KERNEL=="mmcblk[0-9]*p[0-9]*", SUBSYSTEM=="block", ACTION=="add"    RUN+="/etc/udev/scripts/automountsdcard.sh %k"
-KERNEL=="mmcblk[0-9]*p[0-9]*", SUBSYSTEM=="block", ACTION=="remove" RUN+="/etc/udev/scripts/automountsdcard.sh %k"
-KERNEL=="[hs]d[a-z][0-9]*",    SUBSYSTEM=="block", ACTION=="add"    RUN+="/etc/udev/scripts/automountsdcard.sh %k"
-KERNEL=="[hs]d[a-z][0-9]*",    SUBSYSTEM=="block", ACTION=="remove" RUN+="/etc/udev/scripts/automountsdcard.sh %k"
+KERNEL=="mmcblk[0-9]*p[0-9]*", SUBSYSTEM=="block", ACTION=="add",    RUN+="/etc/udev/scripts/automountsdcard.sh %k"
+KERNEL=="mmcblk[0-9]*p[0-9]*", SUBSYSTEM=="block", ACTION=="remove", RUN+="/etc/udev/scripts/automountsdcard.sh %k"
+KERNEL=="[hs]d[a-z][0-9]*",    SUBSYSTEM=="block", ACTION=="add",    RUN+="/etc/udev/scripts/automountsdcard.sh %k"
+KERNEL=="[hs]d[a-z][0-9]*",    SUBSYSTEM=="block", ACTION=="remove", RUN+="/etc/udev/scripts/automountsdcard.sh %k"
