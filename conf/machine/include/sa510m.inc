@@ -56,6 +56,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510m-${KERNEL_VARIANT}defconfig"
 # qti-adsp:               Machine supports QTI adsp solution
 # qti-cdsp:               Machine supports QTI cdsp solution
 # qti-ab-boot:            Machine supports a/b boot
+# qti-partial-ab-boot:    Machine supports partial a/b boot
 # qti-security:           Machine supports QTI security solution
 # qti-wifi:               Machine supports QTI WiFi solution
 # qti-audio:              Machine supports QTI audio solution
