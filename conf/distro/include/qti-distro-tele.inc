@@ -6,6 +6,7 @@
 
 # Get basic distro configuration
 require conf/distro/include/qti-distro-base.inc
+include ${COREBASE}/meta-qti-bsp/conf/site.conf
 
 DISTRO_NAME = "QTI Linux Telematics distro."
 
