@@ -14,6 +14,7 @@ IMAGE_INSTALL += "start-scripts-init-can"
 IMAGE_INSTALL += "nbd-client"
 IMAGE_INSTALL += "vnw-eth-switch"
 IMAGE_INSTALL += "mosquitto"
+IMAGE_INSTALL += "boost"
 
 # Test tools
 IMAGE_INSTALL += "can-utils"
