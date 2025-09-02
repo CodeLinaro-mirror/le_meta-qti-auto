@@ -119,6 +119,14 @@ do_install:append() {
         rm -f ${D}${sysconfdir}/udev/rules.d/tui.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/kgsl.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/set-mhi-nodes.rules
+
+        # Remove broken symlink
+        rm -f ${D}${base_libdir}/systemd/system/ffbm.target.wants/systemd-logind.service
+        rm -f ${D}${libdir}/environment.d/99-environment.conf
+
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'nand-boot', 'true', 'false', d)}; then
+             rm -f ${D}${sysconfdir}/udev/rules.d/mmc-rpmb.rules
+        fi
     fi
 }
 FILES:${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"

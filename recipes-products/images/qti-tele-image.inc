@@ -63,3 +63,6 @@ PACKAGE_EXCLUDE += "kernel-dev"
 
 # Modem is a partition on SA510M
 IMAGE_FEATURES:remove:sa510m = "modem-volume"
+
+# Remove run-postinsts from target image
+ROOTFS_BOOTSTRAP_INSTALL:remove = "run-postinsts"
