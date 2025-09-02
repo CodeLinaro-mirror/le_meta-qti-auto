@@ -95,6 +95,8 @@ STATUS_ERR=1
 
 ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
 
+RECOVERY_REBOOT_PARAM="qcom-reboot-reason.reason=1"
+
 LOGD() {
   busybox echo "$1"
 }
@@ -525,6 +527,7 @@ MountSystem () {
     local parti_name="${UBI_PART_NAME}"
     local image_type="ubifs"
     local nad_fde_status="disabled"
+    local nad_vb_status="disabled"
     local sys_key_index="0"
     local vb_option=""
 
@@ -533,19 +536,17 @@ MountSystem () {
         return ${STATUS_ERR}
     fi
 
-    if [ "x${VERITY_ENV}" == "x" ]; then
-        VERITY_ENV="/proc/cmdline"
+    if ${Bgrep} -ws 'nad_avb=1' ${VERITY_ENV} ; then
+        nad_vb_status="enabled"
     fi
 
-    if ${Bgrep} 'recovery=' /proc/cmdline > /dev/null; then
+    if ${Bgrep} -ws "${RECOVERY_REBOOT_PARAM}" /proc/cmdline ; then
         LOGD "Runing to recovery mode"
-        if ${Bgrep} -Ew "${RECOVERYFS_DEV}" /proc/mtd > /dev/null; then
-            # Recoveryfs is a partition and use ${DM_SYST_NAME} as volume name
-            parti_name="${RECOVERYFS_DEV}"
-        else
-            # Recoveryfs is a UBI volume name in partition: ${parti_name}
-            DM_SYST_NAME="${RECOVERYFS_DEV}"
-        fi
+        # RECOVERYFS_DEV is a partition and volume name
+        parti_name="${RECOVERYFS_DEV}"
+        DM_SYST_NAME="${RECOVERYFS_DEV}"
+        SYS_UBI_DEV_NUM="1"
+        nad_vb_status="disabled"
     fi
 
     GetStorageDev "${parti_name}"
@@ -554,7 +555,7 @@ MountSystem () {
         return ${STATUS_ERR}
     fi
 
-    # Check if it is UBI partition
+    # Check and attach the UBI partition
     if ${Bdd} if=/dev/mtd${DEV_NUM} count=1 bs=4 2>/dev/null | ${Bgrep} 'UBI#' > /dev/null; then
 
         ubiattach -m ${DEV_NUM} -d ${SYS_UBI_DEV_NUM}
@@ -564,7 +565,7 @@ MountSystem () {
             return ${STATUS_ERR}
         fi
 
-        # Get the boot system volume number
+        # Get the rootfs/recoveryfs volume number
         GetUbiVolumeID ${SYS_UBI_DEV_NUM} ${DM_SYST_NAME}
         if [ "${GetUbiVolumeID_RESULT}" == "" ]; then
             LOGD "Cannot get ${DM_SYST_NAME} volume."
@@ -580,7 +581,7 @@ MountSystem () {
         char_device=/dev/ubi${SYS_UBI_DEV_NUM}_${SYS_IMAGE_VOL}
         block_device=/dev/ubiblock${SYS_UBI_DEV_NUM}_${SYS_IMAGE_VOL}
 
-        # Check if the image type is squashfs in UBI volume
+        # Check the filesystem image type in UBI volume
         if ${Bdd} if=${char_device}\
             count=1 bs=4 2>/dev/null | ${Bgrep} 'hsqs' > /dev/null; then
             image_type="squashfs"
@@ -594,7 +595,7 @@ MountSystem () {
         # Check if FDE is enabled
         # UBIFS don't support signing, so won't work with FDE
         if [ "${image_type}" != "ubifs" ]; then
-            if ${Bgrep} -s 'nad_fde=1' ${FDE_ENV} > /dev/null; then
+            if ${Bgrep} -ws 'nad_fde=1' ${FDE_ENV} ; then
                 nad_fde_status="enabled"
                 # Currently, only squashfs image is supported for FDE. If the image magic
                 # isn't squashfs type "hsqs", then suppose this partition was encrypted.
@@ -616,7 +617,7 @@ MountSystem () {
                 fi
             fi
 
-            # For system and/or other partitions FDE enabling
+            # Setup dm-crypt mapping for rootfs and other partitions
             if [ "${nad_fde_status}" == "enabled" ]; then
 
                 if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
@@ -647,8 +648,8 @@ MountSystem () {
                 fi
             fi
 
-            # For root file system Verified boot enabling
-            if ${Bgrep} 'nad_avb=1' ${VERITY_ENV} > /dev/null; then
+            # Setup dm-verity mapping for rootfs volume
+            if [ "${nad_vb_status}" == "enabled" ]; then
                 dm_verity_device=/dev/mapper/${DM_SYST_NAME}
                 if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
                     vb_option="-s -k ${CERT_CA_PATH}"
@@ -668,6 +669,7 @@ MountSystem () {
                 fi
             fi
 
+            # Mount the block_device/dev_mapper device as rootfs
             busybox.suid mount -t ${image_type} ${block_device} ${ROOT_MOUNT} -oro
             if [ $? -ne ${STATUS_OK} ]; then
                 LOGD "Error: mount squashfs ${block_device} failed"
