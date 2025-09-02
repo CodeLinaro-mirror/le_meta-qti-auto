@@ -165,9 +165,16 @@ SlotSwitchReboot () {
         /bin/sh -c 'reboot'
         exit 0
     else
-        echo "non a/b volumes , reboot to edl " > /dev/kmsg
-        /bin/sh -c 'reboot edl'
-        exit 0
+        mtd_device=`cat /proc/mtd | grep recoveryfs | awk -F ':' '{print $1}'`
+        if [ -z "${mtd_device}" ]; then
+            echo "non a/b volumes , reboot to edl " > /dev/kmsg
+            /bin/sh -c 'reboot edl'
+            exit 0
+        else
+            echo " recoveryfs part found, reboot to recovery"> /dev/kmsg
+            /bin/sh -c 'reboot recovery'
+            exit 0
+        fi
     fi
 }
 

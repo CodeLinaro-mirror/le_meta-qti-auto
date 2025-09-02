@@ -256,8 +256,16 @@ SlotSwitchReboot () {
     else
         # Single system (ar)
         # TODO Behavior needs to be decided for AR
-        LOGD "AR scenario, reboot to edl"
-        gracefullReboot edl
+        mtd_device=`${Bgrep} recoveryfs /proc/mtd | ${Bawk} -F ':' '{print $1}'`
+        if [ -z "${mtd_device}" ]; then
+            LOGD "AR scenario, reboot to edl"
+            gracefullReboot edl
+            return ${STATUS_ERR}
+        else
+            LOGD " recoveryfs partion found, AR scenario, reboot to recovery."
+            gracefullReboot recovery
+            return ${STATUS_ERR}
+        fi
     fi
 
     # Set owner to HLOS & reboot device
