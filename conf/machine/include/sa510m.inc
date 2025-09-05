@@ -23,6 +23,8 @@ PREFERRED_VERSION_audiodevicetree = "6.6"
 PREFERRED_VERSION_cta = "1.1"
 PREFERRED_VERSION_avbtool = "git"
 PREFERRED_VERSION_avbtool-native = "git"
+PREFERRED_VERSION_libevent = "2.1.12"
+PREFERRED_VERSION_libevent-native = "2.1.12"
 
 SERIAL_CONSOLES = "115200;ttyMSM0"
 KERNEL_IMAGETYPE = "zImage"
@@ -54,6 +56,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa510m-${KERNEL_VARIANT}defconfig"
 # qti-adsp:               Machine supports QTI adsp solution
 # qti-cdsp:               Machine supports QTI cdsp solution
 # qti-ab-boot:            Machine supports a/b boot
+# qti-partial-ab-boot:    Machine supports partial a/b boot
 # qti-security:           Machine supports QTI security solution
 # qti-wifi:               Machine supports QTI WiFi solution
 # qti-audio:              Machine supports QTI audio solution

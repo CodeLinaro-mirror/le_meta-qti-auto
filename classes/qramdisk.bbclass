@@ -385,7 +385,8 @@ fakeroot do_ramdisk_create() {
             cp -rf ${RAMDISKDIR}/* ./
 
             if  ${@bb.utils.contains('MACHINE_FEATURES', 'dm-verity-initramfs-v4', 'true', 'false', d)}; then
-               install -m 744 ${COREBASE}/meta-qti-auto/recipes-products/images/include/ramdisk-init-debug.sh init
+                sed -i '/local tasks_list2="/a MountUserfs MountOverlay ' init
+
             fi
 
             # gen_initramfs_list.sh expects to be run from kernel directory

@@ -454,10 +454,79 @@ EOF
 }
 
 # Squahshfs cfg
+do_create_squash_ubinize_config[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 do_create_squash_ubinize_config_ab[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 do_create_squash_ubinize_config_ab[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
 do_create_squash_ubinize_config_ab_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs/"
 do_create_squash_ubinize_config_ab_with_lxc[depends] += "${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', 'do_maketelaf_squashfs', '', d)}"
+
+do_create_squash_ubinize_config() {
+vol_id=0
+    cat << EOF > ${SQUASHFS_UBINIZE_CFG_AB}
+[sysfs_volume]
+mode=ubi
+image="${SYSTEMIMAGE_SQUASHFS_TARGET}"
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=rootfs
+vol_size="${SYSTEM_SQUASHFS_VOLUME_SIZE}"
+
+EOF
+    if $(echo ${IMAGE_FEATURES} | grep -q "modem-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB}
+[modem_volume]
+mode=ubi
+EOF
+        if [ -f ${MODEM_SQUASHFS_IMAGE} ]; then
+            cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB}
+image="${MODEM_SQUASHFS_IMAGE}"
+EOF
+        fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB}
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=firmware
+vol_size="${MODEM_SQUASHFS_VOLUME_SIZE}"
+
+EOF
+    fi
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB}
+[usrfs_volume]
+mode=ubi
+image="${USER_IMAGE_UBIFS_TARGET}"
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=usrfs
+vol_flags=autoresize
+
+EOF
+
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB}))
+cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB}
+[systemrw_volume]
+mode=ubi
+image="${SYSTEMRW_UBIFS_TARGET}"
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=systemrw
+vol_size="${SYSTEMRW_VOLUME_SIZE}"
+
+EOF
+vol_id=$(echo $(grep -rc "vol_id" ${SQUASHFS_UBINIZE_CFG_AB}))
+    if $(echo ${IMAGE_FEATURES} | grep -q "persist-volume"); then
+        cat << EOF >> ${SQUASHFS_UBINIZE_CFG_AB}
+[persist_volume]
+mode=ubi
+vol_id=$vol_id
+vol_type=dynamic
+vol_name=persist
+vol_size="${PERSIST_VOLUME_SIZE}"
+
+EOF
+    fi
+}
 
 do_create_squash_ubinize_config_ab() {
 vol_id=0
@@ -897,7 +966,7 @@ fakeroot do_makesystem_tele_ubi() {
    ubinize -o ${SYSTEM_IMAGE_UBI_TARGET} ${UBINIZE_ARGS} ${UBINIZE_SYSTEM_CFG}
 }
 
-do_makesystem_squashfs[prefuncs] += "do_create_squash_ubinize_config_ab"
+do_makesystem_squashfs[prefuncs] += " ${@bb.utils.contains('MACHINE_FEATURES', 'qti-partial-ab-boot','do_create_squash_ubinize_config','do_create_squash_ubinize_config_ab', d)}"
 do_makesystem_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 do_makesystem_squashfs_ubi_with_lxc[prefuncs] += "do_create_squash_ubinize_config_ab_with_lxc"
 do_makesystem_squashfs_ubi_with_lxc[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/lxc/squashfs"

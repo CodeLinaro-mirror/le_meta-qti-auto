@@ -26,4 +26,4 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Adding group for applications like abctl which need access to mtd partition
-ACTION=="add" SUBSYSTEM=="mtd", KERNEL=="mtd[0-9]*", ATTRS{name}=="recoveryinfo", GROUP="disk", MODE="0660"
+ACTION=="add", SUBSYSTEM=="mtd", KERNEL=="mtd[0-9]*", ATTRS{name}=="recoveryinfo", GROUP="disk", MODE="0660"
