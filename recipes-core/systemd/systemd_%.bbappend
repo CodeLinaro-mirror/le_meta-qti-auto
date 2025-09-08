@@ -10,7 +10,10 @@ SRC_URI_append += "file://mountpartitions.rules"
 do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -m 0644 ${WORKDIR}/auto_platform.conf -D ${D}/etc/tmpfiles.d/auto_platform.conf
-	install -m 0555 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
+        if ${@bb.utils.contains('DEBUG_BUILD', '1', 'false', 'true', d)}; then
+           sed -i 's|^d /sys/kernel/debug|# d /sys/kernel/debug|' ${D}/etc/tmpfiles.d/auto_platform.conf
+        fi
+        install -m 0555 ${WORKDIR}/61-pps.rules ${D}${sysconfdir}/udev/rules.d/61-pps.rules
     fi
 }
 
@@ -39,7 +42,7 @@ do_install_append_sa2150p() {
 
         install -d ${D}${sysconfdir}/udev/rules.d/
         install -m 0744 ${WORKDIR}/telematics-persistent-storage.rules ${D}${sysconfdir}/udev/rules.d/telematics-persistent-storage.rules
-		install -m 0744 ${WORKDIR}/mountpartitions.rules ${D}${sysconfdir}/udev/rules.d/mountpartitions.rules
+        install -m 0744 ${WORKDIR}/mountpartitions.rules ${D}${sysconfdir}/udev/rules.d/mountpartitions.rules
     fi
 
 }
