@@ -7,6 +7,7 @@ DEPENDS += "cryptsetup-native"
 # if A/B support is supported, generate OTA pkg by default.
 GENERATE_AB_OTA_PACKAGE ?= "${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', '1', '', d)}"
 
+MLIBPREFIX ?= ""
 # List all mount points
 MNT_POINTS = "${MACHINE_MNT_POINTS} ${GENERATED_MACHINE_MNT_POINTS}"
 

@@ -1,0 +1,20 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. 
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# filename              partition
+NON-HLOS.ubi            modem
+
+sbl1.mbn                sbl
+tz.mbn                  tz
+devcfg.mbn              tz_devcfg
+km4.mbn                 keymaster
+cmnlib.mbn              cmnlib
+xbl_cfg.elf             xbl_config
+multi_image.mbn         multi_image
+aop.mbn                 aop
+hyp.mbn                 qhee
+abl.elf                 abl
+uefi.elf                uefi
+tools.fv                toolsfv
+sec.dat                 sec
+ipa_fws.elf             IPA_FW

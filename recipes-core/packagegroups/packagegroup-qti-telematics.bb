@@ -25,6 +25,9 @@ CRONIE:sa525m-fotavm = "False"
 QTI_CAN ?= "False"
 QTI_CAN:sa510m= "True"
 
+QDLOADER ?= "True"
+QDLOADER:sa415m = "False"
+
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
     ${MLPREFIX}packagegroup-qti-telematics \
@@ -50,7 +53,7 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
     "
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
+    ${@oe.utils.conditional('QDLOADER', 'True', bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d), '', d)} \
     ${@oe.utils.conditional('CRONIE', 'True', 'cronie', '', d)} \
     "
 

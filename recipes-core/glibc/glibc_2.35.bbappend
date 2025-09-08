@@ -9,3 +9,6 @@ CACHED_CONFIGUREVARS += " \
 do_install:append(){
        rm -f ${D}${bindir}/sprof
 }
+
+TARGET_CFLAGS:append:sa415m = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"
+TARGET_CPPFLAGS:append:sa415m = " -D_TIME_BITS=32 -D_FILE_OFFSET_BITS=32"

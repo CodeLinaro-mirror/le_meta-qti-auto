@@ -1,4 +1,5 @@
 FILESEXTRAPATHS:prepend:sa525m := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend:sa415m := "${THISDIR}/files:"
 
 VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
@@ -117,7 +118,16 @@ VOLATILE_BINDS:sa510m = "\
 /systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf multi-user.target\n\
 "
-
+VOLATILE_BINDS:sa415m = "\
+/systemrw/adb_devid  /etc/adb_devid\n\
+/systemrw/data /etc/data/\n\
+/systemrw/data/adpl /etc/data/adpl/\n\
+/systemrw/data/usb /etc/data/usb/\n\
+/systemrw/data/ipa /etc/data/ipa/\n\
+/systemrw/rt_tables /etc/data/iproute2/rt_tables\n\
+/systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
+/systemrw/boot_hsic_comp /etc/usb/boot_hsic_comp\n\
+"
 do_install:append (){
     #Remove deprecated StandardOutput=syslog
     for service in ${SYSTEMD_SERVICE:${PN}}; do
