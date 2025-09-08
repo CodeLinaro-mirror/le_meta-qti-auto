@@ -92,6 +92,7 @@ SlotSwitchReboot () {
     local firmware_a="firmware_a"
     local firmware_b="firmware_b"
     local current_image_set_status=0
+    local rollback_count=0
 
     if [ ! -e ${abctl_cmd} ]; then
         echo "${abctl_cmd} not found, reboot to edl " > /dev/kmsg
@@ -128,34 +129,71 @@ SlotSwitchReboot () {
             /bin/sh -c 'reboot edl'
             exit 0
         fi
+        #Get TBI rollback count
+        (${abctl_cmd} --get_rollback_failed_attempts)
+        rollback_count=$?
+        if [ "$rollback_count" -lt "0" ] || [ "$rollback_count" -gt "6" ]; then
+            echo "Error: invalid rollback count" > /dev/kmsg
+            /bin/sh -c 'reboot edl'
+            exit 0
+        fi
 
-        if [ "$SLOT_SUFFIX" = "_a" ] && [ "$current_image_set_status" != "$dont_use_set_b" ]; then
+        if [ "$SLOT_SUFFIX" = "_a" ] && \
+           [ "$current_image_set_status" != "$dont_use_set_b" ] && \
+           [ "$rollback_count" -eq "0" ]; then
             echo "firmware A volume corrupted " > /dev/kmsg
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_a}
-            if [ "$?" -eq "-1" ]; then
-                echo "Error: image set status failed" > /dev/kmsg
-                /bin/sh -c 'reboot edl'
-                exit 0
+            #check if image status is already set to optimize NAND write
+            if [ "$current_image_set_status" -ne "$dont_use_set_a" ]; then
+                ${abctl_cmd} --set_image_set_status ${dont_use_set_a}
+                if [ "$?" -ne "0" ]; then
+                    echo "Error: image set status failed" > /dev/kmsg
+                    /bin/sh -c 'reboot edl'
+                    exit 0
+                fi
             fi
-        elif [ "$SLOT_SUFFIX" = "_b" ] && [ "$current_image_set_status" != "$dont_use_set_a" ]; then
+        elif [ "$SLOT_SUFFIX" = "_b" ] && \
+             [ "$current_image_set_status" != "$dont_use_set_a" ] && \
+             [ "$rollback_count" -eq "0" ]; then
             echo "firmware B volume corrupted " > /dev/kmsg
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_b}
-            if [ "$?" -eq "-1" ]; then
-                echo "Error: image set status failed" > /dev/kmsg
-                /bin/sh -c 'reboot edl'
-                exit 0
+            #check if image status is already set to optimize NAND write
+            if [ "$current_image_set_status" -ne "$dont_use_set_b" ]; then
+                ${abctl_cmd} --set_image_set_status ${dont_use_set_b}
+                if [ "$?" -ne "0" ]; then
+                    echo "Error: image set status failed" > /dev/kmsg
+                    /bin/sh -c 'reboot edl'
+                    exit 0
+                fi
             fi
         else
             echo "firmware A and B volume corrupted" > /dev/kmsg
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_ab}
-            if [ "$?" -eq "-1" ]; then
-                echo "Error: image set status failed" > /dev/kmsg
-                /bin/sh -c 'reboot edl'
-                exit 0
+            #check if image status is already set to optimize NAND write
+            if [ "$current_image_set_status" -ne "$dont_use_set_ab" ]; then
+                ${abctl_cmd} --set_image_set_status ${dont_use_set_ab}
+                if [ "$?" -ne "0" ]; then
+                    echo "Error: image set status failed" > /dev/kmsg
+                    /bin/sh -c 'reboot edl'
+                    exit 0
+                fi
+            fi
+
+            #Go to recovery only after retries are exhausted
+            if [ "$rollback_count" -ge "5" ]; then
+                mtd_device=`cat /proc/mtd | grep recoveryfs | awk -F ':' '{print $1}'`
+                if [ ! -z "${mtd_device}" ]; then
+                    echo " recoveryfs partition found, AB scenario, reboot to recovery." > /dev/kmsg
+                    #Set owner before reboot
+                    ${abctl_cmd} --set_owner ${owner_hlos}
+                    if [ "$?" -ne "0" ]; then
+                        echo "Error: set owner failed" > /dev/kmsg
+                        #Not returning or going to EDL as we already going into recovery
+                    fi
+                    /bin/sh -c 'reboot recovery'
+                    exit 0
+                fi
             fi
         fi
         ${abctl_cmd} --set_owner ${owner_hlos}
-        if [ "$?" -eq "-1" ]; then
+        if [ "$?" -ne "0" ]; then
             echo "Error: set owner failed" > /dev/kmsg
             /bin/sh -c 'reboot edl'
             exit 0
@@ -171,7 +209,7 @@ SlotSwitchReboot () {
             /bin/sh -c 'reboot edl'
             exit 0
         else
-            echo " recoveryfs part found, reboot to recovery"> /dev/kmsg
+            echo " recoveryfs part found, reboot to recovery" > /dev/kmsg
             /bin/sh -c 'reboot recovery'
             exit 0
         fi
