@@ -242,6 +242,20 @@ do_recovery_ubi() {
 
 addtask do_recovery_ubi after do_image_complete before do_build
 
+do_copy_recoveryfs_images[depends] += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', 'qti-recovery-image:do_build', '', d)}"
+
+do_copy_recoveryfs_images() {
+    # Copy recovery images
+    if [ -f ${DEPLOY_DIR_IMAGE}/recoveryfs.squashfs ]; then
+       install -m 0644 ${DEPLOY_DIR_IMAGE}/recoveryfs.squashfs ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs
+    fi
+    if [ -f ${DEPLOY_DIR_IMAGE}/recoveryfs-squashfs.ubi ]; then
+       install -m 0644 ${DEPLOY_DIR_IMAGE}/recoveryfs-squashfs.ubi ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs
+    fi
+}
+
+addtask do_copy_recoveryfs_images after do_image_complete before do_build
+
 do_gen_otazip_ubi[dirs] += "${DEPLOY_DIR_IMAGE}/ota-scripts"
 fakeroot do_gen_otazip_ubi() {
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
