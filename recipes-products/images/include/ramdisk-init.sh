@@ -178,6 +178,7 @@ SlotSwitchReboot () {
     local dont_use_set_b=2
     local dont_use_set_ab=3
     local current_image_set_status=0
+    local rollback_count=0
     local mtd_device=`${Bgrep} recoveryinfo /proc/mtd | ${Bawk} -F ':' '{print $1}'`
 
     if [ ! -e ${abctl_cmd} ]; then
@@ -230,29 +231,74 @@ SlotSwitchReboot () {
             LOGD "Error: incorrect image set status"
             return ${STATUS_ERR}
         fi
+        #Get TBI rollback count
+        (${abctl_cmd} --get_rollback_failed_attempts)
+        rollback_count=$?
 
-        if [ "$curr_slot" = "_a" ] && [ "$current_image_set_status" != "$dont_use_set_b" ]; then
+        if [ "$rollback_count" -lt "0" ] || [ "$rollback_count" -gt "6" ]; then
+            LOGD "Error: invalid rollback count"
+            return ${STATUS_ERR}
+        fi
+
+        if [ "$curr_slot" = "_a" ] && \
+           [ "$current_image_set_status" != "$dont_use_set_b" ] && \
+           [ "$rollback_count" -eq "0" ]; then
             LOGD "rootfs A volume corrupted "
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_a}
-            if [ "$?" -eq "-1" ]; then
-                LOGD "Error: image set status failed"
-                return ${STATUS_ERR}
-            fi
-        elif [ "$curr_slot" = "_b" ] && [ "$current_image_set_status" != "$dont_use_set_a" ]; then
-            LOGD "rootfs B volume corrupted "
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_b}
-            if [ "$?" -eq "-1" ]; then
-                LOGD "Error: image set status failed"
-                return ${STATUS_ERR}
+            #check if image status is already set to optimize NAND write
+            if [ "$current_image_set_status" -ne "$dont_use_set_a" ]; then
+                ${abctl_cmd} --set_image_set_status ${dont_use_set_a}
+                if [ "$?" -ne "0" ]; then
+                    LOGD "Error: image set status failed"
+                    return ${STATUS_ERR}
                 fi
+            fi
+        elif [ "$curr_slot" = "_b" ] && \
+             [ "$current_image_set_status" != "$dont_use_set_a" ] && \
+             [ "$rollback_count" -eq "0" ]; then
+            LOGD "rootfs B volume corrupted "
+            #check if image status is already set to optimize NAND write
+            if [ "$current_image_set_status" -ne "$dont_use_set_b" ]; then
+                ${abctl_cmd} --set_image_set_status ${dont_use_set_b}
+                if [ "$?" -ne "0" ]; then
+                    LOGD "Error: image set status failed"
+                    return ${STATUS_ERR}
+                fi
+            fi
         else
             LOGD "rootfs A and B volume is corrupted."
-            ${abctl_cmd} --set_image_set_status ${dont_use_set_ab}
-            if [ "$?" -eq "-1" ]; then
-                LOGD "Error: image set status failed"
-                return ${STATUS_ERR}
+            #check if image status is already set to optimize NAND write
+            if [ "$current_image_set_status" -ne "$dont_use_set_ab" ]; then
+                ${abctl_cmd} --set_image_set_status ${dont_use_set_ab}
+                if [ "$?" -ne "0" ]; then
+                    LOGD "Error: image set status failed"
+                    return ${STATUS_ERR}
+                fi
+            fi
+            #Go to recovery only after retries are exhausted
+            if [ "$rollback_count" -ge "5" ]; then
+                mtd_device=`${Bgrep} recoveryfs /proc/mtd | ${Bawk} -F ':' '{print $1}'`
+                if [ ! -z "${mtd_device}" ]; then
+                    LOGD " recoveryfs partition found, AB scenario, reboot to recovery."
+                    #Set owner before reboot
+                    ${abctl_cmd} --set_owner ${owner_hlos}
+                    if [ "$?" -ne "0" ]; then
+                        echo "Error: set owner failed" > /dev/kmsg
+                        #Not returning or going to EDL as we already going into recovery
+                    fi
+                    gracefullReboot recovery
+                    return ${STATUS_ERR}
+                fi
             fi
         fi
+        # Set owner to HLOS & reboot device
+        ${abctl_cmd} --set_owner ${owner_hlos}
+        if [ "$?" -ne "0" ]; then
+            LOGD "Error: owner set failed"
+            return ${STATUS_ERR}
+        fi
+        LOGD "RBM: Rebooting device for Slot Switch or EDL"
+        gracefullReboot
+        return ${STATUS_ERR}
     else
         # Single system (ar)
         # TODO Behavior needs to be decided for AR
@@ -267,17 +313,6 @@ SlotSwitchReboot () {
             return ${STATUS_ERR}
         fi
     fi
-
-    # Set owner to HLOS & reboot device
-    ${abctl_cmd} --set_owner ${owner_hlos}
-    if [ "$?" -eq "-1" ]; then
-        LOGD "Error: owner set failed"
-        return ${STATUS_ERR}
-    fi
-    LOGD "RBM: Rebooting device for Slot Switch or EDL"
-    gracefullReboot
-
-    return ${STATUS_ERR}
 }
 
 MountModemVol() {
