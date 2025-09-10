@@ -56,6 +56,9 @@ do_install:append() {
             rm -rf ${D}${systemd_unitdir}/system/QCMAP_ConnectionManagerd.service.d/QCMAP_ConnectionManagerd-pvm.conf
         fi
 
+        #Mask slice unit
+        ln -s /dev/null ${D}${sysconfdir}/systemd/system/system-modprobe.slice
+
         #Install iio bootup script for sensors
         if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
             install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
