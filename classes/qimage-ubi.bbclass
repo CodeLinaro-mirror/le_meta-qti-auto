@@ -117,7 +117,12 @@ create_symlink_systemd_ubi_mount_rootfs() {
     # Recheck when overlay support added for ubi
     rm -rf ${IMAGE_ROOTFS_UBI}/lib/systemd/system/local-fs.target.wants/overlay-restore.service
 
-   # Remove rules to automount block devices.
+    # Remove broken symlinks and unnecessary systemd/environment files
+    rm -f ${IMAGE_ROOTFS}/etc/systemd/system/sysinit.target.wants/run-postinsts.service
+    rm -f ${IMAGE_ROOTFS}/usr/lib/environment.d/99-environment.conf
+    rm -f ${IMAGE_ROOTFS}/usr/lib/systemd/system/ffbm.target.wants/systemd-logind.service
+    rm -f ${IMAGE_ROOTFS}/usr/lib/systemd/systemd-sysroot-fstab-check
+    # Remove rules to automount block devices.
    sed -i '/SUBSYSTEM=="block", TAG+="systemd"/d' ${IMAGE_ROOTFS_UBI}/lib/udev/rules.d/99-systemd.rules
    sed -i '/SUBSYSTEM=="block", ACTION=="add", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", ENV{SYSTEMD_READY}="0"/d' ${IMAGE_ROOTFS_UBI}/lib/udev/rules.d/99-systemd.rules
 
