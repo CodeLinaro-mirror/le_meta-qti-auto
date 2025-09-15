@@ -107,6 +107,7 @@ do_recovery_ubi() {
 
         if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
             squashfs2sparse ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/sysfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/system.img
+            cp -rf ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/sysfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/system.squash
         else
             img2simg ${DEPLOY_DIR_IMAGE}/${BASEMACHINE}-sysfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/system.img
         fi
@@ -122,6 +123,7 @@ do_recovery_ubi() {
                 echo /modem squashfs /dev/block/bootdevice/by-name/modem >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
                 if [ -f ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ]; then
                     squashfs2sparse  ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/modem.img
+                    cp -rf  ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/modem.squash
                 fi
             fi
 
@@ -241,7 +243,7 @@ do_recovery_ubi() {
 addtask do_recovery_ubi after do_image_complete before do_build
 
 do_gen_otazip_ubi[dirs] += "${DEPLOY_DIR_IMAGE}/ota-scripts"
-do_gen_otazip_ubi() {
+fakeroot do_gen_otazip_ubi() {
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         if ${@bb.utils.contains('IMAGE_FEATURES', 'lxcrootfs-volume', 'true', 'false', d)}; then
             ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
