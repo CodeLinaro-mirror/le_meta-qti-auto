@@ -114,6 +114,10 @@ do_install_append() {
         rm -f ${D}${base_libdir}/udev/rules.d/80-drivers.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/touchscreen.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/mtpserver.rules
+
+        # Remove broken symlink
+        rm -f ${D}${base_libdir}/systemd/system/ffbm.target.wants/systemd-logind.service
+        rm -f ${D}${libdir}/environment.d/99-environment.conf
     fi
 }
 
