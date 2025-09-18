@@ -6,6 +6,8 @@ SRC_URI += "\
             file://busybox_utilities.cfg \
 "
 
+SRC_URI:append:sa510m:qti-distro-tele-perf += "file://busybox_utilities_perf.cfg"
+
 SRC_URI:append:sa525m = "file://taskset.cfg"
 
 do_install:append() {
