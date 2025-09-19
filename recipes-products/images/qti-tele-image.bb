@@ -13,7 +13,7 @@ EVDEVMODULE:mdm9607 = 'True'
 # Install coresight loading module for selected machines
 CORESIGHTDLKM ?= 'False'
 CORESIGHTDLKM:sa525m = 'True'
-CORESIGHTDLKM:sa510m = 'True'
+CORESIGHTDLKM:sa510m = 'False'
 
 # Install powerapp for selected machines
 POWERAPPMODULE ?= 'False'
