@@ -38,6 +38,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}packagegroup-qti-ppat \
         ${@bb.utils.contains('MACHINE_FEATURES', 'android-binder', '${MLIBPREFIX}binder', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-data-modem', '${MLIBPREFIX}packagegroup-qti-data', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'qti-data-modem', '${MLIBPREFIX}packagegroup-qti-data-iptables', '', d)} \
         ${@bb.utils.contains_any('COMBINED_FEATURES', 'qti-adsp qti-cdsp qti-modem qti-slpi', '${MLIBPREFIX}packagegroup-qti-dsp', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-location', '${MLIBPREFIX}packagegroup-qti-location ${MLIBPREFIX}packagegroup-qti-location-auto', '', d)} \
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-bluetooth', '${MLIBPREFIX}packagegroup-qti-bt', '', d)} \
