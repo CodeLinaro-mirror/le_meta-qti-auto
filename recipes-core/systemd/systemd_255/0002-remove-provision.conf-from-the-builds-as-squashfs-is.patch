@@ -1,0 +1,24 @@
+From 22c803886d48aba09086f2e793e989bdcc4457a2 Mon Sep 17 00:00:00 2001
+From: shanth kumar j p <sjp@qti.qualcomm.com>
+Date: Wed, 8 Oct 2025 09:52:32 +0000
+Subject: [PATCH] remove provision.conf from the builds as squashfs is enabled
+
+---
+ tmpfiles.d/meson.build | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tmpfiles.d/meson.build b/tmpfiles.d/meson.build
+index 4c11ad6e20..c504e31f16 100644
+--- a/tmpfiles.d/meson.build
++++ b/tmpfiles.d/meson.build
+@@ -14,7 +14,6 @@ files = [['README',               ''],
+          ['systemd-tmp.conf',     ''],
+          ['tmp.conf',             ''],
+          ['x11.conf',             ''],
+-         ['provision.conf',       ''],
+          ['credstore.conf',       ''],
+         ]
+ 
+-- 
+2.44.1
+
