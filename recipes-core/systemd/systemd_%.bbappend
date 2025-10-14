@@ -36,6 +36,11 @@ do_install:append() {
                 install -m 0644 ${WORKDIR}/mtd.rules -D ${D}${sysconfdir}/udev/rules.d/mtd.rules
         fi
 
+       #This service is intended to be used in early boot before all users or groups have been created.
+       #In telematics usecase, user and group getting created statically and will be exposed as part of systemd initialization so not required.
+       ln -sf /dev/null ${D}/usr/lib/systemd/system/systemd-tmpfiles-setup-dev-early.service
+       ln -sf /dev/null ${D}/usr/lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service
+
         install -d ${D}${systemd_unitdir}/system/
         cp -fR ${WORKDIR}/${BASEMACHINE}/* ${D}${systemd_unitdir}/system/
 
@@ -55,6 +60,9 @@ do_install:append() {
         if ${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-guest emmc-boot', 'true', 'false', d)}; then
             rm -rf ${D}${systemd_unitdir}/system/QCMAP_ConnectionManagerd.service.d/QCMAP_ConnectionManagerd-pvm.conf
         fi
+
+        #Mask slice unit
+        ln -s /dev/null ${D}${sysconfdir}/systemd/system/system-modprobe.slice
 
         #Install iio bootup script for sensors
         if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
