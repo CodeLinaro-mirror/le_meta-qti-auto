@@ -73,3 +73,5 @@ CORE_IMAGE_EXTRA_INSTALL:remove:mdm9607 = "\
 CORE_IMAGE_EXTRA_INSTALL:remove:sa510m = "\
        ${MLIBPREFIX}modem-shutdown \
 "
+
+NO_RECOMMENDATIONS = "1"
