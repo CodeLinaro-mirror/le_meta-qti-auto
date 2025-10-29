@@ -21,6 +21,8 @@ OTA_TARGET_FILES_UBI_AB_FDE_PATH = "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/fde/${
 MACHINE_FILESMAP_SEARCH_PATH ?= "${@':'.join('%s/conf/machine/filesmap' % p for p in '${BBPATH}'.split(':'))}}"
 MACHINE_FILESMAP_FULL_PATH = "${@machine_search(d.getVar('MACHINE_FILESMAP_CONF'), d.getVar('MACHINE_FILESMAP_SEARCH_PATH')) or ''}"
 
+VMBOOTSYS_DEPLOY_DIR = "${DEPLOY_DIR_IMAGE}-vmbootsys"
+
 #Create directory structure for targetfiles.zip
 do_recovery_ubi[cleandirs] += "${OTA_TARGET_IMAGE_ROOTFS_UBI}"
 do_recovery_ubi[cleandirs] += "${OTA_TARGET_IMAGE_ROOTFS_UBI}/BOOTABLE_IMAGES"
@@ -107,6 +109,7 @@ do_recovery_ubi() {
 
         if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
             squashfs2sparse ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/sysfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/system.img
+            cp -rf ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/sysfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/system.squash
         else
             img2simg ${DEPLOY_DIR_IMAGE}/${BASEMACHINE}-sysfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/system.img
         fi
@@ -122,6 +125,7 @@ do_recovery_ubi() {
                 echo /modem squashfs /dev/block/bootdevice/by-name/modem >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
                 if [ -f ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ]; then
                     squashfs2sparse  ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/modem.img
+                    cp -rf  ${DEPLOY_DIR_IMAGE}/NON-HLOS.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/modem.squash
                 fi
             fi
 
@@ -129,13 +133,16 @@ do_recovery_ubi() {
                 echo /telaf squashfs /dev/block/bootdevice/by-name/telaf >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
                 if [ -f ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/telaf_ro.squashfs ]; then
                     squashfs2sparse  ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/telaf_ro.squashfs ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/telaf.img
+                    cp -rf ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}/squashfs/telaf_ro.squashfs ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/telaf.squashfs
                 fi
             fi
 
             if ${@bb.utils.contains('IMAGE_FEATURES', 'vm-bootsys-volume', 'true', 'false', d)}; then
                 echo /vm-bootsys squashfs /dev/block/bootdevice/by-name/vm-bootsys >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
-                if [ -f ${DEPLOY_DIR_IMAGE}/vm-bootsys.squash ]; then
-                    squashfs2sparse  ${DEPLOY_DIR_IMAGE}/vm-bootsys.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/vm-bootsys.img
+                echo "vm-bootsys dir ${VMBOOTSYS_DEPLOY_DIR} deploy_dir ${DEPLOY_DIR_IMAGE}-vmbootsys"
+                if [ -f ${VMBOOTSYS_DEPLOY_DIR}/vm-bootsys.squash ]; then
+                    squashfs2sparse  ${VMBOOTSYS_DEPLOY_DIR}/vm-bootsys.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/vm-bootsys.img
+                    cp -rf  ${VMBOOTSYS_DEPLOY_DIR}/vm-bootsys.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/vm-bootsys.squash
                 fi
             fi
 
@@ -143,6 +150,7 @@ do_recovery_ubi() {
                 echo /lxcrootfs squashfs /dev/block/bootdevice/by-name/lxcrootfs >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/RECOVERY/recovery.fstab
                 if [ -f ${DEPLOY_DIR_IMAGE}/lxcrootfs.squash ]; then
                     squashfs2sparse  ${DEPLOY_DIR_IMAGE}/lxcrootfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/lxcrootfs.img
+                    cp -rf  ${DEPLOY_DIR_IMAGE}/lxcrootfs.squash ${OTA_TARGET_IMAGE_ROOTFS_UBI}/IMAGES/lxcrootfs.squash
                 fi
             fi
         fi
@@ -241,7 +249,7 @@ do_recovery_ubi() {
 addtask do_recovery_ubi after do_image_complete before do_build
 
 do_gen_otazip_ubi[dirs] += "${DEPLOY_DIR_IMAGE}/ota-scripts"
-do_gen_otazip_ubi() {
+fakeroot do_gen_otazip_ubi() {
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         if ${@bb.utils.contains('IMAGE_FEATURES', 'lxcrootfs-volume', 'true', 'false', d)}; then
             ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
