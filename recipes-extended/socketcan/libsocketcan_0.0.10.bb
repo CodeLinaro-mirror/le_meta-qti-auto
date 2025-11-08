@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://src/libsocketcan.c;beginline=3;endline=17;md5=97e38ad
 
 SRCREV = "51f1610160a1707f026f8c2d714a6f7aa3ca232b"
 
-SRC_URI = "git://git.pengutronix.de/git/tools/libsocketcan.git;protocol=git"
+SRC_URI = "git://git.pengutronix.de/git/tools/libsocketcan.git;protocol=https"
 
 S = "${WORKDIR}/git"
 
