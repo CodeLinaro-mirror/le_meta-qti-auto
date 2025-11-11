@@ -37,11 +37,11 @@ do_copy_dlkm_to_recoveryfs_squashfs() {
 }
 
 fakeroot do_create_recoveryfs_squashfs() {
-
-    do_copy_dlkm_to_recoveryfs_squashfs
-
-    rm -rf ${IMAGE_ROOTFS}/cache
-    ln -sf /data/cache ${IMAGE_ROOTFS}/cache
+    if [ "${MACHINE}" = "sa510m" ]; then
+        do_copy_dlkm_to_recoveryfs_squashfs
+        rm -rf ${IMAGE_ROOTFS}/cache
+        ln -sf /data/cache ${IMAGE_ROOTFS}/cache
+    fi
 
     #if ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'true', 'false', d)}; then
     #    mksquashfs ${IMAGE_ROOTFS} ${RECOVERYFS_SQUASHFS_IMAGE} -context-file ${SELINUX_FILE_CONTEXTS} -noappend -comp xz
