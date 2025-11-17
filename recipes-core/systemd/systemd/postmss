@@ -33,5 +33,4 @@
 
 renice -n 10 -p `pidof loc_launcher`
 renice -n 10 -p `pidof location_hal_daemon`
-renice -n 15 -p `pidof logd`
 renice -n 10 -p `pidof sensor_hal_daemon`
