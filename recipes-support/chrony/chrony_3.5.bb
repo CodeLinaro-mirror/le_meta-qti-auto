@@ -30,9 +30,10 @@ SECTION = "net"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
-SRC_URI = "https://download.tuxfamily.org/chrony/chrony-${PV}.tar.gz \
+SRC_URI = "https://chrony-project.org/releases/chrony-${PV}.tar.gz \
     file://chrony.conf \
     file://chronyd \
+    file://arm_eabi.patch \
 "
 SRC_URI[md5sum] = "5f66338bc940a9b51eede8f391e7bed3"
 SRC_URI[sha256sum] = "4e02795b1260a4ec51e6ace84149036305cc9fc340e65edb9f8452aa611339b5"
