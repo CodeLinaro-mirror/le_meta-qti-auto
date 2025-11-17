@@ -35,19 +35,21 @@ Description=sensor remote service launcher
 SourcePath=/usr/bin/sensor_hal_daemon
 DefaultDependencies=no
 Requires=data.mount
-After=data.mount logd.service evdev_load.service
+After=data.mount logd.service
 Before=loc_launcher.service
 
 [Service]
 User=sensors
 Group=sensors
 Restart=always
+ExecStartPre=+/bin/udevadm trigger --subsystem-match=input --action=add
+ExecStartPre=+/bin/udevadm settle
 Environment="COMMONAPI_CONFIG=/usr/etc/vsomeip/SensorInterface/commonapi4someip.ini"
 Environment="VSOMEIP_CONFIGURATION=/usr/etc/vsomeip/SensorInterface/vsomeip-sensor_service.json"
 ExecStartPre=+/etc/initscripts/sensor_bootup_iio.sh
 Nice=-15
 ExecStart=/usr/bin/sensor_hal_daemon
-SupplementaryGroups=diag plugdev powermgr vnw locclient logd gps radio
+SupplementaryGroups=diag plugdev powermgr vnw locclient logd gps radio input
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 
