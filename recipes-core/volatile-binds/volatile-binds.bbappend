@@ -117,6 +117,8 @@ VOLATILE_BINDS:sa510m = "\
 /systemrw/data/adpl /etc/data/adpl/ multi-user.target\n\
 /systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf multi-user.target\n\
+/systemrw/gps.conf /etc/gps.conf multi-user.target\n\
+/systemrw/izat.conf /etc/izat.conf multi-user.target\n\
 "
 
 do_install:append (){
