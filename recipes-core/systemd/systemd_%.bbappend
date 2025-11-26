@@ -5,7 +5,6 @@ SRC_URI:append += " \
     file://0001-Allow-powermgr-group-to-communicate.patch \
     file://61-pps.rules \
     file://0001-Allow-system-user-to-use-dbus-for-communication.patch \
-    file://loc_bootup_iio.sh \
     file://postmss.service \
     file://postmss \
     file://sensor_bootup_iio.sh \
@@ -65,11 +64,7 @@ do_install:append() {
         ln -s /dev/null ${D}${sysconfdir}/systemd/system/system-modprobe.slice
 
         #Install iio bootup script for sensors
-        if ${@bb.utils.contains('MACHINE', 'sa515m', 'true', 'false', d)}; then
-            install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
-        else
-            install -m 0555 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
-        fi
+        install -m 0555 ${WORKDIR}/sensor_bootup_iio.sh ${D}${sysconfdir}/initscripts/sensor_bootup_iio.sh
 
         if [ -f ${D}/lib/udev/rules.d/60-persistent-storage.rules ]; then
             sed -i 's/SUBSYSTEM!="block|ubi", GOTO="persistent_storage_end"/SUBSYSTEM!="block", GOTO="persistent_storage_end"/g' \
