@@ -3,6 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/systemd_255:"
 SRC_URI:append += " \
     file://0001-systemd-mask-journald-messages-and-remove-rules-with.patch \
     ${@bb.utils.contains('MACHINE_FEATURES','tele-squashfs-ubi', 'file://0002-remove-provision.conf-from-the-builds-as-squashfs-is.patch', '', d)} \
+    file://0001-static-nodes-permissions-Remove-the-unused-dev-nodes.patch  \
     "
 
 do_install:append () {
