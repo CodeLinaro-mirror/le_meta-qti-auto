@@ -131,8 +131,7 @@ SlotSwitchReboot () {
     #Set owner is set by SetImageStatus command internally, perform device crash.
     echo "RBM: Rebooting for switching slots or EDL mode" > /dev/kmsg
     #XBL or ABL will take care of slot switching after reboot with Trail Boot Enabled.
-    echo "warm" > /sys/kernel/reboot/mode
-    /bin/sh -c 'reboot'
+    /bin/sh -c 'reboot system-abnormal'
     exit 1
 }
 
