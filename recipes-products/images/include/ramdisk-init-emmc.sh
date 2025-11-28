@@ -295,8 +295,7 @@ SlotSwitchReboot () {
 
     #XBL or ABL will take care of slot switching after reboot with Trial Boot Enabled.
     LOGD "RBM: Rebooting device for Slot Switch or EDL"
-    busybox echo "warm" > /sys/kernel/reboot/mode
-    gracefullReboot
+    gracefullReboot system-abnormal
     return ${STATUS_ERR}
 }
 
