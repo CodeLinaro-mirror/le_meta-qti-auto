@@ -112,13 +112,10 @@ VOLATILE_BINDS:sa525m-fotavm = "\
 VOLATILE_BINDS:sa510m = "\
 /systemrw/tel.conf /etc/tel.conf multi-user.target\n\
 /systemrw/gptp_cfg.ini /etc/gptp_cfg.ini multi-user.target\n\
-/systemrw/sensors.conf /etc/sensors.conf multi-user.target\n\
 /systemrw/wifi /etc/misc/wifi/\n\
 /systemrw/data/adpl /etc/data/adpl/ multi-user.target\n\
 /systemrw/data/dnsmasq.conf /etc/data/dnsmasq.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf multi-user.target\n\
-/systemrw/gps.conf /etc/gps.conf multi-user.target\n\
-/systemrw/izat.conf /etc/izat.conf multi-user.target\n\
 "
 
 do_install:append (){
