@@ -1,0 +1,1 @@
+CPPFLAGS:append:arm = " -DUATOMIC_NO_LINK_ERROR"
