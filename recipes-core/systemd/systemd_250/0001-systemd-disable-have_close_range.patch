@@ -1,0 +1,25 @@
+From 9cee3b11d104e8a291fda7f23d1c82ad0f0b4bd5 Mon Sep 17 00:00:00 2001
+From: Abhinav Gupta <abhingu@qti.qualcomm.com>
+Date: Fri, 19 Sep 2025 01:11:54 +0530
+Subject: [PATCH] systemd-disable-have_close_range.patch
+
+---
+ src/basic/fd-util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/basic/fd-util.c b/src/basic/fd-util.c
+index 3866e87675..a0138f932b 100644
+--- a/src/basic/fd-util.c
++++ b/src/basic/fd-util.c
+@@ -237,7 +237,7 @@ static int close_all_fds_frugal(const int except[], size_t n_except) {
+         return r;
+ }
+ 
+-static bool have_close_range = true; /* Assume we live in the future */
++static bool have_close_range = false; /* Assume we live in the future */
+ 
+ static int close_all_fds_special_case(const int except[], size_t n_except) {
+         assert(n_except == 0 || except);
+-- 
+2.17.1
+
