@@ -1,0 +1,16 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. 
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+[Unit]
+Description=Load evdev kernel module
+After=init_sys_mss.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'modprobe evdev'
+ExecStop=/bin/sh -c 'rmmod evdev'
+Nice=-5
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sockets.target
