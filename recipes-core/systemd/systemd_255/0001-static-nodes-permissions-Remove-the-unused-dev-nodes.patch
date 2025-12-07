@@ -1,0 +1,31 @@
+From 11e0a7239a3564898489da6af91bff9e533cfa03 Mon Sep 17 00:00:00 2001
+From: Mrunali Nesarkar <mnesarka@qti.qualcomm.com>
+Date: Thu, 13 Nov 2025 12:12:01 +0530
+Subject: [PATCH] static-nodes-permissions : Remove the unused dev nodes
+
+Since these nodes are not getting created on target these are removed,
+This chnage is done to improve boot kpi
+---
+ tmpfiles.d/static-nodes-permissions.conf.in | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/tmpfiles.d/static-nodes-permissions.conf.in b/tmpfiles.d/static-nodes-permissions.conf.in
+index df1fe2e3d5..e13e1a3e90 100644
+--- a/tmpfiles.d/static-nodes-permissions.conf.in
++++ b/tmpfiles.d/static-nodes-permissions.conf.in
+@@ -9,12 +9,5 @@
+ # kmod-static-nodes.service. Rules specified here should match the
+ # permissions specified for udev in 50-udev-default.rules.
+ 
+-z /dev/snd/seq      0660 - audio -
+ z /dev/snd/timer    0660 - audio -
+-z /dev/loop-control 0660 - disk  -
+ z /dev/net/tun      0666 - -     -
+-z /dev/fuse         0666 - -     -
+-z /dev/vfio/vfio    0666 - -     -
+-z /dev/kvm          {{DEV_KVM_MODE}} - kvm -
+-z /dev/vhost-net    {{DEV_KVM_MODE}} - kvm -
+-z /dev/vhost-vsock  {{DEV_KVM_MODE}} - kvm -
+-- 
+2.17.1
+

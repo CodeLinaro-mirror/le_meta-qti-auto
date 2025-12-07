@@ -563,6 +563,25 @@ SwitchToSystem() {
     LOGD "switch_root failure: We are not expected to reach here..."
 }
 
+RecoveryfsInit() {
+    if ! busybox insmod /lib/modules/gluebi.ko; then
+        LOGD "Error: Failed to load gluebi module"
+        return ${STATUS_ERR}
+    fi
+
+    if ! busybox insmod /lib/modules/mtd_blkdevs.ko; then
+        LOGD "Error: Failed to load mtd_blkdevs module"
+        return ${STATUS_ERR}
+    fi
+
+    if ! busybox insmod /lib/modules/mtdblock.ko; then
+        LOGD "Error: Failed to load mtdblock module"
+        return ${STATUS_ERR}
+    fi
+
+    return ${STATUS_OK}
+}
+
 #
 # Mount the root file system
 #
@@ -584,12 +603,17 @@ MountSystem () {
     fi
 
     if ${Bgrep} -ws "${RECOVERY_REBOOT_PARAM}" /proc/cmdline ; then
-        LOGD "Runing to recovery mode"
-        # RECOVERYFS_DEV is a partition and volume name
-        parti_name="${RECOVERYFS_DEV}"
-        DM_SYST_NAME="${RECOVERYFS_DEV}"
-        SYS_UBI_DEV_NUM="1"
-        nad_vb_status="disabled"
+        LOGD "Running recoveryfs.."
+        RecoveryfsInit
+        if [ $? -ne ${STATUS_OK} ]; then
+            LOGD "Error: Recoveryfs initialization failed."
+        else
+            # RECOVERYFS_DEV is a partition and volume name
+            parti_name="${RECOVERYFS_DEV}"
+            DM_SYST_NAME="${RECOVERYFS_DEV}"
+            SYS_UBI_DEV_NUM="1"
+            nad_vb_status="disabled"
+        fi
     fi
 
     GetStorageDev "${parti_name}"

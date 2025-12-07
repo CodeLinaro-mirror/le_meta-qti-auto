@@ -17,6 +17,7 @@ PACKAGE_INSTALL += "${@oe.utils.conditional('USB_AUTOSUSPEND_SUPPORT', 'True', '
 PACKAGE_INSTALL += "${@oe.utils.conditional('TOYBOX_RAMDISK', 'True', 'toybox mksh gawk coreutils ethtool iputils devmem2 tcpdump', '', d)}"
 PACKAGE_INSTALL += "${@oe.utils.conditional('FLASHLESS_MCU', 'True', 'nbd-client techpack-ecpri', '', d)}"
 DEPENDS += "${@oe.utils.conditional('FLASHLESS_MCU', 'True', 'binutils-cross-${TARGET_ARCH}', '', d)}"
+DEPENDS += "binutils-cross-arm"
 
 KERNEL_VERSION = "${@oe.utils.read_file('${STAGING_KERNEL_BUILDDIR}/kernel-abiversion')}"
 
@@ -283,6 +284,17 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
 
+        fi
+
+        # Generate ramdisk image with recoveryfs dependencies
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', 'true', 'false', d)}; then
+            cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/gluebi.ko lib/modules/
+            cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtdblock.ko lib/modules/
+            cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtd_blkdevs.ko lib/modules/
+
+            ${STRIP} --strip-debug lib/modules/mtd_blkdevs.ko
+            ${STRIP} --strip-debug lib/modules/mtdblock.ko
+            ${STRIP} --strip-debug lib/modules/gluebi.ko
         fi
 
         # Generate ramdisk image with fde dependencies
