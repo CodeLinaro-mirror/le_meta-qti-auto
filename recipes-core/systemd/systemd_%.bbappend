@@ -21,6 +21,7 @@ PACKAGECONFIG:remove = " \
     binfmt \
     hibernate \
     kmod \
+    randomseed \
 "
 
 do_configure:append() {
