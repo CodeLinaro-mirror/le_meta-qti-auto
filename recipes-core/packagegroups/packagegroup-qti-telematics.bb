@@ -18,12 +18,18 @@ PTPVIRT:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-host qti-
 SENSORIDL ?= "False"
 SENSORIDL:sa525m = "${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-vm-tele', 'False', 'True',d)}"
 
+SENSOR_MULTICLIENT ?= "True"
+SENSOR_MULTICLIENT:sa415m = "False"
+
 CRONIE ?= "True"
 CRONIE:sa510m = "False"
 CRONIE:sa525m-fotavm = "False"
 
 QTI_CAN ?= "False"
 QTI_CAN:sa510m= "True"
+
+QDLOADER ?= "True"
+QDLOADER:sa415m = "False"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = ' \
@@ -43,14 +49,15 @@ RDEPENDS:packagegroup-qti-telematics = "\
     "
 
 RDEPENDS:packagegroup-qti-telematics-sensors = "\
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d)}\
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', '', 'sensor-hal-daemon', d)}\
-    libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy \
+    ${@oe.utils.conditional('SENSOR_MULTICLIENT', 'True', bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'sensor-util-lib sensor-util-testapp', d), '', d)} \
+    ${@oe.utils.conditional('SENSOR_MULTICLIENT', 'True', bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', '', 'sensor-hal-daemon', d), '', d)} \
+    libsensors \
+    ${@oe.utils.conditional('SENSOR_MULTICLIENT', 'True', 'sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy', '', d)} \
     ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\
-    ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
+    ${@oe.utils.conditional('QDLOADER', 'True', bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d), '', d)} \
     ${@oe.utils.conditional('CRONIE', 'True', 'cronie', '', d)} \
     "
 

@@ -3,6 +3,7 @@ DEPENDS += "libselinux-native"
 # if A/B support is supported, generate OTA pkg by default.
 GENERATE_AB_OTA_PACKAGE ?= "${@bb.utils.contains('COMBINED_FEATURES', 'qti-ab-boot', '1', '', d)}"
 
+MLIBPREFIX ?= ""
 QIMGUBICLASSES  = ""
 # To be implemented
 QIMGUBICLASSES += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-recovery', 'ota-ubi', '', d)}"
