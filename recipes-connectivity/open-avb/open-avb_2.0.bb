@@ -13,7 +13,7 @@ DEPENDS += "glib-2.0 libpcap pciutils cmake-native qmi-framework"
 
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/open-avb/ \
-		file://gptp-daemon.service \
+                file://gptp-daemon_v2.service \
 		file://gptp-daemon-tmpfilesd.conf \
 		file://qgptp.rules"
 
@@ -55,7 +55,7 @@ do_install() {
     if (test "x${GPTP_AUTO_START_ENABLE}" == "xYES"); then
        if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
           install -d ${D}${systemd_unitdir}/system/
-          install -m 0644 ${WORKDIR}/gptp-daemon.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
+          install -m 0644 ${WORKDIR}/gptp-daemon_v2.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
           install -d ${D}${sysconfdir}/udev/rules.d/
           install -m 0644 ${WORKDIR}/qgptp.rules -D ${D}${sysconfdir}/udev/rules.d/qgptp.rules
           install -d ${D}${sysconfdir}/tmpfiles.d/
