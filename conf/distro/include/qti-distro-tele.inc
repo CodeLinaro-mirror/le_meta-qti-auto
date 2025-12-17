@@ -56,6 +56,11 @@ RDEPENDS:packagegroup-qti-debug-tools:remove:sa525m = " valgrind \
                                                  gdbserver \
                                                "
 
+RDEPENDS:packagegroup-qti-debug-tools:remove:sa415m = " valgrind \
+                                                 atrace \
+                                                 perf \
+                                                 gdbserver \
+                                               "
 RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'
 RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
 
