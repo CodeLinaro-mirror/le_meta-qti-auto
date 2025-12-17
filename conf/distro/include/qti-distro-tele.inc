@@ -61,6 +61,8 @@ RDEPENDS:packagegroup-qti-debug-tools:remove:sa415m = " valgrind \
                                                  perf \
                                                  gdbserver \
                                                "
+DISTRO_FEATURES:append:sa415m = " zram"
+
 RDEPENDS:packagegroup-android-utils:remove = 'packagegroup-qti-security-test'
 RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
 
