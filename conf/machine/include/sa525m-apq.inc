@@ -3,3 +3,4 @@ MACHINE_FEATURES:remove += "qti-wwan-plus-cv2x qti-cv2x-compensator qti-mvm qti-
 USBCOMPOSITION = "901D"
 
 FLAVOR = "apq"
+SYSTEMD_AUTO_ENABLE:modem-monitor = "enable"

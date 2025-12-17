@@ -48,6 +48,7 @@ DEFAULT_ENFORCING ?= "enforcing"
 PREFERRED_VERSION_chrony = "4.2"
 
 SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
+SYSTEMD_AUTO_ENABLE:modem-monitor = "disable"
 
 RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
                                                  atrace \
