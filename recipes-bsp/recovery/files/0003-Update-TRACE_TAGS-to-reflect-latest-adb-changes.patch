@@ -1,0 +1,60 @@
+From 0d62d2381ee78c125eb7f46749665da9ff6b7d03 Mon Sep 17 00:00:00 2001
+From: Viswanath Kraleti <quic_vkraleti@quicinc.com>
+Date: Thu, 23 Mar 2023 14:12:19 +0530
+Subject: [PATCH 3/3] Update TRACE_TAGS to reflect latest adb changes
+
+adb code is enhanced to support tracing to be same as Android-N.
+Update minadbd as well to relect these TRACE_TAGS.
+
+Change-Id: If37b5b7c4b528fd9ddceffd9109897b0d5aaa2fa
+---
+ minadbd/adb_main.cpp | 10 ++--------
+ minadbd/services.cpp |  4 +---
+ 2 files changed, 3 insertions(+), 11 deletions(-)
+
+diff --git a/minadbd/adb_main.cpp b/minadbd/adb_main.cpp
+index 60058e4..c117b7f 100644
+--- a/minadbd/adb_main.cpp
++++ b/minadbd/adb_main.cpp
+@@ -25,9 +25,7 @@
+ #include "adb_auth.h"
+ #include "transport.h"
+ 
+-#ifdef USE_LE_MODE
+-#define TRACE_TAG TRACE_ADB
+-#endif
++#define TRACE_TAG ADB
+ 
+ // Define this variable here as this has an "extern"
+ // linkage in libadbd.so.
+@@ -43,11 +41,7 @@ int adb_server_main(int is_daemon, int server_port, int /* reply_fd */) {
+ 
+     init_transport_registration();
+     usb_init();
+-#ifdef USE_LE_MODE
+-    D("Event loop starting\n");
+-#else
+-    VLOG(TRACE_ADB) << "Event loop starting";
+-#endif
++    VLOG(ADB) << "Event loop starting";
+ 
+     fdevent_loop();
+ 
+diff --git a/minadbd/services.cpp b/minadbd/services.cpp
+index 7a23894..b045edd 100644
+--- a/minadbd/services.cpp
++++ b/minadbd/services.cpp
+@@ -23,9 +23,7 @@
+ 
+ #include "sysdeps.h"
+ 
+-#ifdef USE_LE_MODE
+-#define  TRACE_TAG  TRACE_SERVICES
+-#endif
++#define TRACE_TAG SERVICES
+ 
+ #include "adb.h"
+ #include "fdevent.h"
+-- 
+2.17.1
+
