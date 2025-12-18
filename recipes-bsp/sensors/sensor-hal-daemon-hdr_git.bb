@@ -15,7 +15,12 @@ S = "${WORKDIR}/hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
 do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 
-do_install() {
+do_install:sa510m() {
+    install -d ${D}${includedir}
+    install -m 644 ${S}/src/*.h ${D}${includedir}
+}
+
+do_install:sa415m() {
     install -d ${D}${includedir}
     install -m 644 ${S}/*.h ${D}${includedir}
 }
