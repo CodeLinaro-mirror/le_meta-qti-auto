@@ -38,9 +38,13 @@ do_install:append() {
 
        #This service is intended to be used in early boot before all users or groups have been created.
        #In telematics usecase, user and group getting created statically and will be exposed as part of systemd initialization so not required.
-       ln -s /dev/null ${D}${systemd_system_unitdir}/systemd-tmpfiles-setup-dev-early.service
-       ln -s /dev/null ${D}${systemd_system_unitdir}/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service
-
+        if ${@bb.utils.contains('MACHINE', 'sa415m', 'true', 'false', d)}; then
+           ln -s /dev/null ${D}${systemd_system_unitdir}/systemd-tmpfiles-setup-dev-early.service
+           ln -s /dev/null ${D}${systemd_system_unitdir}/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service
+        else
+           ln -sf /dev/null ${D}/usr/lib/systemd/system/systemd-tmpfiles-setup-dev-early.service
+           ln -sf /dev/null ${D}/usr/lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service
+        fi
         install -d ${D}${systemd_unitdir}/system/
         cp -fR ${WORKDIR}/${BASEMACHINE}/* ${D}${systemd_unitdir}/system/
 
