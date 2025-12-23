@@ -18,6 +18,7 @@ USERADD_PARAM:${PN} ?= 	" \
 			-u 3019 -U mvm; \
 			-u 3016 -U vnw; \
 			-u 1060 -U firmware; \
+                        -G system,diag,radio -u 4023 -U mcm; \
 			"
 
 GROUPADD_PARAM:${PN} ?=	" \
