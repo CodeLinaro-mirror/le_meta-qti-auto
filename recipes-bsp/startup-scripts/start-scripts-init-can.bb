@@ -5,6 +5,7 @@ LICENSE = "BSD-3-Clause-Clear"
 inherit update-rc.d systemd
 
 SRC_URI += "file://init-can.sh"
+SRC_URI += "file://init-can-static.sh"
 SRC_URI += "file://61-can.rules"
 SRC_URI  += "file://init-can.service"
 
@@ -23,7 +24,14 @@ do_install() {
         install -d ${D}${sysconfdir}/etc/initscripts/
         install -d ${D}${systemd_unitdir}/system/
         install -d ${D}${systemd_unitdir}/system/multi-user.target.wants/
-        install -m 0555 ${WORKDIR}/init-can.sh -D ${D}${sysconfdir}/initscripts/init-can.sh
+
+	# for target supporting statc module install different script
+        if ${@bb.utils.contains('MACHINE', 'sa415m', 'true', 'false', d)}; then
+            install -m 0555 ${WORKDIR}/init-can-static.sh -D ${D}${sysconfdir}/initscripts/init-can.sh
+        else
+            install -m 0555 ${WORKDIR}/init-can.sh -D ${D}${sysconfdir}/initscripts/init-can.sh
+        fi
+
         install -m 0644 ${WORKDIR}/init-can.service -D ${D}${systemd_unitdir}/system/init-can.service
 
         # enable the service for multi-user.target
