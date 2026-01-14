@@ -118,7 +118,6 @@ do_install:append() {
         rm -f ${D}${sysconfdir}/udev/rules.d/ion.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/tui.rules
         rm -f ${D}${sysconfdir}/udev/rules.d/kgsl.rules
-        rm -f ${D}${sysconfdir}/udev/rules.d/set-mhi-nodes.rules
     fi
 }
 FILES:${PN} += "${sysconfdir}/udev/rules.d/61-pps.rules"
