@@ -8,3 +8,4 @@ SRC_URI += "${@bb.utils.contains('COMBINED_FEATURES', 'vbleima', 'file://0001-ub
             ${@bb.utils.contains('COMBINED_FEATURES', 'qti-audio', 'file://0001-add-y2038-64bit-timer-in-sound.patch', '', d)}         \
             ${@bb.utils.contains('DISTRO_FEATURES', 'zram', 'file://zram.cfg', '', d)} \
            "
+EXTRA_OEMAKE:append:sa415m = ' KCFLAGS="-g -gdwarf-4 -gstrict-dwarf"'
