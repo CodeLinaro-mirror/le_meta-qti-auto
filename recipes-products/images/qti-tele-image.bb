@@ -79,6 +79,5 @@ NO_RECOMMENDATIONS = "1"
 # Following packages will be enabled later
 CORE_IMAGE_EXTRA_INSTALL:remove:sa415m = "\
        ${MLIBPREFIX}packagegroup-qti-ppat \
-       packagegroup-qti-security-test \
 "
 
