@@ -6,6 +6,7 @@ SRC_URI:append += " \
                     file://lxc_system.conf \
                     file://seccom_attach_unsupported_fix.patch \
                     file://container_launch.sh \
+                    file://lxc_bridge_setup.sh \
                     file://99-tty_lxc.rules \
                     "
 
@@ -51,6 +52,7 @@ do_install:append() {
 
    install -m 0444 ${WORKDIR}/lxc_system.conf ${D}${sysconfdir}/lxc/lxc.conf
    install -m 0555 ${WORKDIR}/container_launch.sh ${D}${sysconfdir}/initscripts/container_launch.sh
+   install -m 0555 ${WORKDIR}/lxc_bridge_setup.sh ${D}${sysconfdir}/initscripts/lxc_bridge_setup.sh
 
 }
 

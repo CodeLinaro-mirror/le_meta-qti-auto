@@ -1,5 +1,5 @@
-#Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
-#SPDX-License-Identifier: LGPL-2.1-only
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: LGPL-2.1-only
 
 [Unit]
 Description=Service used for TelAF LXC container start/stop
@@ -10,6 +10,7 @@ ConditionDirectoryNotEmpty=/lxcrootfs
 [Service]
 Type=simple
 PIDFile=/var/run/lxc_start_telaflxc.pid
+ExecStartPre=/etc/initscripts/lxc_bridge_setup.sh
 ExecStart=/etc/initscripts/container_launch.sh "start" "/etc/lxc/lxc_telaf.conf" "192.168.200.200" "telaflxc"
 ExecStop=/etc/initscripts/container_launch.sh "stop" "/etc/lxc/lxc_telaf.conf" "192.168.200.200" "telaflxc"
 RemainAfterExit=true
