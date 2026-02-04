@@ -18,6 +18,7 @@ CORESIGHTDLKM:sa510m = 'False'
 # Install powerapp for selected machines
 POWERAPPMODULE ?= 'False'
 POWERAPPMODULE:mdm9607 = 'True'
+POWERAPPMODULE:sa415m = 'True'
 
 CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', '${MLIBPREFIX}e2fsprogs ${MLIBPREFIX}e2fsprogs-e2fsck ${MLIBPREFIX}e2fsprogs-mke2fs', '', d)} \
