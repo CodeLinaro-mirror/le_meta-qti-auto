@@ -56,3 +56,15 @@ fakeroot do_create_recoveryfs_squashfs() {
 python () {
     bb.build.addtask('do_create_recoveryfs_squashfs', 'do_image_complete', 'do_image', d)
 }
+
+do_cleanup_sepolicy() {
+       if ${@bb.utils.contains('PREFERRED_VERSION_linux-msm', '5.4', 'true', 'false', d)}; then
+           policy_version=31
+       else
+           policy_version=33
+       fi
+       policy_type=mls
+       policy_dir=${IMAGE_ROOTFS}/etc/selinux/${policy_type}/policy
+       recovery_policy=${policy_dir}/recovery.policy.${policy_version}
+       mv -f ${recovery_policy} ${policy_dir}/policy.${policy_version}
+}
