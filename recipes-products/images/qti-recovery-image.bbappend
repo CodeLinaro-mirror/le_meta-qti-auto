@@ -37,7 +37,7 @@ do_copy_dlkm_to_recoveryfs_squashfs() {
 }
 
 fakeroot do_create_recoveryfs_squashfs() {
-    if [ "${MACHINE}" = "sa510m" ]; then
+    if [ "${BASEMACHINE}" = "sa510m" ]; then
         do_copy_dlkm_to_recoveryfs_squashfs
         rm -rf ${IMAGE_ROOTFS}/cache
         ln -sf /data/cache ${IMAGE_ROOTFS}/cache
