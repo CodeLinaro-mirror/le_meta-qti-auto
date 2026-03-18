@@ -224,6 +224,8 @@ do_recovery_ubi() {
     #default_system_dev_certificate : Dummy location
     echo default_system_dev_certificate=build/abcd >> ${OTA_TARGET_IMAGE_ROOTFS_UBI}/META/misc_info.txt
 
+    cd ${OTA_TARGET_IMAGE_ROOTFS_UBI} && zip -qry ${OTA_TARGET_FILES_UBI_PATH} *
+
     if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
         cd ${OTA_TARGET_IMAGE_ROOTFS_UBI} && zip -qry ${OTA_TARGET_FILES_UBI_AB_PATH} *
     fi
@@ -255,7 +257,8 @@ addtask do_copy_recoveryfs_images after do_image_complete before do_build
 
 do_gen_otazip_ubi[dirs] += "${DEPLOY_DIR_IMAGE}/ota-scripts"
 fakeroot do_gen_otazip_ubi() {
-    if ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'true', 'false', d)}; then
+    cd ${DEPLOY_DIR_IMAGE}/ota-scripts
+    if ${@bb.utils.contains_any('MACHINE_FEATURES', 'qti-nad-core qti-ab-boot qti-partial-ab-boot', 'true', 'false', d)}; then
         if ${@bb.utils.contains('IMAGE_FEATURES', 'lxcrootfs-volume', 'true', 'false', d)}; then
             ./full_ota.sh ${OTA_TARGET_FILES_UBI_AB_PATH} ${IMAGE_ROOTFS_UBI} ubi_ab --block --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
             if [[ -e update_ubi_ab.zip ]]; then
@@ -306,6 +309,15 @@ fakeroot do_gen_otazip_ubi() {
             cd -
             rm -rf $TMP
         fi
+    else
+        ./full_ota.sh ${OTA_TARGET_FILES_UBI_PATH} ${IMAGE_ROOTFS_UBI} ubi --system_path ${IMAGE_SYSTEM_MOUNT_POINT}
+
+        if [[ -e update_ubi.zip ]]; then
+            cp update_ubi.zip ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}
+        else
+            bbwarn "update_ubi.zip failed to create"
+        fi
+
     fi
 }
 addtask do_gen_otazip_ubi after do_recovery_ubi before do_build
