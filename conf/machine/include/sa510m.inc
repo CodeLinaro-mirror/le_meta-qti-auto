@@ -25,6 +25,7 @@ PREFERRED_VERSION_avbtool = "git"
 PREFERRED_VERSION_avbtool-native = "git"
 PREFERRED_VERSION_libevent = "2.1.12"
 PREFERRED_VERSION_libevent-native = "2.1.12"
+PREFERRED_VERSION_util-linux = "2.39.3"
 
 SERIAL_CONSOLES = "115200;ttyMSM0"
 KERNEL_IMAGETYPE = "zImage"
