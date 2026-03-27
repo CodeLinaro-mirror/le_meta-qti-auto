@@ -2,6 +2,7 @@ FILESEXTRAPATHS:prepend:sa525m := "${THISDIR}/files:"
 
 VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
+/systemrw/data/mka_supplicant-eth0.conf /etc/data/mka_supplicant-eth0.conf\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
