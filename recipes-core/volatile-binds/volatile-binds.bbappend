@@ -1,5 +1,23 @@
 FILESEXTRAPATHS:prepend:sa525m := "${THISDIR}/files:"
 FILESEXTRAPATHS:prepend:sa415m := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend:sa510m := "${THISDIR}/files:"
+
+SRC_URI += "file://mount-copybind-util"
+
+python __anonymous() {
+    PV_util_linux = (d.getVar('PREFERRED_VERSION_util-linux') or '').rstrip('%')
+    if PV_util_linux and bb.utils.vercmp_string(PV_util_linux, '2.39.3') >= 0:
+        d.setVar('INSTALL_MOUNT_COPYBIND_UTIL', '1')
+    else:
+        d.setVar('INSTALL_MOUNT_COPYBIND_UTIL', '0')
+}
+
+do_install:append() {
+    if [ "${INSTALL_MOUNT_COPYBIND_UTIL}" = "1" ]; then
+        install -d ${D}${base_sbindir}
+        install -m 0755 ${WORKDIR}/mount-copybind-util ${D}${base_sbindir}/mount-copybind
+    fi
+}
 
 VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
