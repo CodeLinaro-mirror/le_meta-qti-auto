@@ -4,7 +4,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
 /systemrw/data/mka_supplicant-eth0.conf /etc/data/mka_supplicant-eth0.conf\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
-/systemrw/wifi /etc/misc/wifi/\n\
+/systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml target=multi-user.target\n\
 /systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
@@ -33,7 +33,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/adb_devid  /etc/adb_devid\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
-/systemrw/wifi /etc/misc/wifi/\n\
+/systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
 /systemrw/chrony.conf /etc/chrony.conf\n\
