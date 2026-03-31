@@ -19,7 +19,6 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/commonapi4someip.ini /etc/commonapi4someip.ini\n\
 /systemrw/vsomeip-location.json /etc/vsomeip-location.json\n\
 /systemrw/sensors.conf /etc/sensors.conf\n\
-/systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
 /systemrw/izat.conf /etc/izat.conf\n\
 /systemrw/gps.conf /etc/gps.conf\n\
 /systemrw/sap.conf /etc/sap.conf\n\
@@ -50,7 +49,6 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/commonapi4someip.ini /etc/commonapi4someip.ini\n\
 /systemrw/vsomeip-location.json /etc/vsomeip-location.json\n\
 /systemrw/sensors.conf /etc/sensors.conf\n\
-/systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
 /systemrw/izat.conf /etc/izat.conf\n\
 /systemrw/gps.conf /etc/gps.conf\n\
 /systemrw/sap.conf /etc/sap.conf\n\
