@@ -32,10 +32,19 @@ do_install () {
     headerdir=${B}/headers
     kerneldir=${D}${includedir}/linux-msm
     install -d $kerneldir
+    install -d ${D}${includedir}/linux
 
     if [ -d $headerdir/${includedir} ]; then
         mkdir -p $kerneldir/${includedir}
         cp -fR $headerdir/${includedir}/* $kerneldir/${includedir}
+    fi
+
+    # Copy IPA UAPI headers explicitly into the linux-msm vendor namespace
+    # to avoid file-conflict with linux-libc-headers which owns ${includedir}/linux/
+    if [ -d ${S}/include/uapi/linux ]; then
+        install -m 0644 ${S}/include/uapi/linux/msm_ipa.h ${D}${includedir}/linux
+        install -m 0644 ${S}/include/uapi/linux/rmnet_ipa_fd_ioctl.h ${D}${includedir}/linux
+        install -m 0644 ${S}/include/uapi/linux/ipa_qmi_service_v01.h ${D}${includedir}/linux
     fi
 }
 
