@@ -1,5 +1,8 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
+SRC_URI:remove = "git://github.com/systemd/systemd-stable.git;protocol=https;branch=${SRCBRANCH}"
+SRC_URI:prepend = " git://git.codelinaro.org/clo/yocto-mirrors/github/systemd/systemd-stable.git;protocol=https;branch=${SRCBRANCH} "
+
 SRC_URI:append += " \
     file://0001-Remove-queuing-mechanism-update-to-fq-codel.patch \
     file://0001-Allow-powermgr-group-to-communicate.patch \
