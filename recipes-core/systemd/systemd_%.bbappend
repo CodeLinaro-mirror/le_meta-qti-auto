@@ -71,7 +71,10 @@ do_install_append() {
 
         install -m 0755 ${WORKDIR}/loc_bootup_iio.sh ${D}${sysconfdir}/initscripts/loc_bootup_iio.sh
         install -m 0644 ${WORKDIR}/auto_platform.conf -D ${D}/etc/tmpfiles.d/auto_platform.conf
-	install -m 0644 ${WORKDIR}/platform.rules -D ${D}${sysconfdir}/udev/rules.d/platform.rules
+        if ${@bb.utils.contains('DEBUG_BUILD', '1', 'false', 'true', d)}; then
+            sed -i 's|^d /sys/kernel/debug|# d /sys/kernel/debug|' ${D}/etc/tmpfiles.d/auto_platform.conf
+        fi
+    install -m 0644 ${WORKDIR}/platform.rules -D ${D}${sysconfdir}/udev/rules.d/platform.rules
     fi
 }
 
