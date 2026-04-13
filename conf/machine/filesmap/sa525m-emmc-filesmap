@@ -32,7 +32,7 @@
 
 # filename              partition
 
-NON-HLOS.bin            /dev/block/bootdevice/by-name/modem
+NON-HLOS.bin            /dev/block/bootdevice/by-name/firmware
 apdp.mbn                /dev/block/bootdevice/by-name/apdp
 hyp.mbn                 /dev/block/bootdevice/by-name/hyp
 km4.mbn                 /dev/block/bootdevice/by-name/keymaster
