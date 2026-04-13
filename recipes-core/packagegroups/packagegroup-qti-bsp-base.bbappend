@@ -8,4 +8,4 @@ RDEPENDS:packagegroup-android-utils-base:remove:qti-distro-teleap = "\
     "
 RDEPENDS:packagegroup-android-utils-base += "    procrank     "
 RDEPENDS:packagegroup-android-utils-base:remove:sa415m = "leproperties"
-
+RDEPENDS:packagegroup-android-utils-base:remove:sa510m = "leproperties"
