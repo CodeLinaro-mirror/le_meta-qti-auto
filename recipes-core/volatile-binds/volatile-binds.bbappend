@@ -39,7 +39,6 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/tm.conf /etc/tm.conf target=multi-user.target\n\
-/systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
 /systemrw/enable /etc/cv2x/enable target=multi-user.target\n\
 /systemrw/chrony.conf /etc/chrony.conf\n\
 /systemrw/ObeConfig.conf /etc/ObeConfig.conf target=multi-user.target\n\
