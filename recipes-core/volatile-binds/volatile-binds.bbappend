@@ -7,11 +7,11 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml target=multi-user.target\n\
-/systemrw/tm.conf /etc/tm.conf\n\
+/systemrw/tm.conf /etc/tm.conf target=multi-user.target\n\
 /systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
-/systemrw/enable /etc/cv2x/enable\n\
+/systemrw/enable /etc/cv2x/enable target=multi-user.target\n\
 /systemrw/chrony.conf /etc/chrony.conf\n\
-/systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
+/systemrw/ObeConfig.conf /etc/ObeConfig.conf target=multi-user.target\n\
 /systemrw/qvirtmgr.json /etc/qvirtmgr.json\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
@@ -28,7 +28,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/telux_chrony-sock.conf /etc/telux_chrony-sock.conf\n\
 /systemrw/telux_power_refd.conf /etc/telux_power_refd.conf target=multi-user.target\n\
 /systemrw/vsomeip-sensor_service.json /usr/etc/vsomeip/SensorInterface/vsomeip-sensor_service.json\n\
-/systemrw/qits_env_file /etc/qits_env_file\n\
+/systemrw/qits_env_file /etc/qits_env_file target=multi-user.target\n\
 /systemrw/telsdk_app.conf /etc/telsdk_app.conf target=multi-user.target\n\
 /systemrw/Datafilter.conf /etc/Datafilter.conf target=multi-user.target\n\
 /systemrw/rtcmConfig.conf /etc/rtcmConfig.conf target=multi-user.target\n\
@@ -39,11 +39,11 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
-/systemrw/tm.conf /etc/tm.conf\n\
+/systemrw/tm.conf /etc/tm.conf target=multi-user.target\n\
 /systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
-/systemrw/enable /etc/cv2x/enable\n\
+/systemrw/enable /etc/cv2x/enable target=multi-user.target\n\
 /systemrw/chrony.conf /etc/chrony.conf\n\
-/systemrw/ObeConfig.conf /etc/ObeConfig.conf\n\
+/systemrw/ObeConfig.conf /etc/ObeConfig.conf target=multi-user.target\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
 /systemrw/gptp_cfg.ini /etc/gptp_cfg.ini\n\
@@ -57,7 +57,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/apdr.conf /etc/apdr.conf\n\
 /systemrw/telux_power_refd.conf /etc/telux_power_refd.conf target=multi-user.target\n\
 /systemrw/vsomeip-sensor_service.json /usr/etc/vsomeip/SensorInterface/vsomeip-sensor_service.json\n\
-/systemrw/qits_env_file /etc/qits_env_file\n\
+/systemrw/qits_env_file /etc/qits_env_file target=multi-user.target\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
