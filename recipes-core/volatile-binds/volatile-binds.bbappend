@@ -5,7 +5,6 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/data /etc/data/\n\
 /systemrw/data/adpl /etc/data/adpl/\n\
 /systemrw/data/usb /etc/data/usb/\n\
-/systemrw/data/ipa /etc/data/ipa/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/\n\
 /systemrw/tel.conf /etc/tel.conf\n\
@@ -42,7 +41,6 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/data /etc/data/\n\
 /systemrw/data/adpl /etc/data/adpl/\n\
 /systemrw/data/usb /etc/data/usb/\n\
-/systemrw/data/ipa /etc/data/ipa/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/\n\
 /systemrw/tel.conf /etc/tel.conf\n\
