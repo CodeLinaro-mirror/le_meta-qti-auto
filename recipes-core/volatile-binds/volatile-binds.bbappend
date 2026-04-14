@@ -6,7 +6,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/data/adpl /etc/data/adpl/\n\
 /systemrw/data/usb /etc/data/usb/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
-/systemrw/wifi /etc/misc/wifi/\n\
+/systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml\n\
 /systemrw/tm.conf /etc/tm.conf\n\
@@ -42,7 +42,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/data/adpl /etc/data/adpl/\n\
 /systemrw/data/usb /etc/data/usb/\n\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
-/systemrw/wifi /etc/misc/wifi/\n\
+/systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
 /systemrw/OSNMA_MerkleTree.xml /etc/OSNMA_MerkleTree.xml\n\
 /systemrw/tm.conf /etc/tm.conf\n\
