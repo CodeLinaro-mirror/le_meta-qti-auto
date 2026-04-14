@@ -34,7 +34,6 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/boot_hsusb_comp /etc/usb/boot_hsusb_comp\n\
 /systemrw/wifi /etc/misc/wifi/ target=multi-user.target\n\
 /systemrw/tel.conf /etc/tel.conf\n\
-/systemrw/resourcemanager.xml /etc/resourcemanager.xml\n\
 /systemrw/chrony.conf /etc/chrony.conf\n\
 /systemrw/power_state.conf /etc/power_state.conf\n\
 /systemrw/qmi_fw.conf /vendor/etc/qmi_fw.conf\n\
