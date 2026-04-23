@@ -77,3 +77,5 @@ IMAGE_CLASSES:remove:sa525m += "${@bb.utils.contains("BBFILE_COLLECTIONS", "qti-
 
 INHERIT += "buildstats buildstats-summary"
 
+# GPLv3 compliance policy
+require conf/distro/include/qti-distro-tele-nogplv3.inc
