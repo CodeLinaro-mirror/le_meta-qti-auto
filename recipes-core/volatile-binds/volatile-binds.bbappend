@@ -31,6 +31,8 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/telsdk_app.conf /etc/telsdk_app.conf target=multi-user.target\n\
 /systemrw/Datafilter.conf /etc/Datafilter.conf target=multi-user.target\n\
 /systemrw/rtcmConfig.conf /etc/rtcmConfig.conf target=multi-user.target\n\
+/systemrw/data/qti_socksv5_conf.xml /etc/data/qti_socksv5_conf.xml\n\
+/systemrw/data/qti_socksv5_auth.xml /etc/data/qti_socksv5_auth.xml\n\
 "
 
 VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
@@ -54,6 +56,8 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
 /systemrw/telux_power_refd.conf /etc/telux_power_refd.conf target=multi-user.target\n\
 /systemrw/vsomeip-sensor_service.json /usr/etc/vsomeip/SensorInterface/vsomeip-sensor_service.json\n\
 /systemrw/qits_env_file /etc/qits_env_file target=multi-user.target\n\
+/systemrw/data/qti_socksv5_conf.xml /etc/data/qti_socksv5_conf.xml\n\
+/systemrw/data/qti_socksv5_auth.xml /etc/data/qti_socksv5_auth.xml\n\
 "
 
 VOLATILE_BINDS:sa525m-televm = "\
