@@ -30,7 +30,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}pps-tools \
         ${MLIBPREFIX}libgpiod ${MLIBPREFIX}libgpiod-tools \
         ${MLIBPREFIX}spitools \
-        ${MLIBPREFIX}coreutils \
+        toybox \
         busybox-syslog \
         systemd-conf \
         ca-certificates \
