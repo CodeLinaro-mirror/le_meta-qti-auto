@@ -59,3 +59,7 @@ TOOLCHAIN_TARGET_TASK:remove = "kernel-devsrc"
 # Exclude packages
 PACKAGE_EXCLUDE += "kernel-dev"
 
+fix_bash_shebangs() {
+    grep -rlZ '#!/.*bash' "${IMAGE_ROOTFS}" | xargs -0 -r sed -i '1s|#!/.*bash.*|#!/bin/sh|'
+}
+ROOTFS_POSTPROCESS_COMMAND += "fix_bash_shebangs; "
