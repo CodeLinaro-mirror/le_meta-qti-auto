@@ -32,7 +32,7 @@
 
 # filename              partition
 
-NON-HLOS.ubi            modem
+NON-HLOS.ubi            firmware
 tz.mbn                  tz
 multi_image.mbn         multi_image
 abl_userdebug.elf       abl
