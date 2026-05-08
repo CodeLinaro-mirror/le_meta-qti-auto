@@ -48,7 +48,7 @@ if [ -f "$mountpoint" ]; then
 
     if [ ! -s "$spec" ]; then
         mkdir -p $(dirname $spec)
-        cp -P --preserve=all "$mountpoint" "$spec".tmp
+        /bin/toybox cp -P --preserve=all "$mountpoint" "$spec".tmp
         fsync "$spec".tmp
         mv "$spec".tmp "$spec"
         fsync "$spec"
@@ -72,7 +72,7 @@ if [ -d "$mountpoint" ]; then
 
         if [ -f "$mountpoint/$file" ]; then
             if [ ! -s "$spec/$file" ]; then
-                cp --preserve=all "$file" "$spec/$file".tmp
+                /bin/toybox cp --preserve=all "$file" "$spec/$file".tmp
                 fsync "$spec/$file".tmp
                 mv "$spec/$file".tmp "$spec/$file"
                 fsync "$spec/$file"
