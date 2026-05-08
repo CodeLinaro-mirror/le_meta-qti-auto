@@ -49,6 +49,7 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
 RDEPENDS:packagegroup-qti-telematics-utils = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', '', 'qdloader', d)} \
     ${@oe.utils.conditional('CRONIE', 'True', 'cronie', '', d)} \
+    toybox \
     "
 
 RDEPENDS:packagegroup-qti-telematics-vnw = "\
