@@ -28,7 +28,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${MLIBPREFIX}pps-tools \
         ${MLIBPREFIX}libgpiod ${MLIBPREFIX}libgpiod-tools \
         ${MLIBPREFIX}spitools \
-        ${MLIBPREFIX}coreutils \
+        toybox \
         ${MLIBPREFIX}packagegroup-android-utils \
         ${MLIBPREFIX}packagegroup-qti-core \
         ${MLIBPREFIX}packagegroup-qti-ppat \

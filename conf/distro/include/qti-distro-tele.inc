@@ -48,6 +48,7 @@ DEFAULT_ENFORCING ?= "enforcing"
 PREFERRED_VERSION_chrony = "4.2"
 
 SYSTEMD_ENABLE_JOURNAL:qti-distro-tele = "0"
+SYSTEMD_AUTO_ENABLE:modem-monitor = "disable"
 
 RDEPENDS:packagegroup-qti-debug-tools:remove = " valgrind \
                                                  atrace \
@@ -60,3 +61,6 @@ RDEPENDS:packagegroup-support-utils:remove = 'packagegroup-support-utils-base'
 
 # disable inclusion of proprietary bbclass during OSS toolchain compilation
 IMAGE_CLASSES:remove:sa525m += "${@bb.utils.contains("BBFILE_COLLECTIONS", "qti-bsp-prop", "", "populate_sdk_ext_post_install", d)}"
+
+# GPLv3 compliance policy
+require conf/distro/include/qti-distro-tele-nogplv3.inc

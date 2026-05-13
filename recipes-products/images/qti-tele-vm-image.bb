@@ -12,7 +12,7 @@ CORE_IMAGE_BASE_INSTALL = '\
     '
 
 CORE_IMAGE_EXTRA_INSTALL += " \
-    ${MLIBPREFIX}coreutils \
+    toybox \
     ${MLIBPREFIX}sdcard-scripts-automount \
     ${MLIBPREFIX}e2fsprogs-mke2fs \
     ${MLIBPREFIX}packagegroup-android-utils \

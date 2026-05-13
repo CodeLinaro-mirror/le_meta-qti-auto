@@ -63,3 +63,10 @@ PACKAGE_EXCLUDE += "kernel-dev"
 
 # Modem is a partition on SA510M
 IMAGE_FEATURES:remove:sa510m = "modem-volume"
+
+# Mass rewrite shebangs to /bin/sh
+fix_bash_shebangs() {
+    find ${IMAGE_ROOTFS} -type f -exec sed -i \
+        '1s|^#![[:space:]]*/bin/bash|#!/bin/sh|' {} + || true
+}
+ROOTFS_POSTPROCESS_COMMAND += "fix_bash_shebangs; "
