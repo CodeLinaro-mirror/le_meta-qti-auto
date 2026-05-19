@@ -23,6 +23,9 @@ GPTP_AUTO_START_ENABLE= "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest'
 RGPTP_SRV_INCLUDED= "YES"
 RGPTP_CLNT_INCLUDED= "YES"
 
+PACKAGECONFIG += "${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', 'dlt_logging_enabled', '', d)}"
+PACKAGECONFIG[dlt_logging_enabled] = "--with-dltlogging, ,dlt-daemon"
+
 EXTRA_OEMAKE += "${@bb.utils.contains("DISTRO_FEATURES", "systemd", " SYSTEMD_SUPPORT_INCLUDED=1", " SYSTEMD_SUPPORT_INCLUDED=0", d)}"
 EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-host', 'LE_SHARED_MEM=1', 'LE_SHARED_MEM=0', d)}"
 EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', 'LE_GVM=1', 'LE_GVM=0', d)}"
@@ -56,6 +59,13 @@ do_install() {
        if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
           install -d ${D}${systemd_unitdir}/system/
           install -m 0644 ${WORKDIR}/gptp-daemon.service -D ${D}${systemd_unitdir}/system/gptp-daemon.service
+          if ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', 'true', 'false', d)}; then
+              grep -q '^After=dlt.service$' ${D}${systemd_unitdir}/system/gptp-daemon.service || \
+                  sed -i '/^\[Unit\]/a After=dlt.service' ${D}${systemd_unitdir}/system/gptp-daemon.service
+
+              grep -q '^SupplementaryGroups=dlt$' ${D}${systemd_unitdir}/system/gptp-daemon.service || \
+                  sed -i '/^\[Service\]/a SupplementaryGroups=dlt' ${D}${systemd_unitdir}/system/gptp-daemon.service
+          fi
           install -d ${D}${sysconfdir}/udev/rules.d/
           install -m 0644 ${WORKDIR}/qgptp.rules -D ${D}${sysconfdir}/udev/rules.d/qgptp.rules
           install -d ${D}${sysconfdir}/tmpfiles.d/
