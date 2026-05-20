@@ -107,5 +107,9 @@ PREFERRED_VERSION_android-tools = "5.1.1.r37"
 # Fixes for boot image dtb appending
 BOOT_HEADER_VERSION = "2"
 
+# Append Anti Rollback Index and Assign default value
+ENABLE_ANTI_ROLLBACK = "1"
+ANTIROLL_BACK_INDEX_VALUE = "0"
+
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
