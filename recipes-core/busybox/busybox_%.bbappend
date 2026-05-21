@@ -20,4 +20,3 @@ do_install:append() {
 ERROR_QA:remove = "patch-status"
 PROVIDES += "bash"
 RPROVIDES:${PN} += "bash"
-ALTERNATIVE_PRIORITY[cp] = "100"
