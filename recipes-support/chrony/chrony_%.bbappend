@@ -3,6 +3,13 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/chrony:"
 SRC_URI += "file://chrony-gvm.conf"
 
 do_install:append() {
+    # Remove service restrictions that conflict with mailonchange/sendmail usage on target
+    sed -i -e '/^NoNewPrivileges=no$/d' \
+           -e '/^ReadWritePaths=-\/var\/spool$/d' \
+           -e '/^# Adjust restrictions for \/usr\/sbin\/sendmail (mailonchange directive)$/d' \
+           -e '/^RestrictAddressFamilies=AF_NETLINK$/d' \
+           ${D}${systemd_unitdir}/system/chronyd.service
+
     if [ ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-guest', 'True', 'False', d)} = True ]; then
         rm -f ${D}${sysconfdir}/chrony.conf
         install -m 0640 ${WORKDIR}/chrony-gvm.conf ${D}${sysconfdir}/chrony.conf
