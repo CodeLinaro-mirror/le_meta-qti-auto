@@ -1,0 +1,83 @@
+From: Yan Kong <xiankong@qti.qualcomm.com>
+Date: Wed, 4 Jun 2026 00:00:00 +0800
+Subject: [PATCH] dlt_user: cooperative shutdown of dlt_segmented thread
+
+The dlt_segmented network-trace worker thread blocks in
+pthread_cond_wait(&mq_init_condition, &mq_mutex). During library teardown,
+dlt_stop_threads() used pthread_cancel() to terminate this thread.
+Cancelling a thread blocked in pthread_cond_wait() runs the cancellation
+cleanup handler (dlt_user_cleanup_handler), which unlocks mq_mutex while
+glibc is re-acquiring it on the condition-variable path. This races with
+the main thread and can trip the glibc assertion:
+
+  ../nptl/pthread_mutex_lock.c:94: __pthread_mutex_cond_lock:
+  Assertion `mutex->__data.__owner == 0' failed.
+
+resulting in SIGABRT during graceful shutdown (TELAF-4993, ~1/340 cycles).
+
+Fix: replace the asynchronous pthread_cancel() of the segmented thread with
+a cooperative shutdown. A termination flag is set under mq_mutex, the
+condition variable is signalled, the worker loop checks the flag and returns
+normally, and dlt_stop_threads() joins it. dlt_segmented_nwt_result stays 0
+so the existing pthread_join() still runs.
+
+Upstream-Status: Pending
+
+Signed-off-by: Yan Kong <xiankong@qti.qualcomm.com>
+---
+diff --git a/src/lib/dlt_user.c b/src/lib/dlt_user.c
+index ec4555f..2a21303 100644
+--- a/src/lib/dlt_user.c
++++ b/src/lib/dlt_user.c
+@@ -154,6 +154,8 @@ typedef struct VarInfo
+ /* Mutex to wait on while message queue is not initialized */
+ pthread_mutex_t mq_mutex = PTHREAD_MUTEX_INITIALIZER;
+ pthread_cond_t mq_init_condition;
++/* Cooperative shutdown flag for the segmented network-trace thread */
++static volatile sig_atomic_t dlt_segmented_thread_exit = 0;
+ #endif /* DLT_NETWORK_TRACE_ENABLE */
+ 
+ /* use these variables from common.c*/
+@@ -3179,11 +3181,19 @@ void dlt_user_trace_network_segmented_thread(void *unused)
+         /* Wait until message queue is initialized */
+         dlt_lock_mutex(&mq_mutex);
+ 
+-        while (dlt_user.dlt_segmented_queue_read_handle < 0)
++        while ((dlt_user.dlt_segmented_queue_read_handle < 0) &&
++               (dlt_segmented_thread_exit == 0))
+         {
+             pthread_cond_wait(&mq_init_condition, &mq_mutex);
+         }
+ 
++        /* Cooperative shutdown requested: leave the loop normally so that we
++         * are not cancelled while holding/re-acquiring mq_mutex. */
++        if (dlt_segmented_thread_exit != 0) {
++            dlt_unlock_mutex(&mq_mutex);
++            break;
++        }
++
+         dlt_unlock_mutex(&mq_mutex);
+ 
+         ssize_t read = mq_receive(dlt_user.dlt_segmented_queue_read_handle, (char *)&data,
+@@ -5117,16 +5127,14 @@ void dlt_stop_threads()
+     int dlt_segmented_nwt_result = 0;
+ 
+     if (dlt_user.dlt_segmented_nwt_handle) {
++        /* Cooperative shutdown: do NOT pthread_cancel() a thread that may be
++         * blocked in pthread_cond_wait(). Set the exit flag, wake it up, and
++         * let it return on its own. This avoids the glibc
++         * __pthread_mutex_cond_lock assertion during teardown. */
+         dlt_lock_mutex(&mq_mutex);
++        dlt_segmented_thread_exit = 1;
+         pthread_cond_signal(&mq_init_condition);
+         dlt_unlock_mutex(&mq_mutex);
+-
+-        dlt_segmented_nwt_result = pthread_cancel(dlt_user.dlt_segmented_nwt_handle);
+-
+-        if (dlt_segmented_nwt_result != 0)
+-            dlt_vlog(LOG_ERR,
+-                     "ERROR pthread_cancel(dlt_user.dlt_segmented_nwt_handle): %s\n",
+-                     strerror(dlt_segmented_nwt_result));
+     }
+ #endif /* DLT_NETWORK_TRACE_ENABLE */
+     /* make sure that the threads really finished working */
