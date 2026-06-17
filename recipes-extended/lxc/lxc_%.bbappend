@@ -29,11 +29,11 @@ do_install:append() {
    #shared RW space for lxc container
    install -m 0644  -d ${D}${userfsdatadir}/lxc_rw
    #Prepare all dirs for the telaf lxc container
-   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/data
-   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/persist
-   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/app
-   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/tmp
-   install -m 0777 -d  ${D}${userfsdatadir}/lxc_rw/tmp/legato
+   install -m 0755 -o system -g system -d  ${D}${userfsdatadir}/lxc_rw/data
+   install -m 0755 -o system -g system -d  ${D}${userfsdatadir}/lxc_rw/persist
+   install -m 0755 -o system -g system -d  ${D}${userfsdatadir}/lxc_rw/app
+   install -m 0755 -o system -g system -d  ${D}${userfsdatadir}/lxc_rw/tmp
+   install -m 0755 -o system -g system -d  ${D}${userfsdatadir}/lxc_rw/tmp/legato
    install -m 0644 ${WORKDIR}/99-tty_lxc.rules ${D}${sysconfdir}/udev/rules.d/
 
    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
