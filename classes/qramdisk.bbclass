@@ -295,12 +295,13 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/lib/libgcc_s.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libavb.so.1 lib/
-            cp ${IMAGE_ROOTFS}/usr/lib/libnad-vb.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libnad-km.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libnad-keystore-rw.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libnad_mtd_al.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libKeyMaster.so.0 lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libdlt* lib/
+            cp ${IMAGE_ROOTFS}/usr/lib/libminkipc_dlt_lo* lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libqcbor.so.0 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libcbor.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libcutils.so.0 lib/
