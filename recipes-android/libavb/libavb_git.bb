@@ -13,5 +13,14 @@ FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://external/avb/"
 S = "${WORKDIR}/external/avb/"
 
+do_install:append() {
+    install -d ${D}${includedir}/avb
+    install -d ${D}${includedir}/avb/sha
+    install -d ${D}${includedir}/avb/boringssl
+    install -m 0644 ${S}/libavb/*.h ${D}${includedir}/avb/
+    install -m 0644 ${S}/libavb/sha/*.h ${D}${includedir}/avb/sha/
+    install -m 0644 ${S}/libavb/boringssl/*.h ${D}${includedir}/avb/boringssl/
+}
+
 EXTRA_OECONF += " --disable-static"
 FILES:${PN} = "${libdir}/libavb.so.*"
