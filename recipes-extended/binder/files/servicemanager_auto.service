@@ -39,6 +39,8 @@ User=binder
 Group=binder
 Restart=always
 ExecStart=/usr/bin/servicemanager
+CapabilityBoundingSet=
+AmbientCapabilities=
 
 [Install]
 WantedBy=multi-user.target
