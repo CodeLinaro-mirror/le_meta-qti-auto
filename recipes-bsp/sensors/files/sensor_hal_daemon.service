@@ -33,9 +33,10 @@
 Description=sensor remote service launcher
 SourcePath=/usr/bin/sensor_hal_daemon
 DefaultDependencies=no
+Conflicts=shutdown.target
 Requires=data.mount
 After=data.mount logd.service evdev_load.service
-Before=loc_launcher.service
+Before=loc_launcher.service shutdown.target
 
 [Service]
 User=sensors
