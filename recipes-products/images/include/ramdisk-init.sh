@@ -80,6 +80,9 @@ VERITY_ENV="/etc/verity.env"
 # fde enable status
 FDE_ENV="/etc/fde.env"
 
+# Macro for rollback index verification for rootfs image type
+ROOTFS_IMAGE_TYPE="2"
+
 #------------------------------------------------------------
 
 # Temporary rootfs mount node
@@ -617,6 +620,21 @@ MountSystem () {
                     LOGD "Error: EncryptUbiPartition no device: ${block_device} found"
                     return ${STATUS_ERR}
                 fi
+            fi
+
+            if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+                busybox insmod /lib/modules/tz_log.ko
+                busybox insmod /lib/modules/smcinvoke.ko
+
+                verify-rollback --check ${block_device} ${ROOTFS_IMAGE_TYPE}
+                if [ $? -ne ${STATUS_OK} ] ; then
+                    LOGD "Rollback index verification failed for ${block_device}"
+                    return ${STATUS_ERR}
+                else
+                    LOGD "Rollback index verification success for ${block_device}"
+                fi
+            else
+                LOGD "Rollback index verification skipped for non secure device"
             fi
 
             # For system and/or other partitions FDE enabling

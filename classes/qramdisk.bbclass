@@ -212,6 +212,17 @@ fakeroot do_ramdisk_create() {
                 cp ${IMAGE_ROOTFS}/usr/lib/libnad_ab_al.so.1 lib/libnad_ab_al.so.1
                 cp ${IMAGE_ROOTFS}/usr/lib/libgthread-2.0.so.0 lib/libgthread-2.0.so.0
                 cp ${IMAGE_ROOTFS}/usr/lib/libglib-2.0.so.0 lib/libglib-2.0.so.0
+                cp ${IMAGE_ROOTFS}/usr/sbin/verify-rollback usr/sbin/
+                cp ${IMAGE_ROOTFS}/usr/lib/libminkdescriptor.so.1 lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
+                cp ${IMAGE_ROOTFS}/usr/lib/modules/tz_log.ko lib/modules/
+                cp ${IMAGE_ROOTFS}/usr/lib/libqcbor.so* lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/liblog.so* lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/libcutils.so* lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/libutils.so* lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/libstdc++.so* lib/
+                cp ${IMAGE_ROOTFS}/lib/libgcc_s.so* lib/
+
                 ln -s busybox bin/dd
 
                 # The verity need to work with verified boot lib
