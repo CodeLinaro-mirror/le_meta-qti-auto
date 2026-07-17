@@ -72,7 +72,7 @@ KERNEL_DEFCONFIG = "msm-kernel-sa525-${KERNEL_VARIANT}defconfig"
 # qti-nad-mrc             Machine supports mrcd feature
 # dlt-logging             Machine supports DLT logging
 
-MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qwesd qti-wlan ssgtzd android-binder qti-c2c qti-dynamic-tsensreset qti-softsku qti-nad-mrc qti-bluetooth qti-nad-telaf qti-nad-client-absync qti-recoveryinfo dlt-logging"
+MACHINE_FEATURES += "qti-sdx dm-verity-initramfs-v4 qti-sensors qti-security qseecompat qti-tzlog qti-data-modem qti-location qti-audio qti-smciqseecomd qwesd qti-wlan ssgtzd android-binder qti-c2c qti-dynamic-tsensreset qti-softsku qti-nad-mrc qti-bluetooth qti-nad-telaf qti-nad-client-absync qti-recoveryinfo"
 
 # For sdk toolcahin
 DISTRO_FEATURES_NATIVESDK += " dm-verity-initramfs-v4"
