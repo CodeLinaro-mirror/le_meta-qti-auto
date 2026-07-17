@@ -15,6 +15,10 @@ SRC_URI += "file://61-sensor.rules"
 S = "${WORKDIR}/hardware/qcom/sensors/sensor-hal"
 
 DEPENDS = "glib-2.0 libcutils"
+DEPENDS:append = " ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', ' sensor-dlt-log', '', d)}"
+
+PACKAGECONFIG:append = "${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', ' dlt_logging_enabled', '', d)}"
+PACKAGECONFIG[dlt_logging_enabled] = "--with-dltlogging,--without-dltlogging,dlt-daemon"
 
 EXTRA_OECONF = "--with-glib \
                 --with-core-includes=${WORKSPACE}/system/core/include"
