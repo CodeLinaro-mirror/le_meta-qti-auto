@@ -87,8 +87,3 @@ do_install:append() {
 }
 
 BBCLASSEXTEND = "nativesdk"
-
-inherit useradd
-
-USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} += "-u 3022 -U dlt;"
