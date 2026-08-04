@@ -517,6 +517,21 @@ SwitchToSystem() {
     LOGD "switch_root failure: We are not expected to reach here..."
 }
 
+VerifyRollback() {
+    local block_device=${1}
+
+    busybox insmod /lib/modules/tz_log.ko
+    busybox insmod /lib/modules/smcinvoke.ko
+
+    verify-rollback --check ${block_device} ${ROOTFS_IMAGE_TYPE}
+    if [ $? -ne ${STATUS_OK} ] ; then
+        LOGD "Rollback index verification failed for ${block_device}"
+        return ${STATUS_ERR}
+    else
+        LOGD "Rollback index verification success for ${block_device}"
+    fi
+}
+
 #
 # Mount the root file system
 #
@@ -622,20 +637,6 @@ MountSystem () {
                 fi
             fi
 
-            if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
-                busybox insmod /lib/modules/tz_log.ko
-                busybox insmod /lib/modules/smcinvoke.ko
-
-                verify-rollback --check ${block_device} ${ROOTFS_IMAGE_TYPE}
-                if [ $? -ne ${STATUS_OK} ] ; then
-                    LOGD "Rollback index verification failed for ${block_device}"
-                    return ${STATUS_ERR}
-                else
-                    LOGD "Rollback index verification success for ${block_device}"
-                fi
-            else
-                LOGD "Rollback index verification skipped for non secure device"
-            fi
 
             # For system and/or other partitions FDE enabling
             if [ "${nad_fde_status}" == "enabled" ]; then
@@ -662,6 +663,15 @@ MountSystem () {
                     LOGD "Error: MountSystem no device: ${block_device} found"
                     return ${STATUS_ERR}
                 fi
+            fi
+
+            if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+                VerifyRollback ${block_device}
+                if [ $? -ne ${STATUS_OK} ] ; then
+                    return ${STATUS_ERR}
+                fi
+            else
+                LOGD "Rollback index verification skipped for non secure device"
             fi
 
             # For root file system Verified boot enabling
