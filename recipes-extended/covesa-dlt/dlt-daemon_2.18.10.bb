@@ -22,7 +22,11 @@ SRC_URI = "git://github.com/COVESA/${BPN}.git;protocol=https;branch=master \
            file://0001-power_selinux_issue_fix.patch \
            file://0003-Set-default-loglevel-to-error.patch \
            file://0010-dlt_user-cooperative-shutdown-of-segmented-thread.patch \
+           file://0001-dlt-logstorage-fix-delimiter-handling-when-building-.patch \
            file://dlt-system.conf \
+           file://dlt.conf \
+           file://dlt-log-levels.conf \
+           file://dlt_logstorage.conf \
            file://dlt-logd-converter.service \
            file://change-dlt-socket-permissions-to-660.patch \
            "
@@ -59,7 +63,8 @@ inherit autotools gettext cmake pkgconfig systemd
 # -DWITH_DLT_COREDUMPHANDLER=ON this feature is too experimental, disable for now
 #FILES:${PN} += "${libdir}/sysctl.d"
 EXTRA_OECMAKE += "-DWITH_DLT_LOGSTORAGE_GZIP=ON -DWITH_EXTENDED_FILTERING=ON -DDLT_USER=dlt -DSYSTEMD_UNITDIR=${systemd_system_unitdir} \
-                  -DWITH_DLT_USE_IPv6=OFF -DWITH_DLT_SYSTEM=ON -DWITH_DLT_ADAPTOR=ON -DDLT_IPC='UNIX_SOCKET'"
+                  -DWITH_DLT_USE_IPv6=OFF -DWITH_DLT_SYSTEM=ON -DWITH_DLT_ADAPTOR=ON -DDLT_IPC='UNIX_SOCKET' \
+                  -DWITH_DLT_LOG_LEVEL_APP_CONFIG=ON"
 
 PACKAGES += "${PN}-systemd"
 SYSTEMD_PACKAGES = "${PN} ${PN}-systemd"
@@ -79,13 +84,20 @@ FILES:${PN}-doc += "${datadir}/dlt-filetransfer"
 
 do_install:append() {
     rm -f ${D}${bindir}/dlt-test-*
-    install -m 0444 ${WORKDIR}/dlt-system.conf ${D}${sysconfdir}/dlt-system.conf
+    install -m 0644 ${WORKDIR}/dlt-system.conf ${D}${sysconfdir}/dlt-system.conf
     install -m 0644 ${WORKDIR}/dlt-logd-converter.service ${D}${systemd_unitdir}/system/dlt-logd-converter.service
-    chmod 444 ${D}${sysconfdir}/dlt.conf
-    chmod 444 ${D}${sysconfdir}/dlt_gateway.conf
-    chmod 444 ${D}${sysconfdir}/dlt-logd-converter.conf
+    install -m 0644 ${WORKDIR}/dlt.conf ${D}${sysconfdir}/dlt.conf
+    install -m 0644 ${WORKDIR}/dlt-log-levels.conf ${D}${sysconfdir}/dlt-log-levels.conf
+    install -m 0644 ${WORKDIR}/dlt_logstorage.conf ${D}${sysconfdir}/dlt_logstorage.conf
+
+    chmod 644 ${D}${sysconfdir}/dlt_gateway.conf
+    chmod 644 ${D}${sysconfdir}/dlt-logd-converter.conf
+ 
+    install -d -m 0777 ${D}/data/dltlogs/
+    install -m 0644 ${WORKDIR}/dlt_logstorage.conf ${D}/data/dltlogs/
 }
 
+FILES:${PN} += "/data/dltlogs/"
 BBCLASSEXTEND = "nativesdk"
 
 inherit useradd
