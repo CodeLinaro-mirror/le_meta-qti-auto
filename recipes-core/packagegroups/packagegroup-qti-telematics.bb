@@ -36,7 +36,7 @@ RDEPENDS:packagegroup-qti-telematics = "\
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', '${MLPREFIX}packagegroup-qti-telematics-mvm', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'vbleima', 'keyutils ima-evm-utils attr ima-cert-setup', '',d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-core', 'packagegroup-qti-telematics-nad-core', '', d)} \
-    ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', 'dlt-daemon', '', d)} \
+    dlt-daemon \
     "
 
 RDEPENDS:packagegroup-qti-telematics-sensors = "\
@@ -44,6 +44,7 @@ RDEPENDS:packagegroup-qti-telematics-sensors = "\
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-vm-tele', '', 'sensor-hal-daemon', d)}\
     libsensors sensor-socket sensor-client-api sensor-client-api-testapp sensor-testapp-legacy sensor-fidl\
     ${@oe.utils.conditional('SENSORIDL', 'True', 'sensor-idl-client', '', d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', 'sensor-dlt-log', '', d)} \
     "
 
 RDEPENDS:packagegroup-qti-telematics-utils = "\

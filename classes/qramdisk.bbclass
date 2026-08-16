@@ -228,7 +228,6 @@ fakeroot do_ramdisk_create() {
                 fi
 
                 ln -s busybox bin/dd
-
                 # The verity need to work with verified boot lib
                 if [[ -e "${IMAGE_ROOTFS}/etc/verity.env" ]]; then
                     mkdir -p etc/keys
