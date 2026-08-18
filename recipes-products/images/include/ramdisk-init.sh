@@ -520,16 +520,21 @@ SwitchToSystem() {
 VerifyRollback() {
     local block_device=${1}
 
-    busybox insmod /lib/modules/tz_log.ko
     busybox insmod /lib/modules/smcinvoke.ko
+    busybox insmod /lib/modules/rollback_update.ko
 
-    verify-rollback --check ${block_device} ${ROOTFS_IMAGE_TYPE}
+    verify-rollback ${block_device} ${ROOTFS_IMAGE_TYPE}
     if [ $? -ne ${STATUS_OK} ] ; then
         LOGD "Rollback index verification failed for ${block_device}"
+        busybox rmmod rollback_update
+        busybox rmmod smcinvoke
         return ${STATUS_ERR}
     else
         LOGD "Rollback index verification success for ${block_device}"
     fi
+
+    busybox rmmod rollback_update
+    return ${STATUS_OK}
 }
 
 #
