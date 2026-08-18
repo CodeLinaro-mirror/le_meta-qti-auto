@@ -86,6 +86,9 @@ abctl_cmd="/usr/bin/nad-abctl"
 
 ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
 
+# Macro for rollback index verification for rootfs image type
+ROOTFS_IMAGE_TYPE="2"
+
 LOGD() {
   busybox echo "$1"
 }
@@ -398,6 +401,26 @@ EncryptPartition () {
     esac
 }
 
+VerifyRollback() {
+    local block_device=${1}
+
+    busybox insmod /lib/modules/smcinvoke.ko
+    busybox insmod /lib/modules/rollback_update.ko
+
+    verify-rollback ${block_device} ${ROOTFS_IMAGE_TYPE}
+    if [ $? -ne ${STATUS_OK} ] ; then
+        LOGD "Rollback index verification failed for ${block_device}"
+        busybox rmmod rollback_update
+        busybox rmmod smcinvoke
+        return ${STATUS_ERR}
+    else
+        LOGD "Rollback index verification success for ${block_device}"
+    fi
+
+    busybox rmmod rollback_update
+    return ${STATUS_OK}
+}
+
 #
 # Mount system partition
 #
@@ -442,6 +465,16 @@ MountSystem () {
             block_device=${FDE_MOUNT_NODE}
             LOGD "fde: block_device=${block_device}"
         fi
+    fi
+
+    # Verify Rollback index
+    if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+        VerifyRollback ${block_device}
+        if [ $? -ne ${STATUS_OK} ] ; then
+            return ${STATUS_ERR}
+        fi
+    else
+        LOGD "Rollback index verification skipped for non secure device"
     fi
 
     # For root file system Verified boot enabling
