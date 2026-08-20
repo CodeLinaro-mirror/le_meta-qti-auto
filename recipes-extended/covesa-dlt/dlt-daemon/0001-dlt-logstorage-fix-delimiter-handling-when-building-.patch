@@ -1,0 +1,39 @@
+From 16f6b79fa489692ae94c2b9f34555d5e89070053 Mon Sep 17 00:00:00 2001
+From: Deepak Dimri <ddimri@qti.qualcomm.com>
+Date: Mon, 13 Apr 2026 14:46:33 +0530
+Subject: [PATCH] dlt-logstorage: fix delimiter handling when building log file
+ name
+
+Wrap logfile_delimiter (single char) into a null-terminated buffer before
+passing to dlt_logstorage_concat_logfile_name(), which expects a C string
+and uses strlen/strncat. This prevents reading stack garbage and corrupted
+log file names caused by missing '\0' termination.
+
+Signed-off-by: Deepak Dimri <ddimri@qti.qualcomm.com>
+---
+ src/offlinelogstorage/dlt_offline_logstorage_behavior.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/offlinelogstorage/dlt_offline_logstorage_behavior.c b/src/offlinelogstorage/dlt_offline_logstorage_behavior.c
+index 396e48f..0955d20 100644
+--- a/src/offlinelogstorage/dlt_offline_logstorage_behavior.c
++++ b/src/offlinelogstorage/dlt_offline_logstorage_behavior.c
+@@ -87,11 +87,14 @@ void dlt_logstorage_log_file_name(char *log_file_name,
+         return;
+ 
+     char file_index[10] = { '\0' };
++    char delim_str[2];
++    delim_str[0] = file_config->logfile_delimiter;
++    delim_str[1] = '\0';
+ 
+     /* create log file name */
+     memset(log_file_name, '\0', DLT_MOUNT_PATH_MAX * sizeof(char));
+     dlt_logstorage_concat_logfile_name(log_file_name, filter_config->file_name);
+-    dlt_logstorage_concat_logfile_name(log_file_name, &file_config->logfile_delimiter);
++    dlt_logstorage_concat_logfile_name(log_file_name, delim_str);
+ 
+     snprintf(file_index, 10, "%d", idx);
+ 
+-- 
+2.17.1
+
