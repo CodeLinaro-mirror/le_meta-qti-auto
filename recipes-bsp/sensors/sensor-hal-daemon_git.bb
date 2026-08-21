@@ -9,7 +9,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
 ${LICENSE};md5=550794465ba0ec5312d6919e203a55f9"
 
 DEPENDS = "glib-2.0 libsensors sensor-util-lib sensor-socket powermanager-lib common-api-c++ vsomeip common-api-c++-someip sensor-fidl open-avb location-client-api"
-DEPENDS:append = " ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', ' sensor-dlt-log', '', d)}"
 
 FILESPATH =+ "${WORKSPACE}:"
 SRC_URI = "file://hardware/qcom/sensors/sensor-service/sensor_hal_daemon"
@@ -23,8 +22,17 @@ PACKAGECONFIG:append:sa515m = " shd"
 PACKAGECONFIG:append:sa415m = " shd"
 PACKAGECONFIG:append:mdm9607 = " shd"
 
+PACKAGECONFIG:append = "${@bb.utils.contains('MACHINE_FEATURES', 'commonlog', ' clog_logging_enabled', '', d)}"
 PACKAGECONFIG:append = "${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', ' dlt_logging_enabled', '', d)}"
-PACKAGECONFIG[dlt_logging_enabled] = "--with-dltlogging,--without-dltlogging,dlt-daemon"
+
+# clog/dlt no longer gate a configure switch (sensor-common-log is always
+# linked); these flags only drive the daemon's supplementary group
+# membership below and the CLOG_SUPPLEMENTARY_GROUPS include.
+PACKAGECONFIG[clog_logging_enabled] = ",,commonlog-lib,commonlog-lib dlt-daemon"
+PACKAGECONFIG[dlt_logging_enabled] = ",,dlt-daemon,dlt-daemon"
+
+# Provides CLOG_SUPPLEMENTARY_GROUPS.
+require ${@bb.utils.contains('PACKAGECONFIG', 'clog_logging_enabled', 'recipes-extended/commonlog/clog-common.inc', '', d)}
 
 EXTRA_OECONF = "--with-core-includes=${WORKSPACE}/system/core/include \
                 --with-pwrmgrlib \
@@ -50,10 +58,29 @@ do_install:append () {
         install -d ${D}${sysconfdir}/systemd/system/
         install -m 0644 ${WORKDIR}/sensor_hal_daemon.service -D ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
 
-        # Add dlt to SupplementaryGroups only if dlt logging is supported
-        if ${@bb.utils.contains('PACKAGECONFIG', 'dlt_logging_enabled', 'true', 'false', d)}; then
+        # Logging sink access: CLOG takes precedence over DLT.
+        if ${@bb.utils.contains('PACKAGECONFIG', 'clog_logging_enabled', 'true', 'false', d)}; then
+            if grep -q '^SupplementaryGroups=' ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service; then
+                # Append only the groups not already listed.
+                for g in ${CLOG_SUPPLEMENTARY_GROUPS}; do
+                    grep -qE "^SupplementaryGroups=.*\<$g\>" \
+                        ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service || \
+                    sed -i "/^SupplementaryGroups=/ s/\$/ $g/" \
+                        ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
+                done
+            else
+                sed -i '/^\[Service\]/a SupplementaryGroups=${CLOG_SUPPLEMENTARY_GROUPS}' \
+                    ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
+            fi
+        elif ${@bb.utils.contains('PACKAGECONFIG', 'dlt_logging_enabled', 'true', 'false', d)}; then
             grep -q '^SupplementaryGroups=.* dlt$' ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service || \
             sed -i '/^SupplementaryGroups=/ s/$/ dlt/' ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
+        fi
+
+        # Add telaf supplementary group only if gateway services are enabled
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qti-nad-telaf', 'true', 'false', d)}; then
+            grep -q '^SupplementaryGroups=.* telaf$' ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service || \
+            sed -i '/^SupplementaryGroups=/ s/$/ telaf/' ${D}${sysconfdir}/systemd/system/sensor_hal_daemon.service
         fi
 
 	install -m 0644 -D -o 3011 -g 3011 ${WORKDIR}/sensors.conf  ${D}${sysconfdir}/sensors.conf
