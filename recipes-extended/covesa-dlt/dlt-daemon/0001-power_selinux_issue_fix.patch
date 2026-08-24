@@ -12,9 +12,9 @@ diff --git a/systemd/dlt-system.service.cmake b/systemd/dlt-system.service.cmake
 index 708fefc..93e1431 100755
 --- a/systemd/dlt-system.service.cmake
 +++ b/systemd/dlt-system.service.cmake
-@@ -21,7 +21,7 @@ Wants=dlt.service
- [Service]
+@@ -22,7 +22,7 @@ Wants=dlt.service
  Type=simple
+ User=@DLT_USER@
  ExecStart=@CMAKE_INSTALL_PREFIX@/bin/dlt-system
 -WatchdogSec=@DLT_WatchdogSec@
 +Restart=on-failure
@@ -25,9 +25,9 @@ diff --git a/systemd/dlt.service.cmake b/systemd/dlt.service.cmake
 index f16b440..b41659d 100755
 --- a/systemd/dlt.service.cmake
 +++ b/systemd/dlt.service.cmake
-@@ -20,7 +20,7 @@ Documentation=man:dlt-daemon(1) man:dlt.conf(5)
- [Service]
+@@ -21,7 +21,7 @@ Documentation=man:dlt-daemon(1) man:dlt.conf(5)
  Type=simple
+ User=@DLT_USER@
  ExecStart=@CMAKE_INSTALL_PREFIX@/bin/dlt-daemon
 -WatchdogSec=@DLT_WatchdogSec@
 +Restart=on-failure
