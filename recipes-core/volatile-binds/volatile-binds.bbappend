@@ -29,6 +29,7 @@ VOLATILE_BINDS:sa525m:qti-distro-tele-debug = "\
 /systemrw/rtcmConfig.conf /etc/rtcmConfig.conf target=multi-user.target\n\
 /systemrw/data/qti_socksv5_conf.xml /etc/data/qti_socksv5_conf.xml\n\
 /systemrw/data/qti_socksv5_auth.xml /etc/data/qti_socksv5_auth.xml\n\
+/systemrw/data/netmgr_config.xml /etc/data/netmgr_config.xml local-fs.target\n\
 "
 
 VOLATILE_BINDS:sa525m:qti-distro-tele-perf = "\
