@@ -1,37 +1,7 @@
 #!/bin/sh
 
-# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted (subject to the limitations in the
-# disclaimer below) provided that the following conditions are met:
-#
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#
-#     * Redistributions in binary form must reproduce the above
-#       copyright notice, this list of conditions and the following
-#       disclaimer in the documentation and/or other materials provided
-#       with the distribution.
-#
-#     * Neither the name of Qualcomm Innovation Center, Inc. nor the names of its
-#       contributors may be used to endorse or promote products derived
-#       from this software without specific prior written permission.
-#
-# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
-# GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
-# HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-# GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-# IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
@@ -85,6 +55,9 @@ CERT_CA_PATH="/etc/keys/x509_root.der"
 abctl_cmd="/usr/bin/nad-abctl"
 
 ENABLE_SYSTEMD_OVERLAY="${ROOT_MOUNT}/etc/systemd-overlay/enable"
+
+# Macro for rollback index verification for rootfs image type
+ROOTFS_IMAGE_TYPE="2"
 
 LOGD() {
   busybox echo "$1"
@@ -399,6 +372,26 @@ EncryptPartition () {
     esac
 }
 
+VerifyRollback() {
+    local block_device=${1}
+
+    busybox insmod /lib/modules/smcinvoke.ko
+    busybox insmod /lib/modules/rollback_update.ko
+
+    verify-rollback ${block_device} ${ROOTFS_IMAGE_TYPE}
+    if [ $? -ne ${STATUS_OK} ] ; then
+        LOGD "Rollback index verification failed for ${block_device}"
+        busybox rmmod rollback_update
+        busybox rmmod smcinvoke
+        return ${STATUS_ERR}
+    else
+        LOGD "Rollback index verification success for ${block_device}"
+    fi
+
+    busybox rmmod rollback_update
+    return ${STATUS_OK}
+}
+
 #
 # Mount system partition
 #
@@ -443,6 +436,16 @@ MountSystem () {
             block_device=${FDE_MOUNT_NODE}
             LOGD "fde: block_device=${block_device}"
         fi
+    fi
+
+    # Verify Rollback index
+    if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+        VerifyRollback ${block_device}
+        if [ $? -ne ${STATUS_OK} ] ; then
+            return ${STATUS_ERR}
+        fi
+    else
+        LOGD "Rollback index verification skipped for non secure device"
     fi
 
     # For root file system Verified boot enabling
