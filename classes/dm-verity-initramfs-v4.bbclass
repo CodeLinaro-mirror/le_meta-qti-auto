@@ -85,6 +85,7 @@ addtask do_makeboot before do_image_complete
 #squashfs files
 SYSTEMIMAGE_SQUASHFS_TARGET = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/sysfs.squash"
 
+# by default we always set rootfs rollback index as "0"
 do_sign_system_squashfs () {
     # Sign the system image
     ${TMPDIR}/work-shared/avbtool/avbtool add_hashtree_footer \
@@ -93,7 +94,7 @@ do_sign_system_squashfs () {
         --algorithm SHA256_RSA2048 \
         --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
         --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
-        --do_not_generate_fec --rollback_index 0
+        --do_not_generate_fec --rollback_index ${ANTIROLL_BACK_INDEX_VALUE_ROOTFS}
 }
 do_sign_system_squashfs[depends] += "avbtool-native:do_install"
 
@@ -108,6 +109,6 @@ do_sign_system_ext4 () {
         --algorithm SHA256_RSA2048 \
         --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
         --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
-        --do_not_generate_fec --rollback_index 0
+        --do_not_generate_fec --rollback_index ${ANTIROLL_BACK_INDEX_VALUE_ROOTFS}
 }
 do_sign_system_ext4[depends] += "avbtool-native:do_install"

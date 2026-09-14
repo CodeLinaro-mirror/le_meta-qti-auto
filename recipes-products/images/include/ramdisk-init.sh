@@ -80,6 +80,8 @@ VERITY_ENV="/etc/verity.env"
 # fde enable status
 FDE_ENV="/etc/fde.env"
 
+# Macro for rollback index verification for rootfs image type
+ROOTFS_IMAGE_TYPE="2"
 #------------------------------------------------------------
 
 # Temporary rootfs mount node
@@ -514,6 +516,26 @@ SwitchToSystem() {
     LOGD "switch_root failure: We are not expected to reach here..."
 }
 
+VerifyRollback() {
+    local block_device=${1}
+
+    busybox insmod /lib/modules/smcinvoke.ko
+    busybox insmod /lib/modules/rollback_update.ko
+
+    verify-rollback ${block_device} ${ROOTFS_IMAGE_TYPE}
+    if [ $? -ne ${STATUS_OK} ] ; then
+        LOGD "Rollback index verification failed for ${block_device}"
+        busybox rmmod rollback_update
+        busybox rmmod smcinvoke
+        return ${STATUS_ERR}
+    else
+        LOGD "Rollback index verification success for ${block_device}"
+    fi
+
+    busybox rmmod rollback_update
+    return ${STATUS_OK}
+}
+
 #
 # Mount the root file system
 #
@@ -644,6 +666,15 @@ MountSystem () {
                     LOGD "Error: MountSystem no device: ${block_device} found"
                     return ${STATUS_ERR}
                 fi
+            fi
+
+            if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+                VerifyRollback ${block_device}
+                if [ $? -ne ${STATUS_OK} ] ; then
+                    return ${STATUS_ERR}
+                fi
+            else
+                LOGD "Rollback index verification skipped for non secure device"
             fi
 
             # For root file system Verified boot enabling
