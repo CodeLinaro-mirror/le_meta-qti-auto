@@ -1,4 +1,4 @@
 #Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 #SPDX-License-Identifier: LGPL-2.1-only
 
-KERNEL=="tty*", SUBSYSTEM=="tty", ATTR{dev}=="4:*", SYMLINK+="tty_lxc", MODE="0660"
+KERNEL=="tty*", SUBSYSTEM=="tty", ATTR{dev}=="4:*", SYMLINK+="tty_lxc", MODE="0660", TAG+="systemd", ENV{SYSTEMD_WANTS}+="telaf_lxc.service"

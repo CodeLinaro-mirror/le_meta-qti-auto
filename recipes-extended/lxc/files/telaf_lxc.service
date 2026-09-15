@@ -4,8 +4,9 @@
 [Unit]
 Description=Service used for TelAF LXC container start/stop
 SourcePath=/etc/initscripts/container_launch.sh
-After=lxcrootfs-mount.service
+After=lxcrootfs-mount.service systemd-udevd.service
 ConditionDirectoryNotEmpty=/lxcrootfs
+ConditionPathExists=/dev/tty_lxc
 
 [Service]
 Type=simple
