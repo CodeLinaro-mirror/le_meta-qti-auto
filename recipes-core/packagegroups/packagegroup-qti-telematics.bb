@@ -32,6 +32,7 @@ PACKAGES = ' \
 RDEPENDS:packagegroup-qti-telematics = "\
     ${MLPREFIX}packagegroup-qti-telematics-utils \
     ${MLPREFIX}packagegroup-qti-telematics-vnw \
+    ${MLPREFIX}teleplat-someipgw \
     ${@bb.utils.contains('MACHINE_FEATURES', 'qti-sensors', '${MLPREFIX}packagegroup-qti-telematics-sensors', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'qti-mvm', '${MLPREFIX}packagegroup-qti-telematics-mvm', '', d)} \
     ${@bb.utils.contains('COMBINED_FEATURES', 'vbleima', 'keyutils ima-evm-utils attr ima-cert-setup', '',d)} \
