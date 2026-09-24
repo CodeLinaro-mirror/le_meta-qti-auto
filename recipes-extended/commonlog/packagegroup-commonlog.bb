@@ -14,5 +14,4 @@ RDEPENDS:${PN} += "\
     commonlog-cfglib \
     commonlog-lib \
     commonlog-ctrl \
-    commonlog-mount-copybind \
     "
