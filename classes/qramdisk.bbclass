@@ -222,6 +222,10 @@ fakeroot do_ramdisk_create() {
                 cp ${IMAGE_ROOTFS}/usr/lib/libutils.so* lib/
                 cp ${IMAGE_ROOTFS}/usr/lib/libstdc++.so* lib/
                 cp ${IMAGE_ROOTFS}/lib/libgcc_s.so* lib/
+                if ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', 'true', 'false', d)}; then
+                    cp ${IMAGE_ROOTFS}/usr/lib/libdlt* lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libminkipc_dlt_lo* lib/
+                fi
 
                 ln -s busybox bin/dd
 
@@ -311,8 +315,6 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/usr/lib/libnad_mtd_al.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libcrypto.so.3 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libKeyMaster.so.0 lib/
-            cp ${IMAGE_ROOTFS}/usr/lib/libdlt* lib/
-            cp ${IMAGE_ROOTFS}/usr/lib/libminkipc_dlt_lo* lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libqcbor.so.0 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libcbor.so.1 lib/
             cp ${IMAGE_ROOTFS}/usr/lib/libcutils.so.0 lib/
@@ -335,6 +337,10 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/etc/gpfspath_le_oem_config.xml etc/
             cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
             cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/dm-crypt.ko lib/modules/
+            if ${@bb.utils.contains('MACHINE_FEATURES', 'dlt-logging', 'true', 'false', d)}; then
+                cp ${IMAGE_ROOTFS}/usr/lib/libdlt* lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/libminkipc_dlt_lo* lib/
+            fi
             if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'false', 'true', d)}; then
               cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/loop.ko lib/modules/
             fi
