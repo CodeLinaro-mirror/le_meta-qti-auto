@@ -114,7 +114,10 @@ BOOT_HEADER_VERSION = "2"
 
 # Append Anti Rollback Index and Assign default value
 ENABLE_ANTI_ROLLBACK = "1"
+# Below index used by BOOT & DTBO img
 ANTIROLL_BACK_INDEX_VALUE = "0"
+# Below index used by Rootfs Image
+ANTIROLL_BACK_INDEX_VALUE_ROOTFS = "0"
 
 # Enable debug configuration for post-boot recipe
 PACKAGECONFIG:append:pn-post-boot = "debug"
