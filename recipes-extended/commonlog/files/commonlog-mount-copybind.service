@@ -4,13 +4,18 @@
 [Unit]
 Description=Common logging Service
 DefaultDependencies=no
+Conflicts=shutdown.target
 Before=local-fs.target
+Before=shutdown.target
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 Nice=-20
 ExecStart=/sbin/mount-copybind /systemrw/commonlog.conf /etc/commonlog.conf
 ExecStart=/sbin/mount-copybind /systemrw/commonlog-sink-config.conf /etc/commonlog-sink-config.conf
+ExecStop=/sbin/umount-copybind /etc/commonlog.conf
+ExecStop=/sbin/umount-copybind /etc/commonlog-sink-config.conf
 
 [Install]
 WantedBy=local-fs.target
