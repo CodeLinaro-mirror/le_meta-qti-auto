@@ -111,7 +111,7 @@ do_sign_system_squashfs () {
         --algorithm SHA256_RSA2048 \
         --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
         --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
-        --do_not_generate_fec --rollback_index 0
+        --do_not_generate_fec --rollback_index ${ANTIROLL_BACK_INDEX_VALUE_ROOTFS}
 }
 do_sign_system_squashfs[depends] += "avbtool-native:do_install"
 
