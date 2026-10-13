@@ -1,0 +1,21 @@
+[Unit]
+Description=TelePlat SOME/IP Gateway service
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=sysinit.target
+Before=sensor_hal_daemon.service shutdown.target
+
+[Service]
+Type=simple
+User=gateway
+Group=gateway
+Environment=VSOMEIP_CONFIGURATION=/etc/teleplat-someipgw/teleplat-someipgw.json
+ExecStart=/usr/bin/telePlatSomeipGWSvc
+SupplementaryGroups=sensors radio
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=sockets.target
