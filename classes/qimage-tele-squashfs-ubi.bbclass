@@ -57,8 +57,11 @@ SELINUX_CONTEXT_MODEM = "${WORKSPACE}/fctx1"
 MODEM_SQUASHFS_IMAGE = "${WORKSPACE}/NON-HLOS.squash"
 
 TELAF_RO_SQUASHFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/telaf_ro.squashfs"
-TELAF_RO_IMAGE_PATH ?= "${DEPLOY_DIR_IMAGE}/telaf-images/telaf_ro"
-TELAF_RO_SELINUX_FILE_CONTEXTS ?= "${DEPLOY_DIR_IMAGE}/telaf-images/security/selinux/sepolicy/files/file_contexts"
+TELAF_TEST_RO_SQUASHFS_TARGET ?= "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/telaf_test_ro.squashfs"
+TELAF_RO_IMAGE_PATH ?= "${DEPLOY_DIR_IMAGE}/telaf-images/telaf_ro/prod"
+TELAF_TEST_RO_IMAGE_PATH ?= "${DEPLOY_DIR_IMAGE}/telaf-images/telaf_ro/test"
+TELAF_RO_SELINUX_FILE_CONTEXTS_PROD ?= "${DEPLOY_DIR_IMAGE}/telaf-images/security/selinux/sepolicy/files/file_contexts_prod"
+TELAF_RO_SELINUX_FILE_CONTEXTS_TEST ?= "${DEPLOY_DIR_IMAGE}/telaf-images/security/selinux/sepolicy/files/file_contexts_test"
 
 # Ensure SELinux file context variable is defined
 SELINUX_FILE_CONTEXTS ?= ""
@@ -1002,10 +1005,17 @@ do_maketelaf_squashfs[depends] += "${@bb.utils.contains('IMAGE_FEATURES', 'telaf
 do_maketelaf_squashfs[dirs] = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs"
 
 fakeroot do_maketelaf_squashfs() {
+    # Add set-user-ID-root to startSystem
+    find ${TELAF_RO_IMAGE_PATH} -name startSystem -type f | xargs -r chmod ua+s
+    find ${TELAF_TEST_RO_IMAGE_PATH} -name startSystem -type f | xargs -r chmod ua+s
+
+    # Add -xattrs option to store extended attribute
     if [[ "${DISTRO_FEATURES}" =~ "selinux" ]] ; then
-        mksquashfs ${TELAF_RO_IMAGE_PATH} ${TELAF_RO_SQUASHFS_TARGET} -context-file ${TELAF_RO_SELINUX_FILE_CONTEXTS} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -all-root
+        mksquashfs ${TELAF_RO_IMAGE_PATH} ${TELAF_RO_SQUASHFS_TARGET} -context-file ${TELAF_RO_SELINUX_FILE_CONTEXTS_PROD} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -all-root -xattrs
+        mksquashfs ${TELAF_TEST_RO_IMAGE_PATH} ${TELAF_TEST_RO_SQUASHFS_TARGET} -context-file ${TELAF_RO_SELINUX_FILE_CONTEXTS_TEST} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -all-root -xattrs
     else
-        mksquashfs ${TELAF_RO_IMAGE_PATH} ${TELAF_RO_SQUASHFS_TARGET} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -all-root
+        mksquashfs ${TELAF_RO_IMAGE_PATH} ${TELAF_RO_SQUASHFS_TARGET} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -all-root -xattrs
+        mksquashfs ${TELAF_TEST_RO_IMAGE_PATH} ${TELAF_TEST_RO_SQUASHFS_TARGET} -noappend -comp xz -Xdict-size 32K -noI -Xbcj arm -b 65536 -processors 1 -all-root -xattrs
     fi
 }
 
@@ -1076,8 +1086,8 @@ do_patch_ubi_tools() {
 
      if [ -f ${STAGING_DIR}-components/x86_64/squashfs-tools-native/${sbindir}/mksquashfs ]; then
          ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${sbindir}/mksquashfs
-     else 
-         ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${base_bindir}/mksquashfs 
+     else
+         ${UNINATIVE_STAGING_DIR}-uninative/x86_64-linux/usr/bin/patchelf-uninative --set-interpreter /lib64/ld-linux-x86-64.so.2 ${STAGING_DIR}-components/x86_64/squashfs-tools-native${base_bindir}/mksquashfs
      fi
 }
 
@@ -1128,11 +1138,19 @@ python() {
 
 #telaf squashfs files
 TELAF_IMAGE_SQUASHFS_TARGET = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/telaf_ro.squashfs"
+TELAF_TEST_IMAGE_SQUASHFS_TARGET = "${IMGDEPLOYDIR}/${IMAGE_BASENAME}/squashfs/telaf_test_ro.squashfs"
 
 # Sign the telaf image
 do_sign_telaf_squashfs () {
     ${TMPDIR}/work-shared/avbtool/avbtool add_hashtree_footer \
         --image ${TELAF_IMAGE_SQUASHFS_TARGET} \
+        --partition_name telaf \
+        --algorithm SHA256_RSA2048 \
+        --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
+        --public_key_metadata ${TMPDIR}/work-shared/avbtool/qpsa_attestca.der \
+        --do_not_generate_fec --rollback_index 0
+    ${TMPDIR}/work-shared/avbtool/avbtool add_hashtree_footer \
+        --image ${TELAF_TEST_IMAGE_SQUASHFS_TARGET} \
         --partition_name telaf \
         --algorithm SHA256_RSA2048 \
         --key ${TMPDIR}/work-shared/avbtool/qpsa_attestca.key \
