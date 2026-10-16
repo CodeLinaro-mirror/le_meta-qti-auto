@@ -57,6 +57,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
         ${@bb.utils.contains('MACHINE_FEATURES', 'qti-tele-lxc', '${MLIBPREFIX}packagegroup-qti-lxc', '', d)} \
         ${@bb.utils.contains('COMBINED_FEATURES', 'qti-nad-telaf', '${MLIBPREFIX}packagegroup-qti-telaf', '', d)} \
         ${@oe.utils.conditional('CORESIGHTDLKM', 'True', 'coresight-dlkm', '', d)} \
+        ${MLIBPREFIX}packagegroup-commonlog \
 "
 
 # Following packages will be enabled later

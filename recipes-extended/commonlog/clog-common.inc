@@ -1,0 +1,1 @@
+CLOG_SUPPLEMENTARY_GROUPS ?= "dlt diag logd"

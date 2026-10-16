@@ -216,6 +216,16 @@ fakeroot do_ramdisk_create() {
                 cp ${IMAGE_ROOTFS}/usr/lib/modules/smcinvoke.ko lib/modules/
                 cp ${IMAGE_ROOTFS}/usr/lib/modules/rollback_update.ko lib/modules/
 
+                if ${@bb.utils.contains('MACHINE_FEATURES', 'commonlog', 'true', 'false', d)}; then
+                    cp ${IMAGE_ROOTFS}/usr/lib/libclog* lib/
+                    cp ${IMAGE_ROOTFS}/usr/lib/libcfg* lib/
+                    if ${@oe.utils.conditional('DEBUG_BUILD', '1', 'true', 'false', d)}; then
+                        cp ${COREBASE}/meta-qti-auto/recipes-extended/commonlog/files/commonlog-console-debug.conf etc/commonlog.conf
+                     else
+                        cp ${COREBASE}/meta-qti-auto/recipes-extended/commonlog/files/commonlog-console-perf.conf etc/commonlog.conf
+                    fi
+                fi
+
                 ln -s busybox bin/dd
                 # The verity need to work with verified boot lib
                 if [[ -e "${IMAGE_ROOTFS}/etc/verity.env" ]]; then
@@ -329,6 +339,17 @@ fakeroot do_ramdisk_create() {
                 cp ${IMAGE_ROOTFS}/usr/lib/libdlt* lib/
                 cp ${IMAGE_ROOTFS}/usr/lib/libminkipc_dlt_lo* lib/
             fi
+
+            if ${@bb.utils.contains('MACHINE_FEATURES', 'commonlog', 'true', 'false', d)}; then
+                cp ${IMAGE_ROOTFS}/usr/lib/libclog* lib/
+                cp ${IMAGE_ROOTFS}/usr/lib/libcfg* lib/
+                   if ${@oe.utils.conditional('DEBUG_BUILD', '1', 'true', 'false', d)}; then
+                        cp ${COREBASE}/meta-qti-auto/recipes-extended/commonlog/files/commonlog-console-debug.conf etc/commonlog.conf
+                     else
+                        cp ${COREBASE}/meta-qti-auto/recipes-extended/commonlog/files/commonlog-console-perf.conf etc/commonlog.conf
+                    fi
+            fi
+
             if ${@bb.utils.contains('MACHINE_FEATURES', 'emmc-boot', 'false', 'true', d)}; then
               cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/loop.ko lib/modules/
             fi

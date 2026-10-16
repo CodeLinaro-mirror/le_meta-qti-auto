@@ -13,4 +13,17 @@ do_install:append() {
     install -m 0555 ${WORKDIR}/syslog ${D}${sysconfdir}/initscripts/syslog
     sed -i 's/syslogd -n/syslogd -- -n/' ${D}${sysconfdir}/initscripts/syslog
     echo "${@bb.utils.contains('DEBUG_BUILD', '1', '', 'LOGLEVEL=5', d)}" >> ${D}${sysconfdir}/syslog-startup.conf
+
+    if ${@bb.utils.contains('MACHINE_FEATURES', 'commonlog', 'true', 'false', d)}; then
+        printf '%s\n' \
+            '' \
+            'if [ -f /etc/commonlog-sink-config.conf ]; then' \
+            '    . /etc/commonlog-sink-config.conf' \
+            '    ROTATESIZE="${SYSLOG_ROTATESIZE:-$ROTATESIZE}"' \
+            '    ROTATEGENS="${SYSLOG_ROTATEGENS:-$ROTATEGENS}"' \
+            '    BUFFERSIZE="${SYSLOG_BUFFERSIZE:-$BUFFERSIZE}"' \
+            'fi' \
+            >> ${D}${sysconfdir}/syslog-startup.conf
+    fi
+
 }
