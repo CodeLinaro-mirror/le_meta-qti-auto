@@ -20,6 +20,15 @@ FILES:${PN}-service = " \
 
 EXTRA_OEMAKE += "CFLAGS+="-flto""
 
+RDEPENDS:${PN}:remove = " \
+               perl-module-strict \
+               perl-module-getopt-long \
+               perl-module-vars \
+               perl-module-exporter \
+               perl-module-constant \
+               perl-module-overload \
+               perl-module-exporter-heavy"
+
 do_install:append() {
 
    install -m 0655  -d ${D}${sysconfdir}/lxc
