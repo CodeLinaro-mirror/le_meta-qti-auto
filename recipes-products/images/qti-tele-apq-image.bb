@@ -53,7 +53,6 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 CORE_IMAGE_EXTRA_INSTALL:remove:sa525m = "\
        qmi-shutdown-modem modem-shutdown \
        packagegroup-qti-security-test \
-       packagegroup-qti-telaf \
 "
 
 # Following packages will be enabled later
