@@ -5,6 +5,11 @@ MODULE_SIGN_FILE = "${KERNEL_PREBUILT_SCRIPTS_PATH}/scripts/sign-file"
 MODULE_SIGNING_KEY_PEM = "${KERNEL_PREBUILT_SCRIPTS_PATH}/certs/signing_key.pem"
 MODULE_SIGNING_KEY_X509 = "${KERNEL_PREBUILT_SCRIPTS_PATH}/certs/signing_key.x509"
 
+# sa510m: sign-file and certs are under dist/ not msm-kernel/
+MODULE_SIGN_FILE:sa510m = "${KERNEL_PREBUILT_PATH}/dist/sign-file"
+MODULE_SIGNING_KEY_PEM:sa510m = "${KERNEL_PREBUILT_PATH}/dist/signing_key.pem"
+MODULE_SIGNING_KEY_X509:sa510m = "${KERNEL_PREBUILT_PATH}/dist/signing_key.x509"
+
 # strip debug symbols and sign tech-pack module
 # Input - module path to sign
 sign_strip_module() {

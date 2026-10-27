@@ -295,9 +295,9 @@ fakeroot do_ramdisk_create() {
             cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtdblock.ko lib/modules/
             cp ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtd_blkdevs.ko lib/modules/
 
-            ${STRIP} --strip-debug lib/modules/mtd_blkdevs.ko
-            ${STRIP} --strip-debug lib/modules/mtdblock.ko
-            ${STRIP} --strip-debug lib/modules/gluebi.ko
+            do_strip_and_sign_dlkm lib/modules/mtd_blkdevs.ko
+            do_strip_and_sign_dlkm lib/modules/mtdblock.ko
+            do_strip_and_sign_dlkm lib/modules/gluebi.ko
         fi
 
         # Generate ramdisk image with fde dependencies

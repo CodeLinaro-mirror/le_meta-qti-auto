@@ -1,6 +1,8 @@
 
 DEPENDS += "squashfs-tools-native binutils-cross-arm"
 
+inherit qdlkm
+
 RECOVERYFS_SQUASHFS_IMAGE = "recoveryfs.squashfs"
 
 RECOVERYFS_SQUASHFS_UBI_IMAGE = "recoveryfs-squashfs.ubi"
@@ -31,9 +33,9 @@ do_copy_dlkm_to_recoveryfs_squashfs() {
     install -m 0755 ${DEPLOY_DIR_IMAGE}/kernel_modules/mtdblock.ko  -D ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtdblock.ko
     install -m 0755 ${DEPLOY_DIR_IMAGE}/kernel_modules/gluebi.ko  -D ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/gluebi.ko
 
-    ${STRIP} --strip-debug ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtd_blkdevs.ko
-    ${STRIP} --strip-debug ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtdblock.ko
-    ${STRIP} --strip-debug ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/gluebi.ko
+    do_strip_and_sign_dlkm ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtd_blkdevs.ko
+    do_strip_and_sign_dlkm ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/mtdblock.ko
+    do_strip_and_sign_dlkm ${IMAGE_ROOTFS}/lib/modules/${KERNEL_VERSION}/gluebi.ko
 }
 
 fakeroot do_create_recoveryfs_squashfs() {
