@@ -706,13 +706,14 @@ MountSystem () {
                 fi
             fi
 
-            if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null; then
+            if ${Bgrep} 'secure=1' /proc/cmdline > /dev/null && \
+            ! ${Bgrep} -ws "${RECOVERY_REBOOT_PARAM}" /proc/cmdline > /dev/null; then
                 VerifyRollback ${block_device}
                 if [ $? -ne ${STATUS_OK} ] ; then
                     return ${STATUS_ERR}
                 fi
             else
-                LOGD "Rollback index verification skipped for non secure device"
+                LOGD "Rollback index verification skipped for recovery boot or non secure device"
             fi
 
             # Setup dm-verity mapping for rootfs volume
